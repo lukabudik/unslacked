@@ -57,8 +57,9 @@ export function OpportunityTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sorted.map((o) => {
-              const isHero = o.id === "a-hero";
+            {sorted.map((o, i) => {
+              // Highlight the highest-priority opportunity (fit × hours), whatever its id.
+              const isHero = i === 0;
               return (
                 <TableRow key={o.id} className={cn(isHero && "bg-emerald-500/5")}>
                   <TableCell>

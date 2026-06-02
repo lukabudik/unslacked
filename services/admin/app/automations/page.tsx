@@ -38,8 +38,7 @@ export default async function AutomationsPage() {
           value={`${totalHours}h`}
           icon={<Clock className="h-3.5 w-3.5" />}
           accent="#10b981"
-          deltaPct={18.2}
-          previous="vs prev mo"
+          previous="if automated"
         />
         <StatCard
           label="Avg Duvo fit"
