@@ -61,12 +61,12 @@ reads from Neon (via `@unslacked/db`) and hits the backend for analysis.
 
 ## Services & packages
 
-| Path | What | Stack | Owner |
-|------|------|-------|-------|
-| `packages/db` | **Shared** schema, queries, fixtures, Slack SQL API | Drizzle, Neon | **Luka** |
-| `services/slack-mock` | Mock Slack UI + HTTP API | Next.js | **Luka** |
-| `services/backend` | Ingestion, routing graph, bot | Python | **Tom** _(to scaffold)_ |
-| `services/admin` | Dashboard + graph viz | Next.js | **Ondra** _(to scaffold)_ |
+| Path | What | Stack |
+|------|------|-------|
+| `packages/db` | **Shared** schema, queries, fixtures, Slack SQL API | Drizzle, Neon |
+| `services/slack-mock` | Mock Slack UI + HTTP API | Next.js |
+| `services/backend` | Ingestion, routing graph, bot | Python |
+| `services/admin` | Dashboard + graph viz | Next.js |
 
 Port convention: slack-mock `:3001`, admin `:3000`, backend `:8000`.
 
@@ -75,12 +75,11 @@ Port convention: slack-mock `:3001`, admin `:3000`, backend `:8000`.
 `packages/db` is the **single source of truth** for the project's Postgres schema
 (on Neon) and the query layer. Everything imports it (`@unslacked/db`).
 
-- `src/schema/slack.ts` — Slack domain (users, channels, messages, mentions…). Luka owns it.
-- `src/schema/analysis.ts` — routing/scoring output tables. **Tom owns it** — placeholder so the frontend has types; reshape freely.
+- `src/schema/slack.ts` — Slack domain (users, channels, messages, mentions…).
+- `src/schema/analysis.ts` — routing/scoring output tables.
 - `src/slack-api.sql` — the Slack-flavored read API for the backend. See `packages/db/README.md`.
 
-Everyone connects to the **same Neon database**. Change a table → `pnpm db:push`
-and tell the channel.
+Everyone connects to the **same Neon database**. Change a table → `pnpm db:push`.
 
 ## Getting started
 
@@ -93,8 +92,8 @@ pnpm dev                # slack-mock at http://localhost:3001
 ```
 
 slack-mock runs with zero config on in-memory fixtures. For the real shared DB,
-put the Neon `DATABASE_URL` (from **team Discord**) in both `packages/db/.env`
-and `services/slack-mock/.env`, then:
+put your Neon `DATABASE_URL` in both `packages/db/.env` and
+`services/slack-mock/.env`, then:
 
 ```bash
 pnpm db:push    # apply schema     pnpm db:seed   # load fixtures
@@ -106,20 +105,13 @@ pnpm db:api     # install Slack SQL read API for the backend
 ```
 unslacked/
 ├── packages/
-│   └── db/              # @unslacked/db — schema, queries, fixtures, Slack SQL API  (Luka)
+│   └── db/              # @unslacked/db — schema, queries, fixtures, Slack SQL API
 ├── services/
-│   ├── slack-mock/      # Next.js: mock Slack UI + HTTP API                         (Luka)
-│   ├── backend/         # Python: ingestion, routing graph, bot                     (Tom)
-│   └── admin/           # Next.js: dashboard + graph viz                            (Ondra)
+│   ├── slack-mock/      # Next.js: mock Slack UI + HTTP API
+│   ├── backend/         # Python: ingestion, routing graph, bot
+│   └── admin/           # Next.js: dashboard + graph viz
 ├── pnpm-workspace.yaml
 └── README.md
 ```
 
 pnpm workspace — shared code lives in `packages/*`, apps in `services/*`.
-
-## Submission checklist (hackathon)
-
-- [ ] Working end-to-end demo: ingest → graph → "who do I call?" answer
-- [ ] 3-min demo video; live 2-min demo + 1-min Q&A
-- [ ] Uses Duvo and/or Anthropic stack
-- [ ] _(Virality prize)_ LinkedIn/X post tagging @duvo.ai + @Anthropic, #PragueBuilderDay

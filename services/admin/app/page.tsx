@@ -168,29 +168,25 @@ export default async function OverviewPage() {
           </CardContent>
         </Card>
 
-        <div className="grid gap-5">
-          <Card>
-            <CardHeader>
-              <CardTitle>Messages by persona</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Share of volume across functions.
-              </p>
-            </CardHeader>
-            <CardContent>
-              <PersonaDonut data={personaVolume} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex-row items-center justify-between space-y-0">
-              <CardTitle>Top middlemen</CardTitle>
-              <CardLink href="/graph">Inspect</CardLink>
-            </CardHeader>
-            <CardContent>
-              <MiddlemenList middlemen={middlemen.slice(0, 5)} people={graph.nodes} />
-            </CardContent>
-          </Card>
-        </div>
+        <Card className="flex flex-col">
+          <CardHeader>
+            <CardTitle>Messages by persona</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Share of volume across functions.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <PersonaDonut data={personaVolume} />
+          </CardContent>
+          <div className="mx-4 border-t" />
+          <CardHeader className="flex-row items-center justify-between space-y-0">
+            <CardTitle>Top middlemen</CardTitle>
+            <CardLink href="/graph">Inspect</CardLink>
+          </CardHeader>
+          <CardContent className="flex-1">
+            <MiddlemenList middlemen={middlemen.slice(0, 5)} people={graph.nodes} />
+          </CardContent>
+        </Card>
       </div>
 
       {/* Supporting metrics */}
