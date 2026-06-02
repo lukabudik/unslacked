@@ -627,7 +627,7 @@ export interface SaveAutomationOpportunityInput {
   description: string;
   verb: string;
   object: string;
-  source: string;
+  source: string | null;
   frequency: number;
   distinctRequesters: number;
   distinctAssignees: number;
@@ -637,6 +637,9 @@ export interface SaveAutomationOpportunityInput {
   estHoursPerMonth: number;
   humanHandoffCount: number;
   duvoAgentBrief: string;
+  evidence?: string[];         // grounding: real message IDs backing this
+  topic?: string | null;       // matched responsibility topic
+  ownerUserId?: string | null; // likely domain owner
 }
 
 export async function saveAutomationOpportunity(
@@ -659,6 +662,9 @@ export async function saveAutomationOpportunity(
     estHoursPerMonth: input.estHoursPerMonth,
     humanHandoffCount: input.humanHandoffCount,
     duvoAgentBrief: input.duvoAgentBrief,
+    evidence: JSON.stringify(input.evidence ?? []),
+    topic: input.topic ?? null,
+    ownerUserId: input.ownerUserId ?? null,
   });
 }
 
@@ -684,7 +690,94 @@ export async function getAutomationOpportunities(): Promise<SaveAutomationOpport
     estHoursPerMonth: r.estHoursPerMonth,
     humanHandoffCount: r.humanHandoffCount,
     duvoAgentBrief: r.duvoAgentBrief,
+    evidence: JSON.parse(r.evidence) as string[],
+    topic: r.topic,
+    ownerUserId: r.ownerUserId,
   }));
+}
+
+// ─── Grounding helpers (turn LLM guesses into real corpus-backed numbers) ──────
+
+export interface TopicOwner {
+  topic: string;
+  keywords: string;
+  userId: string;
+  confidence: number;
+}
+
+/** Topic owners from responsibility_claims, highest-confidence first. */
+export async function getResponsibilityOwners(): Promise<TopicOwner[]> {
+  const d = requireDb();
+  return d
+    .select({
+      topic: responsibilityClaims.topic,
+      keywords: responsibilityClaims.keywords,
+      userId: responsibilityClaims.userId,
+      confidence: responsibilityClaims.confidence,
+    })
+    .from(responsibilityClaims)
+    .orderBy(desc(responsibilityClaims.confidence));
+}
+
+export interface TaskGrounding {
+  frequency: number;          // real count of messages matching the task terms
+  distinctRequesters: number; // distinct authors of those messages
+  requesterPersonas: string[]; // distinct departments of those authors
+  evidence: string[];         // sample message IDs (up to 8)
+}
+
+/**
+ * Ground an LLM-proposed task against the real corpus: count messages whose text
+ * matches any of the given terms, and collect real requesters/departments/evidence.
+ * Returns zeros when nothing matches (caller keeps the LLM estimate as fallback).
+ */
+export async function groundTask(terms: string[]): Promise<TaskGrounding> {
+  const d = requireDb();
+  const clean = [
+    ...new Set(
+      terms
+        .map((t) => t.toLowerCase().replace(/[^a-z0-9 ]/g, " ").trim())
+        .filter((t) => t.length >= 4),
+    ),
+  ].slice(0, 8);
+  if (clean.length === 0) {
+    return { frequency: 0, distinctRequesters: 0, requesterPersonas: [], evidence: [] };
+  }
+
+  const pattern = sql.join(
+    clean.map((t) => sql`lower(${messages.text}) like ${"%" + t + "%"}`),
+    sql` or `,
+  );
+  const rows = await d
+    .select({ id: messages.id, userId: messages.userId })
+    .from(messages)
+    .where(sql`(${pattern})`)
+    .limit(2000);
+
+  if (rows.length === 0) {
+    return { frequency: 0, distinctRequesters: 0, requesterPersonas: [], evidence: [] };
+  }
+
+  const requesterIds = [...new Set(rows.map((r) => r.userId).filter(Boolean) as string[])];
+  const deptRows = requesterIds.length
+    ? await d
+        .select({ id: users.id, department: users.department, isBot: users.isBot })
+        .from(users)
+        .where(inArray(users.id, requesterIds))
+    : [];
+  const personas = [
+    ...new Set(
+      deptRows.filter((u) => !u.isBot).map((u) => u.department).filter(Boolean) as string[],
+    ),
+  ];
+  const humanIds = new Set(deptRows.filter((u) => !u.isBot).map((u) => u.id));
+
+  return {
+    frequency: rows.length,
+    distinctRequesters: requesterIds.filter((id) => humanIds.has(id)).length,
+    requesterPersonas: personas,
+    evidence: rows.slice(0, 8).map((r) => r.id),
+  };
 }
 
 // ─── Message corpus for automation mining ────────────────────────────────────

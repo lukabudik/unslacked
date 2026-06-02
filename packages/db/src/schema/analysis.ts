@@ -149,7 +149,7 @@ export const automationOpportunities = pgTable("automation_opportunities", {
   description: text("description").notNull(),
   verb: text("verb").notNull(),
   object: text("object").notNull(),
-  source: text("source").notNull(),
+  source: text("source"), // nullable — not every task has a clear single source
   frequency: integer("frequency").notNull().default(1),
   distinctRequesters: integer("distinct_requesters").notNull().default(1),
   distinctAssignees: integer("distinct_assignees").notNull().default(1),
@@ -159,6 +159,12 @@ export const automationOpportunities = pgTable("automation_opportunities", {
   estHoursPerMonth: doublePrecision("est_hours_per_month").notNull().default(0),
   humanHandoffCount: integer("human_handoff_count").notNull().default(1),
   duvoAgentBrief: text("duvo_agent_brief").notNull().default(""),
+  // Grounding: real message IDs backing this opportunity + the likely domain
+  // owner (matched from responsibility_claims). frequency / distinctRequesters /
+  // requesterPersonas are recomputed from the actual corpus, not LLM-guessed.
+  evidence: text("evidence").notNull().default("[]"),                    // JSON array of message IDs
+  topic: text("topic"),                                                  // matched responsibility topic
+  ownerUserId: text("owner_user_id").references(() => users.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

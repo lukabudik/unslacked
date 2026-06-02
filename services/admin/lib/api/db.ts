@@ -570,7 +570,7 @@ function build(
             description: r.description,
             verb: r.verb,
             object: r.object,
-            source: r.source,
+            source: r.source ?? "",
             frequency: r.frequency,
             distinctRequesters: r.distinctRequesters,
             distinctAssignees: r.distinctAssignees,
