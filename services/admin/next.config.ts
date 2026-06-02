@@ -1,10 +1,11 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // This service is self-contained; pin the root so Next doesn't pick up a
-  // parent lockfile when inferring the workspace root.
+  // Part of the pnpm monorepo: dependencies are hoisted to the repo root, so
+  // point Turbopack at the workspace root rather than this package directory.
   turbopack: {
-    root: __dirname,
+    root: path.resolve(__dirname, "../.."),
   },
 };
 

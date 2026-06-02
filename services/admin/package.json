@@ -1,5 +1,5 @@
 {
-  "name": "admin",
+  "name": "@unslacked/admin",
   "version": "0.1.0",
   "private": true,
   "scripts": {
