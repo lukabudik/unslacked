@@ -453,17 +453,20 @@ export function automations(): AutomationOpportunity[] {
 }
 
 export function activityTimeline(): ActivityPoint[] {
-  // 12 weekly buckets of org events. Routing events climb as the model learns;
+  // 30 daily buckets of org events. Routing events climb as the model learns;
   // group-chat creation drifts down as routing reduces ad-hoc channels.
-  const weeks = 12;
+  const days = 30;
   const out: ActivityPoint[] = [];
   let routing = 6;
   let chats = 14;
-  for (let i = 0; i < weeks; i++) {
+  const now = Date.now();
+  for (let i = days - 1; i >= 0; i--) {
     routing = Math.round(routing + rnd(-1, 4));
     chats = Math.round(chats + rnd(-3, 1.5));
+    const d = new Date(now - i * 86_400_000);
     out.push({
-      label: `W${i + 1}`,
+      date: d.toISOString().slice(0, 10),
+      label: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
       routingEvents: Math.max(3, routing),
       groupChats: Math.max(2, chats),
       automationRuns: rndInt(2, 11),

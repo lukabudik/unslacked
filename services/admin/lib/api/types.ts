@@ -118,9 +118,10 @@ export interface AutomationOpportunity {
   duvoAgentBrief: string;        // pre-generated NL brief for Duvo
 }
 
-// ── Activity timeline (org events per bucket) ───────────────
+// ── Activity timeline (org events per day) ──────────────────
 export interface ActivityPoint {
-  label: string;          // bucket label, e.g. "W1"
+  date: string;           // ISO date (yyyy-mm-dd) for the bucket
+  label: string;          // display label, e.g. "Jun 2"
   routingEvents: number;  // pre-emptive routing suggestions fired
   groupChats: number;     // new group chats / channels created
   automationRuns: number; // automation opportunities surfaced / run

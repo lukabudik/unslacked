@@ -139,8 +139,8 @@ export default async function OverviewPage() {
           <CardHeader>
             <CardTitle>Communication activity</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Routing events, new group chats, and automation runs per week.
-              Toggle a series to filter.
+              Routing events, new group chats, and automation runs per day.
+              Pick a period or toggle a series.
             </p>
           </CardHeader>
           <CardContent>

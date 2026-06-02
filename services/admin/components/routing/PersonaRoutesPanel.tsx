@@ -1,13 +1,22 @@
 "use client";
 
 import * as React from "react";
-import { Search } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, CornerDownRight, Search } from "lucide-react";
 import type { PersonaPairRoute } from "@/lib/api/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { PersonaRouteCard } from "./PersonaRouteCard";
+import { Progress } from "@/components/ui/progress";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { PersonaBadge } from "@/components/persona-badge";
 
-const PAGE = 12;
+const PAGE_SIZE = 25;
 
 export function PersonaRoutesPanel({
   routes,
@@ -17,7 +26,7 @@ export function PersonaRoutesPanel({
   names: Record<string, string>;
 }) {
   const [q, setQ] = React.useState("");
-  const [limit, setLimit] = React.useState(PAGE);
+  const [page, setPage] = React.useState(0);
 
   const filtered = React.useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -30,49 +39,114 @@ export function PersonaRoutesPanel({
     );
   }, [routes, q, names]);
 
-  const visible = filtered.slice(0, limit);
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const current = Math.min(page, pageCount - 1);
+  const start = current * PAGE_SIZE;
+  const rows = filtered.slice(start, start + PAGE_SIZE);
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={q}
             onChange={(e) => {
               setQ(e.target.value);
-              setLimit(PAGE);
+              setPage(0);
             }}
             placeholder="Search routes by team, owner, or connector…"
             className="h-8 pl-8"
           />
         </div>
-        <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-          {filtered.length} route{filtered.length === 1 ? "" : "s"}
+        <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+          {filtered.length.toLocaleString()} route{filtered.length === 1 ? "" : "s"}
         </span>
       </div>
 
-      {visible.length > 0 ? (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {visible.map((r, i) => (
-            <PersonaRouteCard
-              key={`${r.fromPersona}-${r.toPersonId}-${i}`}
-              route={r}
-              viaName={names[r.viaMiddlemanId] ?? "Unknown"}
-            />
-          ))}
-        </div>
-      ) : (
-        <p className="py-6 text-center text-sm text-muted-foreground">
-          No routes match “{q}”.
-        </p>
-      )}
+      <div className="rounded-xl border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>From</TableHead>
+              <TableHead>Real owner</TableHead>
+              <TableHead>Via connector</TableHead>
+              <TableHead className="text-right">Seen</TableHead>
+              <TableHead className="w-[150px]">Confidence</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.length > 0 ? (
+              rows.map((r, i) => (
+                <TableRow key={`${r.fromPersona}-${r.toPersonId}-${start + i}`}>
+                  <TableCell>
+                    <div className="flex items-center gap-1.5">
+                      <PersonaBadge persona={r.fromPersona} />
+                      <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium">{r.toPersonName}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    <span className="inline-flex items-center gap-1">
+                      <CornerDownRight className="h-3.5 w-3.5" />
+                      {names[r.viaMiddlemanId] ?? "Unknown"}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {r.occurrences}×
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Progress value={r.confidence * 100} className="h-1.5" />
+                      <span className="w-9 text-right text-xs tabular-nums text-muted-foreground">
+                        {(r.confidence * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} className="py-8 text-center text-sm text-muted-foreground">
+                  No routes match “{q}”.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
-      {limit < filtered.length ? (
-        <div className="flex justify-center">
-          <Button variant="outline" size="sm" onClick={() => setLimit((l) => l + PAGE)}>
-            Show more ({filtered.length - limit} more)
-          </Button>
+      {filtered.length > PAGE_SIZE ? (
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span className="tabular-nums">
+            {start + 1}–{Math.min(start + PAGE_SIZE, filtered.length)} of{" "}
+            {filtered.length.toLocaleString()}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 gap-1"
+              disabled={current === 0}
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+              Prev
+            </Button>
+            <span className="px-1 tabular-nums">
+              {current + 1} / {pageCount}
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 gap-1"
+              disabled={current >= pageCount - 1}
+              onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+            >
+              Next
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          </div>
         </div>
       ) : null}
     </div>

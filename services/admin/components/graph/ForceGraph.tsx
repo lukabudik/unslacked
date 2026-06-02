@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
+import { forceCollide, forceX, forceY } from "d3-force";
 import type { CommsGraph, Persona } from "@/lib/api/types";
 import { personaColor, betweennessColor } from "@/lib/personas";
 
@@ -126,28 +127,6 @@ function convexHull(points: Array<[number, number]>): Array<[number, number]> {
   return lower.concat(upper);
 }
 
-// d3 force that pulls each node toward its cluster's anchor point so teams
-// occupy distinct regions instead of collapsing into one blob.
-function makeClusterForce(
-  centers: Map<string, { x: number; y: number }>,
-  strength: number
-) {
-  let nodes: GNode[] = [];
-  const force = (alpha: number) => {
-    for (const n of nodes) {
-      if (!n.clusterId || n.x == null || n.y == null) continue;
-      const c = centers.get(n.clusterId);
-      if (!c) continue;
-      n.vx = (n.vx ?? 0) + (c.x - n.x) * strength * alpha;
-      n.vy = (n.vy ?? 0) + (c.y - n.y) * strength * alpha;
-    }
-  };
-  (force as unknown as { initialize: (n: GNode[]) => void }).initialize = (n) => {
-    nodes = n;
-  };
-  return force;
-}
-
 export function ForceGraph({
   graph,
   view = "people",
@@ -165,7 +144,12 @@ export function ForceGraph({
   interactive = true,
 }: ForceGraphProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const fgRef = React.useRef<FGInstance | null>(null);
+  // callback ref → state so the force-config effect runs once the dynamically
+  // imported ForceGraph2D instance is actually mounted (not before).
+  const [fg, setFg] = React.useState<FGInstance | null>(null);
+  const setFgRef = React.useCallback((inst: unknown) => {
+    setFg((inst as FGInstance) ?? null);
+  }, []);
   const [width, setWidth] = React.useState(800);
 
   React.useEffect(() => {
@@ -191,7 +175,8 @@ export function ForceGraph({
   // Anchor points for each cluster, arranged on a circle around the origin.
   const centers = React.useMemo(() => {
     const m = new Map<string, { x: number; y: number }>();
-    const R = Math.max(140, Math.min(width, height) * 0.36);
+    // wider ring as more teams appear, so clusters don't crowd each other
+    const R = Math.max(220, graph.clusters.length * 70, Math.min(width, height) * 0.42);
     graph.clusters.forEach((c, i) => {
       const a = (i / graph.clusters.length) * Math.PI * 2 - Math.PI / 2;
       m.set(c.id, { x: Math.cos(a) * R, y: Math.sin(a) * R });
@@ -317,23 +302,34 @@ export function ForceGraph({
     [maxVol]
   );
 
-  // Tune the simulation for spacing + team separation.
+  // Tune the simulation for spacing + clear team separation. forceCollide stops
+  // nodes from piling up; forceX/forceY pull each node toward its team's anchor.
   React.useEffect(() => {
-    const fg = fgRef.current;
     if (!fg) return;
+    const collide = forceCollide<GNode>()
+      .radius((n) => radius(n) + (view === "teams" ? 16 : 9))
+      .iterations(3);
     if (view === "teams") {
-      fg.d3Force("charge")?.strength?.(-900);
-      fg.d3Force("link")?.distance?.(190);
-      fg.d3Force("cluster", makeClusterForce(centers, 0));
+      fg.d3Force("charge")?.strength?.(-1400);
+      fg.d3Force("link")?.distance?.(240);
+      fg.d3Force("link")?.strength?.(0.5);
+      fg.d3Force("collide", collide);
+      fg.d3Force("x", forceX<GNode>(0).strength(0.04));
+      fg.d3Force("y", forceY<GNode>(0).strength(0.04));
     } else {
-      fg.d3Force("charge")?.strength?.(-220);
-      fg.d3Force("link")?.distance?.((l: GLink) => 36 + (1 - l.weight) * 90);
-      fg.d3Force("cluster", makeClusterForce(centers, groupByTeam ? 0.22 : 0));
+      fg.d3Force("charge")?.strength?.(-260);
+      // weak links so team anchoring wins over the dense cross-team edges
+      fg.d3Force("link")?.distance?.((l: GLink) => 24 + (1 - l.weight) * 50);
+      fg.d3Force("link")?.strength?.(groupByTeam ? 0.04 : 0.6);
+      fg.d3Force("collide", collide);
+      const s = groupByTeam ? 0.62 : 0.04;
+      fg.d3Force("x", forceX<GNode>((n) => centers.get(n.clusterId ?? "")?.x ?? 0).strength(s));
+      fg.d3Force("y", forceY<GNode>((n) => centers.get(n.clusterId ?? "")?.y ?? 0).strength(s));
     }
     fg.d3ReheatSimulation();
-    const t = setTimeout(() => fg.zoomToFit(500, 60), 400);
+    const t = setTimeout(() => fg.zoomToFit(500, 70), 600);
     return () => clearTimeout(t);
-  }, [view, groupByTeam, centers, data]);
+  }, [fg, view, groupByTeam, centers, data, radius]);
 
   const clusterLabel = React.useMemo(
     () => new Map(graph.clusters.map((c) => [c.id, c.label])),
@@ -353,18 +349,25 @@ export function ForceGraph({
   return (
     <div
       ref={containerRef}
-      className="w-full overflow-hidden rounded-lg bg-muted/20"
-      style={{ height }}
+      className="w-full overflow-hidden rounded-lg"
+      style={{
+        height,
+        backgroundColor: "var(--card)",
+        backgroundImage:
+          "radial-gradient(circle, color-mix(in oklch, var(--foreground) 13%, transparent) 1px, transparent 1px)",
+        backgroundSize: "18px 18px",
+        backgroundPosition: "-9px -9px",
+      }}
     >
       <ForceGraph2D
-        ref={fgRef as never}
+        ref={setFgRef as never}
         width={width}
         height={height}
         graphData={data}
-        cooldownTicks={interactive ? 200 : 120}
-        warmupTicks={20}
-        d3VelocityDecay={0.32}
-        onEngineStop={() => fgRef.current?.zoomToFit(500, 60)}
+        cooldownTicks={interactive ? 220 : 140}
+        warmupTicks={30}
+        d3VelocityDecay={0.3}
+        onEngineStop={() => fg?.zoomToFit(500, 70)}
         enableZoomInteraction={interactive}
         enablePanInteraction={interactive}
         enableNodeDrag={interactive}

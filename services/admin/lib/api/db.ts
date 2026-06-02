@@ -370,17 +370,17 @@ function build(
     };
   });
 
-  // ── activity timeline (hourly buckets across the data window) ──
+  // ── activity timeline (daily buckets across the data window) ──
+  const DAY = 86_400_000;
+  const dayKey = (t: number) => Math.floor(t / DAY) * DAY; // UTC midnight ms
   const tsList = messagesRaw.map((m) => +new Date(m.ts ?? 0)).filter((t) => t > 0);
-  const minTs = Math.min(...tsList);
-  const maxTs = Math.max(...tsList);
-  const HOUR = 3_600_000;
+  const minDay = dayKey(Math.min(...tsList));
+  const maxDay = dayKey(Math.max(...tsList));
   const buckets = new Map<number, { msgs: number; mentions: number; threads: number }>();
-  const bkey = (t: number) => Math.floor((t - minTs) / HOUR);
   for (const m of messagesRaw) {
     const t = +new Date(m.ts ?? 0);
     if (!t) continue;
-    const k = bkey(t);
+    const k = dayKey(t);
     const b = buckets.get(k) ?? { msgs: 0, mentions: 0, threads: 0 };
     b.msgs += 1;
     if (m.threadTs) b.threads += 1;
@@ -389,21 +389,21 @@ function build(
   for (const mn of mentionsRaw) {
     const msg = mn.messageId ? msgById.get(mn.messageId) : undefined;
     if (!msg?.ts) continue;
-    const k = bkey(+new Date(msg.ts));
-    const b = buckets.get(k);
+    const b = buckets.get(dayKey(+new Date(msg.ts)));
     if (b) b.mentions += 1;
   }
-  const span = Math.max(1, Math.ceil((maxTs - minTs) / HOUR));
-  const activity: ActivityPoint[] = Array.from({ length: span + 1 }, (_, k) => {
-    const b = buckets.get(k) ?? { msgs: 0, mentions: 0, threads: 0 };
-    const hour = new Date(minTs + k * HOUR).getHours();
-    return {
-      label: `${String(hour).padStart(2, "0")}:00`,
+  const activity: ActivityPoint[] = [];
+  for (let d = minDay; d <= maxDay; d += DAY) {
+    const b = buckets.get(d) ?? { msgs: 0, mentions: 0, threads: 0 };
+    const date = new Date(d);
+    activity.push({
+      date: date.toISOString().slice(0, 10),
+      label: date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
       routingEvents: b.mentions,
       groupChats: b.threads,
       automationRuns: Math.round(b.msgs / 3),
-    };
-  });
+    });
+  }
 
   // ── automations (curated; no source table for these yet) ───
   const automations = curatedAutomations();
