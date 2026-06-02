@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Bot, Check, Clipboard, Sparkles } from "lucide-react";
+import { Bot, Check, ExternalLink, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import type { AutomationOpportunity } from "@/lib/api/types";
 import {
@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -28,27 +28,43 @@ export function DuvoProvisionDialog({
   onOpenChange: (v: boolean) => void;
 }) {
   const [brief, setBrief] = React.useState("");
-  const [created, setCreated] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [agentUrl, setAgentUrl] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (opportunity) {
       setBrief(opportunity.duvoAgentBrief);
-      setCreated(false);
+      setAgentUrl(null);
     }
   }, [opportunity]);
 
   async function handleCreate() {
-    // TODO: real Duvo provisioning — confirm live endpoint with the Duvo team
-    // on-site. For now we hand the operator a ready-to-paste agent brief.
+    if (!opportunity) return;
+    setLoading(true);
     try {
-      await navigator.clipboard.writeText(brief);
-    } catch {
-      // clipboard can fail on insecure contexts; the toast still guides the user
+      const res = await fetch("/api/duvo/agents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: opportunity.description, brief }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error ?? `HTTP ${res.status}`);
+      }
+      const url: string | undefined = data?.agent?.url ?? (data?.agent?.id
+        ? `https://app.duvo.ai/agent/${data.agent.id}`
+        : undefined);
+      setAgentUrl(url ?? null);
+      toast.success("Duvo agent created", {
+        description: url ? "Open it in Duvo to review and activate." : "Agent provisioned successfully.",
+      });
+    } catch (err) {
+      toast.error("Failed to create agent", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      });
+    } finally {
+      setLoading(false);
     }
-    setCreated(true);
-    toast.success("Agent brief ready", {
-      description: "Copied to clipboard — paste into Duvo to create the agent.",
-    });
   }
 
   if (!opportunity) return null;
@@ -126,13 +142,29 @@ export function DuvoProvisionDialog({
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
             Cancel
           </Button>
-          <Button onClick={handleCreate} className="gap-1.5">
-            {created ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}
-            {created ? "Brief copied" : "Create Duvo Agent"}
-          </Button>
+          {agentUrl ? (
+            <a
+              href={agentUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonVariants({ variant: "default" }) + " gap-1.5"}
+            >
+              <ExternalLink className="h-4 w-4" />
+              Open in Duvo
+            </a>
+          ) : (
+            <Button onClick={handleCreate} disabled={loading} className="gap-1.5">
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Check className="h-4 w-4" />
+              )}
+              {loading ? "Creating…" : "Create Duvo Agent"}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
