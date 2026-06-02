@@ -25,11 +25,13 @@ export interface StoreUser {
   email: string | null;
   title: string | null;
   department: string | null;
+  team: string | null;
   avatarColor: string;
   statusEmoji: string | null;
   statusText: string | null;
   timezone: string | null;
   isBot: boolean;
+  isActive: boolean;
 }
 
 export interface StoreChannel {
@@ -90,11 +92,13 @@ async function _listUsers(): Promise<StoreUser[]> {
     email: u.email || null,
     title: u.title,
     department: u.department,
+    team: u.team ?? null,
     avatarColor: u.avatarColor,
     statusEmoji: u.statusEmoji ?? null,
     statusText: u.statusText ?? null,
     timezone: u.timezone ?? null,
     isBot: Boolean(u.isBot),
+    isActive: u.isActive ?? true,
   }));
 }
 
@@ -351,6 +355,28 @@ export async function toggleReaction(messageId: string, userId: string, emoji: s
   }
   await addReaction(messageId, userId, emoji);
   return "added";
+}
+
+/**
+ * Find-or-create a DM (im/mpim) for an exact member set. Deterministic id so
+ * repeated calls return the same channel. Used for the assistant DM and for
+ * auto-forwarding a message to the right person.
+ */
+export async function ensureDm(memberIds: string[]): Promise<string> {
+  const ids = [...new Set(memberIds)].sort();
+  const kind = (ids.length > 2 ? "mpim" : "im") as "im" | "mpim";
+  const id = "D_DM_" + ids.map((x) => x.replace(/^U_/, "")).join("_").slice(0, 120);
+  if (db) {
+    await db.insert(channelsTable).values({ id, name: id, kind }).onConflictDoNothing();
+    await db
+      .insert(channelMembers)
+      .values(ids.map((uid) => ({ channelId: id, userId: uid })))
+      .onConflictDoNothing();
+  } else if (!fx.channels.find((c) => c.id === id)) {
+    fx.channels.push({ id, name: id, kind, members: ids });
+  }
+  refCache.delete("channels"); // surface the new DM in listChannels right away
+  return id;
 }
 
 // ---------------------------------------------------------------------------

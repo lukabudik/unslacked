@@ -25,11 +25,13 @@ export interface FixtureUser {
   email: string;
   title: string;
   department: string;
+  team?: string;
   avatarColor: string;
   statusEmoji?: string;
   statusText?: string;
   timezone?: string;
   isBot?: boolean;
+  isActive?: boolean;
 }
 
 export interface FixtureChannel {
