@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addReaction } from "@/lib/store";
+import { addReaction } from "@unslacked/db";
 
 // Mirrors https://api.slack.com/methods/reactions.add
 // Body: { timestamp (message id), emoji (unicode), user? }. Slack uses `name`

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getHistory } from "@/lib/store";
+import { getHistory } from "@unslacked/db";
 import { toSlackMessage } from "@/lib/slackShape";
 
 // Mirrors https://api.slack.com/methods/conversations.history

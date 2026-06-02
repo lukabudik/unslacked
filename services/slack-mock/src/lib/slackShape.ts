@@ -1,5 +1,5 @@
 /** Map our store shapes into Slack Web API response objects. */
-import type { StoreUser, StoreChannel, StoreMessage } from "./store";
+import type { StoreUser, StoreChannel, StoreMessage } from "@unslacked/db";
 
 export function toSlackUser(u: StoreUser) {
   return {

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import type { StoreUser } from "@/lib/store";
+import type { StoreUser } from "@unslacked/db";
 import { initials } from "./utils";
 
 const SIZES = {

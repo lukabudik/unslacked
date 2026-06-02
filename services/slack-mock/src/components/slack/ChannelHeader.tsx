@@ -1,4 +1,4 @@
-import type { StoreChannel, StoreUser } from "@/lib/store";
+import type { StoreChannel, StoreUser } from "@unslacked/db";
 import { UserAvatar } from "./UserAvatar";
 import { HashIcon, LockIcon, StarIcon, HeadphonesIcon, UsersIcon, ChevronIcon } from "./icons";
 import { channelLabel, dmCounterpart, isOnline } from "./utils";

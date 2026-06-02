@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { listUsers } from "@/lib/store";
+import { listUsers } from "@unslacked/db";
 import { toSlackUser } from "@/lib/slackShape";
 
 // Mirrors https://api.slack.com/methods/users.list

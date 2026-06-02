@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { listUsers, listChannels, getHistory, getReactions } from "@/lib/store";
+import { listUsers, listChannels, getHistory, getReactions } from "@unslacked/db";
 import { ChannelHeader, ChannelTopicBar } from "@/components/slack/ChannelHeader";
 import { MessageList } from "@/components/slack/MessageList";
 import { Composer } from "@/components/slack/Composer";

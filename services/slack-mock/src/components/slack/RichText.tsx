@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import type { StoreUser } from "@/lib/store";
+import type { StoreUser } from "@unslacked/db";
 import { displayName } from "./utils";
 
 /**

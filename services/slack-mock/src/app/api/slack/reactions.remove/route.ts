@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { removeReaction } from "@/lib/store";
+import { removeReaction } from "@unslacked/db";
 
 // Mirrors https://api.slack.com/methods/reactions.remove
 export async function POST(req: NextRequest) {

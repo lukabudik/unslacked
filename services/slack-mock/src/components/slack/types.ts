@@ -1,4 +1,4 @@
-import type { StoreUser, StoreChannel, StoreMessage, ReactionGroup } from "@/lib/store";
+import type { StoreUser, StoreChannel, StoreMessage, ReactionGroup } from "@unslacked/db";
 
 export type { StoreUser, StoreChannel, StoreMessage, ReactionGroup };
 

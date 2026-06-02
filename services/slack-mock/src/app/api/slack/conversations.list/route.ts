@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { listChannels } from "@/lib/store";
+import { listChannels } from "@unslacked/db";
 import { toSlackChannel } from "@/lib/slackShape";
 
 // Mirrors https://api.slack.com/methods/conversations.list

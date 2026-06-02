@@ -9,7 +9,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
 import * as schema from "./schema";
 import * as fx from "./fixtures";
-import { parseMentions } from "../lib/mentions";
+import { parseMentions } from "./mentions";
 
 const url = process.env.DATABASE_URL;
 if (!url) {

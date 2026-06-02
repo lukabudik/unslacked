@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { getReplies, getReactions } from "@/lib/store";
-import type { StoreUser } from "@/lib/store";
+import { getReplies, getReactions } from "@unslacked/db";
+import type { StoreUser } from "@unslacked/db";
 import { Message } from "./Message";
 import { Composer } from "./Composer";
 

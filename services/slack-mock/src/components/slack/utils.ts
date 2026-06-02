@@ -1,4 +1,4 @@
-import type { StoreUser, StoreChannel } from "@/lib/store";
+import type { StoreUser, StoreChannel } from "@unslacked/db";
 import { VIEWER_ID } from "@/lib/viewer";
 
 /** Two-letter initials for an avatar fallback. */

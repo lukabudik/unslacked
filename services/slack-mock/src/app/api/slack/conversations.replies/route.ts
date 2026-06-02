@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getReplies } from "@/lib/store";
+import { getReplies } from "@unslacked/db";
 import { toSlackMessage } from "@/lib/slackShape";
 
 // Mirrors https://api.slack.com/methods/conversations.replies

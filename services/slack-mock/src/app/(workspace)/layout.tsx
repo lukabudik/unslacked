@@ -1,4 +1,4 @@
-import { listUsers, listChannels } from "@/lib/store";
+import { listUsers, listChannels } from "@unslacked/db";
 import { VIEWER_ID } from "@/lib/viewer";
 import { IconRail } from "@/components/slack/IconRail";
 import { Sidebar } from "@/components/slack/Sidebar";

@@ -1,4 +1,4 @@
-import type { StoreMessage, StoreUser, ReactionGroup } from "@/lib/store";
+import type { StoreMessage, StoreUser, ReactionGroup } from "@unslacked/db";
 import { Message, type ThreadMeta } from "./Message";
 import { dayKey, formatDayDivider, shouldGroup } from "./utils";
 

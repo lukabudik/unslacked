@@ -1,4 +1,4 @@
-import type { StoreUser } from "@/lib/store";
+import type { StoreUser } from "@unslacked/db";
 import { UserAvatar } from "./UserAvatar";
 import { cn } from "@/lib/utils";
 

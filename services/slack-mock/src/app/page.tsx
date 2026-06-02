@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { listChannels } from "@/lib/store";
+import { listChannels } from "@unslacked/db";
 
 /** Land on the first non-archived public channel, like opening Slack. */
 export default async function Home() {

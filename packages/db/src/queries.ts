@@ -1,12 +1,12 @@
 /**
- * Read layer for the slack-mock. Reads from Neon when DATABASE_URL is set,
- * otherwise serves the in-memory fixtures so the app/API run with zero setup.
+ * Shared read/write query layer over the Slack data. Reads from Neon when
+ * DATABASE_URL is set, otherwise serves the in-memory fixtures so consumers run
+ * with zero setup. Returns plain JS shapes; callers wrap into Slack envelopes.
  *
- * Everything here returns plain JS shapes; the API routes wrap them into
- * Slack-Web-API-style envelopes (see app/api/slack/*).
+ * Lives in @unslacked/db so every service (slack-mock, admin) shares it.
  */
 import { and, asc, eq } from "drizzle-orm";
-import { db } from "@/db/client";
+import { db } from "./client";
 import {
   users as usersTable,
   channels as channelsTable,
@@ -14,8 +14,8 @@ import {
   messages as messagesTable,
   mentions as mentionsTable,
   reactions as reactionsTable,
-} from "@/db/schema";
-import * as fx from "@/db/fixtures";
+} from "./schema";
+import * as fx from "./fixtures";
 import { parseMentions } from "./mentions";
 
 export interface StoreUser {

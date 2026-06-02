@@ -1,74 +1,53 @@
 # slack-mock
 
-Next.js app that **(a)** fakes a Slack workspace (UI + Slack-Web-API-shaped
-endpoints) and **(b)** owns the canonical Neon/Drizzle schema for the whole
-project. Runs on **port 3001**.
+Next.js app that fakes a Slack workspace — a polished Slack-clone UI plus
+Slack-Web-API-shaped HTTP endpoints. Runs on **port 3001**.
+
+The data layer (schema, queries, fixtures, seed, Slack SQL API) lives in the
+shared **[`@unslacked/db`](../../packages/db)** package, not here.
 
 Why a mock instead of real Slack: the real Slack API is slow to get approved and
-painful to seed. The mock lets us simulate any workspace instantly. Because the
-API routes mirror Slack's real shapes, Tom's backend can be repointed at real
-Slack later with no model changes.
+painful to seed. The mock lets us simulate any workspace instantly, and the
+shapes mirror Slack so the backend can repoint at real Slack later.
 
 ## Run it
 
 ```bash
-pnpm install
-pnpm dev            # http://localhost:3001
+pnpm install          # from the repo root (workspace)
+pnpm dev              # http://localhost:3001
 ```
 
-Works with **no database** — it serves in-memory fixtures (`src/db/fixtures.ts`)
-until you set `DATABASE_URL`.
+Works with **no database** — `@unslacked/db` falls back to in-memory fixtures
+until `DATABASE_URL` is set. For the real shared DB, put the Neon URL in
+`services/slack-mock/.env` (and `packages/db/.env`), then from the root:
+`pnpm db:push && pnpm db:seed`.
 
-## Wire up Neon
+## What's in this package
 
-```bash
-cp .env.example .env     # paste your Neon pooled connection string
-pnpm db:push             # apply schema to the database
-pnpm db:seed             # load the fixture workspace
-```
+- **UI** — `src/app` (App Router) + `src/components/slack/*`: sidebar (channels +
+  DMs), channel/DM view, working threads (`?thread=`), reactions, and a composer
+  that posts for real. Server components read `@unslacked/db`; one client
+  component (`Composer`) handles Enter-to-send.
+- **HTTP API** — `src/app/api/slack/*` (below). For the bot/posting + anyone who
+  wants HTTP. Bulk analysis reads should use the **SQL API** in `@unslacked/db`.
+- **Theme** — shadcn (Tailwind v4), aubergine Slack palette.
 
-Once `DATABASE_URL` is set, the API + UI read from Neon instead of fixtures.
+## HTTP API (`/api/slack/*`, JSON, CORS-open)
 
-## The schema (read this if you touch data)
-
-`src/db/schema/` is the **single source of truth** for the project's database.
-
-| File | Owner | Tables |
-|------|-------|--------|
-| `slack.ts` | Luka | `users`, `channels`, `channel_members`, `messages`, `mentions`, `reactions` |
-| `analysis.ts` | Tom (proposed) | `routing_events`, `router_scores` |
-
-`mentions` is denormalized on write (`<@U_X>` parsed out of message text) so the
-backend can build the routing graph without re-parsing. Change tables freely,
-but flag it in the channel — backend + admin both depend on these.
-
-## API (what the backend calls)
-
-All under `/api/slack/*`, mirroring real Slack methods. JSON, CORS-open for dev.
-
-| Endpoint | Slack method | Notes |
-|----------|--------------|-------|
-| `GET /api/slack/users.list` | `users.list` | `{ ok, members[] }` |
-| `GET /api/slack/conversations.list` | `conversations.list` | channels + DMs |
-| `GET /api/slack/conversations.history?channel=C_X` | `conversations.history` | top-level messages |
-| `GET /api/slack/conversations.replies?channel=C_X&ts=M_001` | `conversations.replies` | full thread |
-
-Mentions are encoded Slack-style in `text` (`<@U_CAROL>`) — parse them the same
-way you would against real Slack (`src/lib/mentions.ts` has the regex).
+| Endpoint | Slack method |
+|----------|--------------|
+| `GET  /api/slack/users.list` | `users.list` |
+| `GET  /api/slack/conversations.list` | `conversations.list` (channels + DMs) |
+| `GET  /api/slack/conversations.history?channel=C_X` | `conversations.history` |
+| `GET  /api/slack/conversations.replies?channel=C_X&ts=M_001` | `conversations.replies` |
+| `POST /api/slack/chat.postMessage` | `chat.postMessage` `{channel,text,thread_ts?,user?}` |
+| `POST /api/slack/reactions.add` / `reactions.remove` | `reactions.*` `{timestamp,emoji,user?}` |
 
 ## The fixture workspace
 
-"Nimbus Logistics", ~11 people. **Bob** (eng lead) and **Frank** (head of ops)
-are deliberate *routers* — everyone funnels questions to them and they mostly
-reply "ask @X". That's the pattern the backend should light up on.
+"Nimbus Logistics", ~31 people. A few deliberate **router** personas (Frank in
+Ops, Bob in Eng, Grace in Product) deflect questions onward — the pattern the
+backend should light up on. Mentions are encoded as `<@U_ID>` in message text.
 
-## Scripts
-
-| Command | Does |
-|---------|------|
-| `pnpm dev` | dev server on :3001 |
-| `pnpm db:push` | push schema to Neon (no migration files) |
-| `pnpm db:generate` / `db:migrate` | versioned migrations |
-| `pnpm db:seed` | load fixtures into Neon |
-| `pnpm db:studio` | Drizzle Studio |
-| `pnpm typecheck` | `tsc --noEmit` |
+> Schema, scripts (`db:push`/`db:seed`/`db:api`) and the backend's Slack SQL
+> query API are documented in **[`packages/db/README.md`](../../packages/db/README.md)**.

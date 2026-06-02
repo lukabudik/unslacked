@@ -52,67 +52,70 @@ What it does:
 seed. The mock fakes a workspace we control completely, and its endpoints mirror
 real Slack shapes — so the backend swaps to real Slack later with no rewrite.
 
-**Data flow.** slack-mock owns the canonical schema and serves Slack data over an
-HTTP API. The backend reads that API, writes its analysis back to the same Neon
-DB. The admin frontend reads both the Slack data and the analysis from Neon (and
-hits the backend for live queries / the bot).
+**Data flow.** The shared **`packages/db`** package owns the canonical Neon
+schema. slack-mock writes Slack data into Neon (UI + HTTP API). The backend reads
+it **two ways**: bulk analysis reads via the **Slack-flavored SQL API** in Neon
+(`slack.conversations_history(…)` etc — feels like the Slack Web API, no joins),
+and the bot posts via slack-mock's HTTP `chat.postMessage`. The admin frontend
+reads from Neon (via `@unslacked/db`) and hits the backend for analysis.
 
-## Services & ownership
+## Services & packages
 
-| Service | Path | Stack | Owner | Status |
-|---------|------|-------|-------|--------|
-| **Slack mock + schema** | `services/slack-mock` | Next.js, Drizzle, Neon | **Luka** | scaffolded ✅ |
-| **Routing tool** | `services/backend` | Python | **Tom** | _to scaffold_ |
-| **Admin frontend** | `services/admin` | Next.js | **Ondra** | _to scaffold_ |
+| Path | What | Stack | Owner |
+|------|------|-------|-------|
+| `packages/db` | **Shared** schema, queries, fixtures, Slack SQL API | Drizzle, Neon | **Luka** |
+| `services/slack-mock` | Mock Slack UI + HTTP API | Next.js | **Luka** |
+| `services/backend` | Ingestion, routing graph, bot | Python | **Tom** _(to scaffold)_ |
+| `services/admin` | Dashboard + graph viz | Next.js | **Ondra** _(to scaffold)_ |
 
 Port convention: slack-mock `:3001`, admin `:3000`, backend `:8000`.
 
-## The database is shared — and it lives in slack-mock
+## The database is shared — it lives in `packages/db`
 
-`services/slack-mock/src/db/schema/` is the **single source of truth** for the
-whole project's Postgres schema (we run it on Neon).
+`packages/db` is the **single source of truth** for the project's Postgres schema
+(on Neon) and the query layer. Everything imports it (`@unslacked/db`).
 
-- `schema/slack.ts` — Slack domain (users, channels, messages, mentions…). Luka owns it.
-- `schema/analysis.ts` — routing graph + router scores. **Tom owns it** — it's a
-  proposed starting point so Ondra has types to build against; reshape as needed.
+- `src/schema/slack.ts` — Slack domain (users, channels, messages, mentions…). Luka owns it.
+- `src/schema/analysis.ts` — routing/scoring output tables. **Tom owns it** — placeholder so the frontend has types; reshape freely.
+- `src/slack-api.sql` — the Slack-flavored read API for the backend. See `packages/db/README.md`.
 
-Everyone connects to the **same Neon database**. Backend writes analysis tables,
-frontend reads them. If you change a table, push it from slack-mock
-(`pnpm db:push`) and tell the channel.
+Everyone connects to the **same Neon database**. Change a table → `pnpm db:push`
+and tell the channel.
 
 ## Getting started
 
 ```bash
 git clone git@github.com:lukabudik/unslacked.git
 cd unslacked
+pnpm install            # installs the whole workspace
 
-# Slack mock — runs with zero config (in-memory fixtures)
-cd services/slack-mock
-pnpm install
-pnpm dev            # http://localhost:3001
+pnpm dev                # slack-mock at http://localhost:3001
 ```
 
-To use a real database, set `DATABASE_URL` (Neon) in
-`services/slack-mock/.env` — see that service's README for `db:push` / `db:seed`.
+slack-mock runs with zero config on in-memory fixtures. For the real shared DB,
+put the Neon `DATABASE_URL` (from **team Discord**) in both `packages/db/.env`
+and `services/slack-mock/.env`, then:
 
-### Neon
-
-We share one Neon project. **Connection string is in the team Discord** (not in
-git). Set it as `DATABASE_URL` in each service's `.env`.
+```bash
+pnpm db:push    # apply schema     pnpm db:seed   # load fixtures
+pnpm db:api     # install Slack SQL read API for the backend
+```
 
 ## Repo layout
 
 ```
 unslacked/
+├── packages/
+│   └── db/              # @unslacked/db — schema, queries, fixtures, Slack SQL API  (Luka)
 ├── services/
-│   ├── slack-mock/      # Next.js: mock Slack + canonical Neon schema  (Luka)
-│   ├── backend/         # Python: ingestion, routing graph, bot        (Tom)
-│   └── admin/           # Next.js: dashboard + graph viz               (Ondra)
+│   ├── slack-mock/      # Next.js: mock Slack UI + HTTP API                         (Luka)
+│   ├── backend/         # Python: ingestion, routing graph, bot                     (Tom)
+│   └── admin/           # Next.js: dashboard + graph viz                            (Ondra)
+├── pnpm-workspace.yaml
 └── README.md
 ```
 
-Each service is self-contained and manages its own deps. No root workspace
-tooling until it earns its keep.
+pnpm workspace — shared code lives in `packages/*`, apps in `services/*`.
 
 ## Submission checklist (hackathon)
 

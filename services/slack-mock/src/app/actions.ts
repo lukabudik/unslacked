@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { addMessage, toggleReaction } from "@/lib/store";
+import { addMessage, toggleReaction } from "@unslacked/db";
 import { VIEWER_ID } from "@/lib/viewer";
 
 /**

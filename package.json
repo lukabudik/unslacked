@@ -1,0 +1,14 @@
+{
+  "name": "unslacked",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@11.2.2",
+  "scripts": {
+    "dev": "pnpm --filter @unslacked/slack-mock dev",
+    "build": "pnpm --filter @unslacked/slack-mock build",
+    "db:push": "pnpm --filter @unslacked/db db:push",
+    "db:seed": "pnpm --filter @unslacked/db db:seed",
+    "db:api": "pnpm --filter @unslacked/db db:api",
+    "db:studio": "pnpm --filter @unslacked/db db:studio"
+  }
+}

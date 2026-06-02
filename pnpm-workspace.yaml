@@ -1,0 +1,9 @@
+packages:
+  - "packages/*"
+  - "services/*"
+
+# pnpm 11 build-script approvals for native deps across the workspace.
+allowBuilds:
+  esbuild: true
+  msw: false
+  sharp: true

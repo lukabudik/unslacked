@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addMessage } from "@/lib/store";
+import { addMessage } from "@unslacked/db";
 
 // Mirrors https://api.slack.com/methods/chat.postMessage
 // Body: { channel, text, thread_ts?, user? }. `user` defaults to the bot so the

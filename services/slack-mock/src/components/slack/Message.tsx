@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { StoreMessage, StoreUser, ReactionGroup } from "@/lib/store";
+import type { StoreMessage, StoreUser, ReactionGroup } from "@unslacked/db";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "./UserAvatar";
 import { RichText } from "./RichText";

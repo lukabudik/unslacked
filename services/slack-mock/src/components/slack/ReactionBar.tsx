@@ -1,4 +1,4 @@
-import type { ReactionGroup } from "@/lib/store";
+import type { ReactionGroup } from "@unslacked/db";
 import { VIEWER_ID } from "@/lib/viewer";
 import { cn } from "@/lib/utils";
 import { toggleReactionAction } from "@/app/actions";
