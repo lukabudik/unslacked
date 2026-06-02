@@ -5,7 +5,7 @@
  *
  * Lives in @unslacked/db so every service (slack-mock, admin) shares it.
  */
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, or } from "drizzle-orm";
 import { db } from "./client";
 import {
   users as usersTable,
@@ -54,7 +54,31 @@ export interface StoreMessage {
 const BASE_MS = Date.UTC(2026, 5, 2, 8, 30, 0); // 2026-06-02 08:30 UTC
 const fxTs = (minute: number) => new Date(BASE_MS + minute * 60_000).toISOString();
 
-export async function listUsers(): Promise<StoreUser[]> {
+/**
+ * Tiny TTL cache for rarely-changing reference data (users, channels). Bounds
+ * staleness to REF_TTL_MS and is safe because the mock's only writes touch
+ * messages/reactions — never the users or channels tables. Saves a Neon HTTP
+ * round trip (~100ms+ each) on every channel navigation.
+ */
+const REF_TTL_MS = 30_000;
+const refCache = new Map<string, { at: number; val: Promise<unknown> }>();
+function cachedRef<T>(key: string, load: () => Promise<T>): Promise<T> {
+  const now = Date.now();
+  const hit = refCache.get(key);
+  if (hit && now - hit.at < REF_TTL_MS) return hit.val as Promise<T>;
+  const val = load();
+  refCache.set(key, { at: now, val });
+  // Don't cache a rejected load — drop it so the next call retries.
+  val.catch(() => {
+    if (refCache.get(key)?.val === val) refCache.delete(key);
+  });
+  return val;
+}
+
+export function listUsers(): Promise<StoreUser[]> {
+  return cachedRef("users", _listUsers);
+}
+async function _listUsers(): Promise<StoreUser[]> {
   if (db) {
     const rows = await db.select().from(usersTable).orderBy(asc(usersTable.realName));
     return rows.map((u) => ({ ...u, email: u.email, isBot: u.isBot }));
@@ -74,17 +98,28 @@ export async function listUsers(): Promise<StoreUser[]> {
   }));
 }
 
-export async function listChannels(): Promise<StoreChannel[]> {
+export function listChannels(): Promise<StoreChannel[]> {
+  return cachedRef("channels", _listChannels);
+}
+async function _listChannels(): Promise<StoreChannel[]> {
   if (db) {
-    const chans = await db.select().from(channelsTable);
-    const mems = await db.select().from(channelMembers);
+    const [chans, mems] = await Promise.all([
+      db.select().from(channelsTable),
+      db.select().from(channelMembers),
+    ]);
+    const membersByChannel = new Map<string, string[]>();
+    for (const m of mems) {
+      const list = membersByChannel.get(m.channelId);
+      if (list) list.push(m.userId);
+      else membersByChannel.set(m.channelId, [m.userId]);
+    }
     return chans.map((c) => ({
       id: c.id,
       name: c.name,
       kind: c.kind,
       topic: c.topic,
       isArchived: c.isArchived,
-      members: mems.filter((m) => m.channelId === c.id).map((m) => m.userId),
+      members: membersByChannel.get(c.id) ?? [],
     }));
   }
   return fx.channels.map((c) => ({
@@ -127,26 +162,33 @@ export async function getHistory(channelId: string): Promise<StoreMessage[]> {
 }
 
 export async function getReplies(threadTs: string): Promise<StoreMessage[]> {
-  const all = db
-    ? (await db.select().from(messagesTable)).map((m) => ({
-        id: m.id,
-        channelId: m.channelId,
-        userId: m.userId,
-        text: m.text,
-        threadTs: m.threadTs,
-        ts: m.ts.toISOString(),
-      }))
-    : fx.messages.map((m) => ({
-        id: m.id,
-        channelId: m.channelId,
-        userId: m.userId,
-        text: m.text,
-        threadTs: m.threadTs ?? null,
-        ts: fxTs(m.minute),
-      }));
-  return all
+  if (db) {
+    // Parent + its replies only — uses messages_thread_idx / pk, not a full scan.
+    const rows = await db
+      .select()
+      .from(messagesTable)
+      .where(or(eq(messagesTable.id, threadTs), eq(messagesTable.threadTs, threadTs)))
+      .orderBy(asc(messagesTable.ts));
+    return rows.map((m) => ({
+      id: m.id,
+      channelId: m.channelId,
+      userId: m.userId,
+      text: m.text,
+      threadTs: m.threadTs,
+      ts: m.ts.toISOString(),
+    }));
+  }
+  return fx.messages
     .filter((m) => m.id === threadTs || m.threadTs === threadTs)
-    .sort((a, b) => a.ts.localeCompare(b.ts));
+    .sort((a, b) => a.minute - b.minute)
+    .map((m) => ({
+      id: m.id,
+      channelId: m.channelId,
+      userId: m.userId,
+      text: m.text,
+      threadTs: m.threadTs ?? null,
+      ts: fxTs(m.minute),
+    }));
 }
 
 export interface ReactionGroup {
@@ -160,19 +202,29 @@ export interface ReactionGroup {
  * Returns `{ [messageId]: ReactionGroup[] }`. Empty when there are none.
  */
 export async function getReactions(channelId: string): Promise<Record<string, ReactionGroup[]>> {
-  const msgIds = new Set((await getHistory(channelId)).map((m) => m.id));
-
-  const rows = db
-    ? (await db.select().from(reactionsTable)).map((r) => ({
-        messageId: r.messageId,
-        userId: r.userId,
-        emoji: r.emoji,
-      }))
-    : fx.reactions.map((r) => ({ messageId: r.messageId, userId: r.userId, emoji: r.emoji }));
+  let rows: { messageId: string; userId: string; emoji: string }[];
+  if (db) {
+    // Single indexed query: join reactions to their messages and keep only this
+    // channel's. Replaces the old "re-fetch history + scan the whole reactions
+    // table in JS" path (two round trips + a full-table read).
+    rows = await db
+      .select({
+        messageId: reactionsTable.messageId,
+        userId: reactionsTable.userId,
+        emoji: reactionsTable.emoji,
+      })
+      .from(reactionsTable)
+      .innerJoin(messagesTable, eq(reactionsTable.messageId, messagesTable.id))
+      .where(eq(messagesTable.channelId, channelId));
+  } else {
+    const msgIds = new Set(
+      fx.messages.filter((m) => m.channelId === channelId).map((m) => m.id),
+    );
+    rows = fx.reactions.filter((r) => msgIds.has(r.messageId));
+  }
 
   const byMessage: Record<string, ReactionGroup[]> = {};
   for (const r of rows) {
-    if (!msgIds.has(r.messageId)) continue;
     const groups = (byMessage[r.messageId] ??= []);
     const existing = groups.find((g) => g.emoji === r.emoji);
     if (existing) {

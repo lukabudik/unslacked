@@ -112,7 +112,9 @@ export const messages = pgTable(
     editedAt: timestamp("edited_at", { withTimezone: true }),
   },
   (t) => [
-    index("messages_channel_idx").on(t.channelId),
+    // Composite so getHistory's `WHERE channel_id = ? ORDER BY ts` is served
+    // straight from the index with no separate sort step.
+    index("messages_channel_ts_idx").on(t.channelId, t.ts),
     index("messages_thread_idx").on(t.threadTs),
     index("messages_user_idx").on(t.userId),
   ],
