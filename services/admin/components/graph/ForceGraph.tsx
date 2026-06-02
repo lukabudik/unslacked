@@ -28,6 +28,7 @@ interface ForceGraphProps {
   selectedId?: string | null;
   height?: number;
   interactive?: boolean;
+  routingEdges?: Array<{ router: string; target: string; count: number; redundantRelays: number }>;
 }
 
 type GNode = {
@@ -36,7 +37,9 @@ type GNode = {
   label: string;
   persona?: Persona;
   betweenness?: number;
+  degreeCentrality?: number;
   messageVolume?: number;
+  isolationScore?: number;
   clusterId?: string;
   clusterColor?: string;
   matchesOrgChart?: boolean;
@@ -70,6 +73,7 @@ type FGInstance = {
   zoomToFit: (ms?: number, px?: number) => void;
   d3Force: (name: string, force?: unknown) => ForceLike | undefined;
   d3ReheatSimulation: () => void;
+  screen2GraphCoords: (x: number, y: number) => { x: number; y: number };
 };
 
 type FG2DProps = {
@@ -103,6 +107,18 @@ type FG2DProps = {
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
   ssr: false,
 }) as unknown as React.ComponentType<FG2DProps>;
+
+function pointToSegmentDist(
+  px: number, py: number,
+  ax: number, ay: number,
+  bx: number, by: number,
+): number {
+  const dx = bx - ax, dy = by - ay;
+  const lenSq = dx * dx + dy * dy;
+  if (lenSq === 0) return Math.hypot(px - ax, py - ay);
+  const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / lenSq));
+  return Math.hypot(px - ax - t * dx, py - ay - t * dy);
+}
 
 function convexHull(points: Array<[number, number]>): Array<[number, number]> {
   if (points.length < 3) return points;
@@ -142,6 +158,7 @@ export function ForceGraph({
   selectedId,
   height = 520,
   interactive = true,
+  routingEdges = [],
 }: ForceGraphProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   // callback ref → state so the force-config effect runs once the dynamically
@@ -224,6 +241,7 @@ export function ForceGraph({
       (e) =>
         show(e.source) &&
         show(e.target) &&
+        e.weight >= 0.05 &&
         (!strongOnly || e.weight >= 0.5) &&
         (!topicId || (e.topics ?? []).some((t) => t.id === topicId))
     );
@@ -247,7 +265,7 @@ export function ForceGraph({
     if (scope.kind === "person") keep.add(scope.value);
     else if (scope.kind === "team")
       graph.nodes.forEach((n) => n.team === scope.value && show(n.id) && keep.add(n.id));
-    else graph.nodes.forEach((n) => show(n.id) && !topicId && keep.add(n.id));
+    else graph.nodes.forEach((n) => show(n.id) && !topicId && (n.isolationScore ?? 0) < 1 && keep.add(n.id));
 
     const nodes: GNode[] = graph.nodes
       .filter((n) => keep.has(n.id))
@@ -257,7 +275,9 @@ export function ForceGraph({
         label: n.name,
         persona: n.persona,
         betweenness: n.betweenness,
+        degreeCentrality: n.degreeCentrality,
         messageVolume: n.messageVolume,
+        isolationScore: n.isolationScore,
         clusterId: clusterById.get(n.id)?.id,
         clusterColor: personaColor(n.persona),
         matchesOrgChart: clusterById.get(n.id)?.matchesOrgChart,
@@ -289,6 +309,18 @@ export function ForceGraph({
     return { nodes, links };
   }, [selectedId, data, view]);
 
+  // routing edges filtered to only nodes currently visible in the graph
+  const visibleRoutingEdges = React.useMemo(() => {
+    if (routingEdges.length === 0 || view !== "people") return [];
+    const nodeIds = new Set(data.nodes.map((n) => n.id));
+    return routingEdges.filter((e) => nodeIds.has(e.router) && nodeIds.has(e.target));
+  }, [routingEdges, data.nodes, view]);
+
+  const routerIds = React.useMemo(
+    () => new Set(visibleRoutingEdges.map((e) => e.router)),
+    [visibleRoutingEdges]
+  );
+
   const maxVol = React.useMemo(
     () => Math.max(1, ...graph.nodes.map((n) => n.messageVolume)),
     [graph]
@@ -297,9 +329,37 @@ export function ForceGraph({
   const radius = React.useCallback(
     (n: GNode) => {
       if (n.kind === "team") return 16 + Math.sqrt(n.size ?? 1) * 5;
+      // betweenness mode: size by structural importance so connectors dominate visually
+      if (colorMode === "betweenness") return 5 + (n.betweenness ?? 0) * 22;
       return 4 + Math.sqrt((n.messageVolume ?? 0) / maxVol) * 11;
     },
-    [maxVol]
+    [maxVol, colorMode]
+  );
+
+  // click handler: hit-test amber routing edges; ignore if the click landed on a node
+  const handleCanvasClick = React.useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!fg || visibleRoutingEdges.length === 0) return;
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const gp = fg.screen2GraphCoords(e.clientX - rect.left, e.clientY - rect.top);
+      const nodeById = new Map(data.nodes.map((n) => [n.id, n]));
+      // let the library handle node clicks
+      for (const n of data.nodes) {
+        if (n.x == null || n.y == null) continue;
+        if (Math.hypot(gp.x - n.x, gp.y - n.y) < radius(n) + 4) return;
+      }
+      for (const re of visibleRoutingEdges) {
+        const from = nodeById.get(re.router);
+        const to = nodeById.get(re.target);
+        if (!from || from.x == null || from.y == null || !to || to.x == null || to.y == null) continue;
+        if (pointToSegmentDist(gp.x, gp.y, from.x, from.y, to.x, to.y) < 6) {
+          onNodeClick?.(re.router);
+          return;
+        }
+      }
+    },
+    [fg, visibleRoutingEdges, data.nodes, radius, onNodeClick],
   );
 
   // Tune the simulation for spacing + clear team separation. forceCollide stops
@@ -349,6 +409,7 @@ export function ForceGraph({
   return (
     <div
       ref={containerRef}
+      onClick={handleCanvasClick}
       className="w-full overflow-hidden rounded-lg"
       style={{
         height,
@@ -382,7 +443,9 @@ export function ForceGraph({
               ? `rgba(99,102,241,${0.35 + l.weight * 0.4})`
               : "rgba(120,120,135,0.05)";
           }
-          return `rgba(120,120,135,${0.12 + l.weight * 0.28})`;
+          // dim communication edges when routing overlay is active so arrows read clearly
+          const a = (0.12 + l.weight * 0.28) * (visibleRoutingEdges.length > 0 ? 0.35 : 1);
+          return `rgba(120,120,135,${a})`;
         }}
         linkWidth={(l: GLink) =>
           view === "teams" ? 0.6 + l.weight * 6 : 0.4 + l.weight * 2.4
@@ -392,15 +455,9 @@ export function ForceGraph({
         nodeLabel={(n: GNode) =>
           n.kind === "team"
             ? `${n.label} · ${n.size} people`
-            : `${n.label} · ${n.persona} · betweenness ${((n.betweenness ?? 0) * 100).toFixed(0)}%`
+            : `${n.label} · ${n.persona} · betweenness ${((n.betweenness ?? 0) * 100).toFixed(0)}% · degree ${((n.degreeCentrality ?? 0) * 100).toFixed(0)}%`
         }
         onNodeClick={(n: GNode) => onNodeClick?.(n.id)}
-        onLinkClick={(l: GLink) => {
-          if (view !== "people") return;
-          const s = typeof l.source === "string" ? l.source : l.source.id;
-          const t = typeof l.target === "string" ? l.target : l.target.id;
-          onLinkClick?.(s, t);
-        }}
         onRenderFramePre={(ctx: CanvasRenderingContext2D, scale: number) => {
           if (view !== "people") return;
           // cluster hulls + team labels at centroids
@@ -434,21 +491,86 @@ export function ForceGraph({
             ctx.fillStyle = hexA(deptColor, 0.9);
             ctx.fillText(label.toUpperCase(), cx, minY - 10 / scale);
           });
+
+          // routing handoff arrows: router → target
+          // red-orange = confirmed inefficiency (redundantRelays > 0), amber = neutral routing
+          if (visibleRoutingEdges.length > 0) {
+            const nodeById = new Map<string, GNode>();
+            for (const n of data.nodes) {
+              if (n.x != null && n.y != null) nodeById.set(n.id, n);
+            }
+            const maxCount = Math.max(1, ...visibleRoutingEdges.map((e) => e.count));
+            for (const re of visibleRoutingEdges) {
+              const from = nodeById.get(re.router);
+              const to = nodeById.get(re.target);
+              if (!from || !to || from.x == null || from.y == null || to.x == null || to.y == null) continue;
+              const t = re.count / maxCount;
+              const inefficient = re.redundantRelays > 0;
+              // inefficient: vivid red-orange at full opacity; neutral: dim amber
+              const color = inefficient ? "239,68,68" : "245,158,11";
+              const alpha = inefficient ? 0.75 + t * 0.2 : 0.3 + t * 0.25;
+              const lineW = inefficient ? (2 + t * 2.5) / scale : (0.8 + t * 1.2) / scale;
+              const dx = to.x - from.x;
+              const dy = to.y - from.y;
+              const len = Math.sqrt(dx * dx + dy * dy);
+              if (len < 1) continue;
+              const ux = dx / len;
+              const uy = dy / len;
+              const x1 = from.x + ux * (radius(from) + 1);
+              const y1 = from.y + uy * (radius(from) + 1);
+              const x2 = to.x - ux * (radius(to) + 2);
+              const y2 = to.y - uy * (radius(to) + 2);
+              ctx.beginPath();
+              ctx.moveTo(x1, y1);
+              ctx.lineTo(x2, y2);
+              ctx.strokeStyle = `rgba(${color},${alpha})`;
+              ctx.lineWidth = lineW;
+              ctx.stroke();
+              // arrowhead at target
+              const arrowSize = (inefficient ? 6 + t * 4 : 4 + t * 2) / scale;
+              ctx.beginPath();
+              ctx.moveTo(x2, y2);
+              ctx.lineTo(x2 - ux * arrowSize - uy * arrowSize * 0.5, y2 - uy * arrowSize + ux * arrowSize * 0.5);
+              ctx.lineTo(x2 - ux * arrowSize + uy * arrowSize * 0.5, y2 - uy * arrowSize - ux * arrowSize * 0.5);
+              ctx.closePath();
+              ctx.fillStyle = `rgba(${color},${alpha})`;
+              ctx.fill();
+            }
+          }
         }}
         nodeCanvasObject={(n: GNode, ctx: CanvasRenderingContext2D, scale: number) => {
           const r = radius(n);
           const color = nodeColor(n);
+          const betweenness = n.betweenness ?? 0;
+          // graduated halo: visible from 0.15, grows in radius and opacity with score
           const isMiddleman =
-            n.kind === "person" && colorMode === "betweenness" && (n.betweenness ?? 0) >= 0.5;
+            n.kind === "person" && colorMode === "betweenness" && betweenness >= 0.15;
           const isSelected = selectedId === n.id;
           const dimmed = highlight ? !highlight.nodes.has(n.id) : false;
           ctx.globalAlpha = dimmed ? 0.2 : 1;
 
           if (isMiddleman) {
+            const haloR = r + 3 + betweenness * 10;
+            const haloA = (0.07 + betweenness * 0.20).toFixed(2);
             ctx.beginPath();
-            ctx.arc(n.x!, n.y!, r + 4, 0, 2 * Math.PI);
-            ctx.fillStyle = "rgba(239,68,68,0.16)";
+            ctx.arc(n.x!, n.y!, haloR, 0, 2 * Math.PI);
+            ctx.fillStyle = `rgba(239,68,68,${haloA})`;
             ctx.fill();
+          }
+
+          // ring for nodes that appear as a router in handoff edges
+          // red = confirmed inefficiency, amber = neutral routing
+          if (!dimmed && routerIds.has(n.id)) {
+            const isInefficient = visibleRoutingEdges.some(
+              (e) => e.router === n.id && e.redundantRelays > 0
+            );
+            ctx.beginPath();
+            ctx.arc(n.x!, n.y!, r + 5, 0, 2 * Math.PI);
+            ctx.lineWidth = (isInefficient ? 2.2 : 1.6) / scale;
+            ctx.strokeStyle = isInefficient
+              ? "rgba(239,68,68,0.85)"
+              : "rgba(245,158,11,0.7)";
+            ctx.stroke();
           }
 
           ctx.beginPath();
@@ -481,7 +603,8 @@ export function ForceGraph({
             return;
           }
 
-          if ((r > 9 || isMiddleman || isSelected) && scale > 1) {
+          // always label high-betweenness nodes so connectors are identifiable without zooming
+          if ((r > 9 || betweenness >= 0.3 || isSelected) && scale > 0.6) {
             const first = n.label.split(" ")[0];
             const fontSize = Math.max(8.5, 10.5 / scale);
             ctx.font = `${fontSize}px Inter, ui-sans-serif, system-ui`;

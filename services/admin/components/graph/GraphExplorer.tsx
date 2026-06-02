@@ -6,6 +6,7 @@ import type {
   CommsGraph,
   MiddlemanInsight,
   Persona,
+  PersonaPairRoute,
   Topic,
 } from "@/lib/api/types";
 import { ForceGraph, type ColorMode, type Scope, type ViewMode } from "./ForceGraph";
@@ -19,6 +20,7 @@ export function GraphExplorer({
   graph,
   middlemen,
   topics,
+  personaRoutes = [],
   height = 560,
   initialColorMode = "persona",
   initialFocusPersonId,
@@ -26,6 +28,7 @@ export function GraphExplorer({
   graph: CommsGraph;
   middlemen: MiddlemanInsight[];
   topics: Topic[];
+  personaRoutes?: PersonaPairRoute[];
   height?: number;
   initialColorMode?: ColorMode;
   initialFocusPersonId?: string;
@@ -58,6 +61,21 @@ export function GraphExplorer({
     () => new Map(graph.clusters.map((c) => [c.id, c.label])),
     [graph]
   );
+
+  // aggregate persona-level routes into per-person handoff edges (middleman → target)
+  // redundantRelays comes from MiddlemanInsight: > 0 means confirmed routing inefficiency
+  const routingEdges = React.useMemo(() => {
+    const redundantByPerson = new Map(middlemen.map((m) => [m.personId, m.redundantRelays]));
+    const map = new Map<string, number>();
+    personaRoutes.forEach((r) => {
+      const key = `${r.viaMiddlemanId}|${r.toPersonId}`;
+      map.set(key, (map.get(key) ?? 0) + r.occurrences);
+    });
+    return [...map.entries()].map(([key, count]) => {
+      const [router, target] = key.split("|");
+      return { router, target, count, redundantRelays: redundantByPerson.get(router) ?? 0 };
+    });
+  }, [personaRoutes, middlemen]);
 
   const handleNodeClick = (id: string) => {
     const teamLabel = clusterLabelById.get(id);
@@ -144,12 +162,12 @@ export function GraphExplorer({
             onNodeClick={handleNodeClick}
             onLinkClick={handleLinkClick}
             height={height}
+            routingEdges={routingEdges}
           />
         </CardContent>
       </Card>
       <p className="text-xs text-muted-foreground">
-        Tip: click a person to see their connections, or click a line between two
-        people to read why they talk.
+        Red arrows = confirmed routing inefficiency (removable hops). Amber = neutral handoffs. Click an arrow to inspect the router.
       </p>
       <NodeSheet
         person={selectedPerson}

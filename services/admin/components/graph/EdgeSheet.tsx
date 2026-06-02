@@ -34,7 +34,7 @@ export function EdgeSheet({
 }) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full overflow-y-auto sm:max-w-md">
+      <SheetContent overlay={false} className="w-full overflow-y-auto sm:max-w-md">
         {edge && source && target ? (
           <>
             <SheetHeader>

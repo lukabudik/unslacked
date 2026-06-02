@@ -57,7 +57,7 @@ export function NodeSheet({
 }) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full overflow-y-auto sm:max-w-md">
+      <SheetContent overlay={false} className="w-full overflow-y-auto sm:max-w-md">
         {person ? (
           <>
             <SheetHeader>
