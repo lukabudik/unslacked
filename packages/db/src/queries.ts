@@ -5,7 +5,7 @@
  *
  * Lives in @unslacked/db so every service (slack-mock, admin) shares it.
  */
-import { and, asc, desc, eq, inArray, isNull, lt, or } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, lt, or, sql } from "drizzle-orm";
 import { db } from "./client";
 import {
   users as usersTable,
@@ -377,6 +377,43 @@ export async function ensureDm(memberIds: string[]): Promise<string> {
   }
   refCache.delete("channels"); // surface the new DM in listChannels right away
   return id;
+}
+
+/**
+ * The backend's `responsibility_claims` table joined with active users — the
+ * "who is responsible for what" knowledge the analysis worker extracted from
+ * the workspace. Read here so the slack-mock assistant can feed it to an LLM.
+ * (Not in the Drizzle schema — it's backend-owned — so this is a raw read.)
+ */
+export interface ClaimWithUser {
+  userId: string;
+  realName: string | null;
+  title: string | null;
+  team: string | null;
+  topic: string | null;
+  keywords: string | null;
+  claimText: string | null;
+  confidence: number | null;
+}
+
+export async function getResponsibilityContext(): Promise<ClaimWithUser[]> {
+  if (!db) return [];
+  const res: unknown = await db.execute(sql`
+    SELECT rc.user_id     AS "userId",
+           u.real_name    AS "realName",
+           u.title        AS "title",
+           u.team         AS "team",
+           rc.topic       AS "topic",
+           rc.keywords    AS "keywords",
+           rc.claim_text  AS "claimText",
+           rc.confidence  AS "confidence"
+    FROM responsibility_claims rc
+    JOIN users u ON u.id = rc.user_id
+    WHERE u.is_active = true
+    ORDER BY rc.confidence DESC NULLS LAST
+  `);
+  const rows = (Array.isArray(res) ? res : (res as { rows?: unknown[] }).rows) ?? [];
+  return rows as ClaimWithUser[];
 }
 
 // ---------------------------------------------------------------------------

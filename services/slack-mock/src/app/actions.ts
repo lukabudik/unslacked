@@ -11,7 +11,7 @@ import {
   type TimelinePage,
 } from "@unslacked/db";
 import { VIEWER_ID, ASSISTANT_BOT_ID } from "@/lib/viewer";
-import { whoToContact, checkRouting, type RoutingVerdict } from "@/lib/assistant";
+import { routeAssistant, type RoutingVerdict } from "@/lib/assistant";
 
 /**
  * Server actions the UI binds to <form action={...}>. They post as the current
@@ -65,8 +65,8 @@ export async function askAssistant(channelId: string, text: string): Promise<voi
   const q = text.trim();
   if (!channelId || !q) return;
   await addMessage({ channelId, userId: VIEWER_ID, text: q });
-  const answer = await whoToContact(q, VIEWER_ID);
-  await addMessage({ channelId, userId: ASSISTANT_BOT_ID, text: answer.answer });
+  const result = await routeAssistant({ text: q });
+  await addMessage({ channelId, userId: ASSISTANT_BOT_ID, text: result.message });
   revalidatePath(`/c/${channelId}`);
 }
 
@@ -86,15 +86,16 @@ export async function postAndCheckRouting(
   await addMessage({ channelId, userId: VIEWER_ID, text: t, threadTs: threadTs ?? null });
   revalidatePath(`/c/${channelId}`);
 
-  // recipients: DM counterpart(s), or the people @-mentioned in a channel
+  // recipients: DM counterpart(s), or the people @-mentioned in a channel (may be
+  // empty in a channel with no tag — the assistant runs anyway, per the spec)
   const channel = (await listChannels()).find((c) => c.id === channelId);
   const recipientIds =
     channel && (channel.kind === "im" || channel.kind === "mpim")
       ? channel.members.filter((m) => m !== VIEWER_ID && m !== ASSISTANT_BOT_ID)
       : parseMentions(t);
 
-  if (!recipientIds.length) return { misrouted: false };
-  return checkRouting({ text: t, authorId: VIEWER_ID, recipientIds, channelId });
+  const r = await routeAssistant({ text: t, recipientIds });
+  return { misrouted: r.status === "route", ownerId: r.targetUserId, reason: r.message };
 }
 
 /** Feature 2 button: forward the text to the correct owner's DM. Returns the DM id. */
