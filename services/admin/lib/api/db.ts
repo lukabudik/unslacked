@@ -60,6 +60,9 @@ type RawGroupMember = Pick<
   "groupId" | "userId"
 >;
 type RawGroup = Pick<typeof schema.userGroups.$inferSelect, "id" | "name" | "handle">;
+type RawRoutingEvent = typeof schema.routingEvents.$inferSelect;
+type RawRouterScore = typeof schema.routerScores.$inferSelect;
+type RawAutomationOpportunity = typeof schema.automationOpportunities.$inferSelect;
 
 interface Bundle {
   graph: CommsGraph;
@@ -107,7 +110,7 @@ function bundle(): Promise<Bundle> {
 async function load(): Promise<Bundle> {
   if (!db) throw new Error("DATABASE_URL is not set");
 
-  const [usersRaw, channelsRaw, messagesRaw, mentionsRaw, reactionsRaw, groupMembersRaw, groupsRaw] =
+  const [usersRaw, channelsRaw, messagesRaw, mentionsRaw, reactionsRaw, groupMembersRaw, groupsRaw, routingEventsRaw, routerScoresRaw, automationOpportunitiesRaw] =
     await Promise.all([
       db.select().from(schema.users),
       db.select().from(schema.channels),
@@ -147,6 +150,9 @@ async function load(): Promise<Bundle> {
           handle: schema.userGroups.handle,
         })
         .from(schema.userGroups),
+      db.select().from(schema.routingEvents),
+      db.select().from(schema.routerScores),
+      db.select().from(schema.automationOpportunities).orderBy(schema.automationOpportunities.duvoFitScore),
     ]);
 
   return build(
@@ -156,7 +162,10 @@ async function load(): Promise<Bundle> {
     mentionsRaw as RawMention[],
     reactionsRaw as RawReaction[],
     groupMembersRaw as RawGroupMember[],
-    groupsRaw as RawGroup[]
+    groupsRaw as RawGroup[],
+    routingEventsRaw as RawRoutingEvent[],
+    routerScoresRaw as RawRouterScore[],
+    automationOpportunitiesRaw as RawAutomationOpportunity[]
   );
 }
 
@@ -167,7 +176,10 @@ function build(
   mentionsRaw: RawMention[],
   reactionsRaw: RawReaction[] = [],
   groupMembersRaw: RawGroupMember[] = [],
-  groupsRaw: RawGroup[] = []
+  groupsRaw: RawGroup[] = [],
+  routingEventsRaw: RawRoutingEvent[] = [],
+  routerScoresRaw: RawRouterScore[] = [],
+  automationOpportunitiesRaw: RawAutomationOpportunity[] = []
 ): Bundle {
   const humans = usersRaw.filter((u) => !u.isBot);
   const isHuman = new Set(humans.map((u) => u.id));
@@ -364,88 +376,153 @@ function build(
     .sort((a, b) => b.messageCount - a.messageCount);
 
   // ── middlemen ──────────────────────────────────────────────
-  const middlemen: MiddlemanInsight[] = [...people]
-    .filter((p) => p.betweenness > 0.05)
-    .sort((a, b) => b.betweenness - a.betweenness)
-    .slice(0, 6)
-    .map((p) => {
-      const neighborDepts = new Map<string, number>();
-      for (const nb of adj.get(p.id) ?? []) {
-        const d = dept.get(nb);
-        if (d && d !== p.persona) neighborDepts.set(d, (neighborDepts.get(d) ?? 0) + 1);
-      }
-      const top = [...neighborDepts.entries()].sort((a, b) => b[1] - a[1]);
-      const bridged = top.length;
-      return {
-        personId: p.id,
-        betweenness: p.betweenness,
-        bridgesPairs: Math.max(1, Math.round((bridged * (bridged - 1)) / 2) + bridged),
-        redundantRelays: Math.round(p.betweenness * 10) + 1,
-        topBridgedPersonas: top.slice(0, 3).map(([d]) => d as Persona),
-      };
-    });
+  // Prefer router_scores when populated; fall back to betweenness ranking.
+  const routerScoreMap = new Map(routerScoresRaw.map((r) => [r.userId, r]));
+  const hasRouterScores = routerScoresRaw.length > 0;
 
-  // ── derived persona routes ─────────────────────────────────
-  const routes: PersonaPairRoute[] = [];
-  for (const m of middlemen.slice(0, 5)) {
-    const neighbors = [...(adj.get(m.personId) ?? [])]
-      .map((id) => personById.get(id)!)
-      .filter(Boolean);
-    const owner = neighbors
-      .filter((n) => n.persona !== personById.get(m.personId)!.persona)
-      .sort((a, b) => b.degreeCentrality - a.degreeCentrality)[0];
-    const fromN = neighbors.find(
-      (n) => owner && n.persona !== owner.persona && n.id !== owner.id
-    );
-    if (!owner || !fromN) continue;
-    routes.push({
-      fromPersona: fromN.persona,
-      toPersonId: owner.id,
-      toPersonName: owner.name,
-      viaMiddlemanId: m.personId,
-      occurrences:
-        edgeMap.get(
-          [m.personId, owner.id].sort().join("|")
-        )?.count ?? 3,
-      confidence: round2(0.7 + m.betweenness * 0.28),
-    });
+  function buildMiddlemanEntry(p: Person): MiddlemanInsight {
+    const rs = routerScoreMap.get(p.id);
+    const neighborDepts = new Map<string, number>();
+    for (const nb of adj.get(p.id) ?? []) {
+      const d = dept.get(nb);
+      if (d && d !== p.persona) neighborDepts.set(d, (neighborDepts.get(d) ?? 0) + 1);
+    }
+    const top = [...neighborDepts.entries()].sort((a, b) => b[1] - a[1]);
+    const bridged = top.length;
+    return {
+      personId: p.id,
+      betweenness: rs ? round2(rs.routerScore) : p.betweenness,
+      bridgesPairs: Math.max(1, Math.round((bridged * (bridged - 1)) / 2) + bridged),
+      redundantRelays: rs ? rs.routedCount : Math.round(p.betweenness * 10) + 1,
+      topBridgedPersonas: top.slice(0, 3).map(([d]) => d as Persona),
+    };
   }
 
-  // ── derived routing feed (recent cross-dept mentions) ──────
-  const topMiddleId = middlemen[0]?.personId;
-  const mentionEvents = mentionsRaw
-    .map((mn) => {
-      const msg = mn.messageId ? msgById.get(mn.messageId) : undefined;
-      if (!msg || !msg.userId || !mn.mentionedUserId) return null;
-      if (!isHuman.has(msg.userId) || !isHuman.has(mn.mentionedUserId)) return null;
-      return { msg, mentioned: mn.mentionedUserId };
-    })
-    .filter((x): x is { msg: RawMessage; mentioned: string } => x !== null)
-    .sort((a, b) => +new Date(b.msg.ts ?? 0) - +new Date(a.msg.ts ?? 0))
-    .slice(0, 12);
-  const statuses: RoutingEvent["status"][] = [
-    "accepted", "accepted", "suggested", "accepted", "dismissed", "accepted",
-    "suggested", "accepted", "accepted", "dismissed", "suggested", "accepted",
-  ];
-  const feed: RoutingEvent[] = mentionEvents.map((ev, i) => {
-    const requester = ev.msg.userId!;
-    const intended = ev.mentioned;
-    const crossDept = dept.get(requester) !== dept.get(intended);
-    const suggested =
-      crossDept && topMiddleId && topMiddleId !== requester && topMiddleId !== intended
-        ? topMiddleId
-        : intended;
-    const status = statuses[i % statuses.length];
-    return {
-      id: `re-${i + 1}`,
-      at: new Date(ev.msg.ts ?? Date.now()).toISOString(),
-      requesterId: requester,
-      intendedRecipientId: intended,
-      suggestedRecipientId: suggested,
-      status,
-      hopsSaved: status === "accepted" && suggested !== intended ? 1 : 0,
-    };
-  });
+  const middlemen: MiddlemanInsight[] = hasRouterScores
+    ? [...people]
+        .filter((p) => {
+          const rs = routerScoreMap.get(p.id);
+          return rs ? rs.routerScore > 0.1 : p.betweenness > 0.05;
+        })
+        .sort((a, b) => {
+          const sa = routerScoreMap.get(a.id)?.routerScore ?? a.betweenness;
+          const sb = routerScoreMap.get(b.id)?.routerScore ?? b.betweenness;
+          return sb - sa;
+        })
+        .slice(0, 6)
+        .map(buildMiddlemanEntry)
+    : [...people]
+        .filter((p) => p.betweenness > 0.05)
+        .sort((a, b) => b.betweenness - a.betweenness)
+        .slice(0, 6)
+        .map(buildMiddlemanEntry);
+
+  // ── persona routes — real routing_events when available ────
+  const hasRoutingEvents = routingEventsRaw.length > 0;
+
+  let routes: PersonaPairRoute[];
+  if (hasRoutingEvents) {
+    type RouteAgg = { fromPersona: string; toPersonId: string; viaMiddlemanId: string; count: number; confSum: number };
+    const routeAgg = new Map<string, RouteAgg>();
+    for (const ev of routingEventsRaw) {
+      const askerDept = ev.askerUserId ? (dept.get(ev.askerUserId) ?? "Unknown") : "Unknown";
+      const key = `${askerDept}|${ev.targetUserId}|${ev.routerUserId}`;
+      const r = routeAgg.get(key);
+      if (r) {
+        r.count += 1;
+        r.confSum += ev.confidence;
+      } else {
+        routeAgg.set(key, { fromPersona: askerDept, toPersonId: ev.targetUserId, viaMiddlemanId: ev.routerUserId, count: 1, confSum: ev.confidence });
+      }
+    }
+    routes = [...routeAgg.values()]
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 20)
+      .map((r) => ({
+        fromPersona: r.fromPersona,
+        toPersonId: r.toPersonId,
+        toPersonName: nameById.get(r.toPersonId) ?? r.toPersonId,
+        viaMiddlemanId: r.viaMiddlemanId,
+        occurrences: r.count,
+        confidence: round2(r.confSum / r.count),
+      }));
+  } else {
+    // Heuristic fallback: derive from middleman graph neighbors.
+    routes = [];
+    for (const m of middlemen.slice(0, 5)) {
+      const neighbors = [...(adj.get(m.personId) ?? [])]
+        .map((id) => personById.get(id)!)
+        .filter(Boolean);
+      const owner = neighbors
+        .filter((n) => n.persona !== personById.get(m.personId)!.persona)
+        .sort((a, b) => b.degreeCentrality - a.degreeCentrality)[0];
+      const fromN = neighbors.find(
+        (n) => owner && n.persona !== owner.persona && n.id !== owner.id
+      );
+      if (!owner || !fromN) continue;
+      routes.push({
+        fromPersona: fromN.persona,
+        toPersonId: owner.id,
+        toPersonName: owner.name,
+        viaMiddlemanId: m.personId,
+        occurrences: edgeMap.get([m.personId, owner.id].sort().join("|"))?.count ?? 3,
+        confidence: round2(0.7 + m.betweenness * 0.28),
+      });
+    }
+  }
+
+  // ── routing feed — real routing_events when available ──────
+  let feed: RoutingEvent[];
+  if (hasRoutingEvents) {
+    feed = [...routingEventsRaw]
+      .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+      .slice(0, 20)
+      .map((ev) => ({
+        id: ev.id,
+        at: new Date(ev.createdAt).toISOString(),
+        requesterId: ev.askerUserId ?? ev.routerUserId,
+        intendedRecipientId: ev.routerUserId,
+        suggestedRecipientId: ev.targetUserId,
+        status: "suggested" as const,
+        hopsSaved: ev.routerUserId !== ev.targetUserId ? 1 : 0,
+      }));
+  } else {
+    // Heuristic fallback: derive from recent cross-dept @-mentions.
+    const topMiddleId = middlemen[0]?.personId;
+    const mentionEvents = mentionsRaw
+      .map((mn) => {
+        const msg = mn.messageId ? msgById.get(mn.messageId) : undefined;
+        if (!msg || !msg.userId || !mn.mentionedUserId) return null;
+        if (!isHuman.has(msg.userId) || !isHuman.has(mn.mentionedUserId)) return null;
+        return { msg, mentioned: mn.mentionedUserId };
+      })
+      .filter((x): x is { msg: RawMessage; mentioned: string } => x !== null)
+      .sort((a, b) => +new Date(b.msg.ts ?? 0) - +new Date(a.msg.ts ?? 0))
+      .slice(0, 12);
+    const statuses: RoutingEvent["status"][] = [
+      "accepted", "accepted", "suggested", "accepted", "dismissed", "accepted",
+      "suggested", "accepted", "accepted", "dismissed", "suggested", "accepted",
+    ];
+    feed = mentionEvents.map((ev, i) => {
+      const requester = ev.msg.userId!;
+      const intended = ev.mentioned;
+      const crossDept = dept.get(requester) !== dept.get(intended);
+      const suggested =
+        crossDept && topMiddleId && topMiddleId !== requester && topMiddleId !== intended
+          ? topMiddleId
+          : intended;
+      const status = statuses[i % statuses.length];
+      return {
+        id: `re-${i + 1}`,
+        at: new Date(ev.msg.ts ?? Date.now()).toISOString(),
+        requesterId: requester,
+        intendedRecipientId: intended,
+        suggestedRecipientId: suggested,
+        status,
+        hopsSaved: status === "accepted" && suggested !== intended ? 1 : 0,
+      };
+    });
+  }
 
   // ── activity timeline (daily buckets across the data window) ──
   const DAY = 86_400_000;
@@ -482,8 +559,29 @@ function build(
     });
   }
 
-  // ── automations (curated; no source table for these yet) ───
-  const automations = curatedAutomations();
+  // ── automations — real mined data when available ───────────
+  const automations: AutomationOpportunity[] =
+    automationOpportunitiesRaw.length > 0
+      ? automationOpportunitiesRaw
+          .sort((a, b) => b.duvoFitScore - a.duvoFitScore)
+          .map((r) => ({
+            id: r.id,
+            taskFingerprint: r.taskFingerprint,
+            description: r.description,
+            verb: r.verb,
+            object: r.object,
+            source: r.source,
+            frequency: r.frequency,
+            distinctRequesters: r.distinctRequesters,
+            distinctAssignees: r.distinctAssignees,
+            requesterPersonas: JSON.parse(r.requesterPersonas) as string[],
+            crossSystem: JSON.parse(r.crossSystem) as string[],
+            duvoFitScore: r.duvoFitScore,
+            estHoursPerMonth: r.estHoursPerMonth,
+            humanHandoffCount: r.humanHandoffCount,
+            duvoAgentBrief: r.duvoAgentBrief,
+          }))
+      : curatedAutomations();
 
   // =========================================================================
   // RESILIENCE / KNOWLEDGE / PULSE derivations

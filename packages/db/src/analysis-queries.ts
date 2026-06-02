@@ -8,6 +8,8 @@ import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "./client";
 import {
   analysisRuns,
+  automationOpportunities,
+  channels,
   inefficiencies,
   messages,
   responsibilityClaims,
@@ -99,6 +101,7 @@ export async function clearAnalysis(): Promise<void> {
   await d.delete(inefficiencies);
   await d.delete(routingEvents);
   await d.delete(responsibilityClaims);
+  await d.delete(automationOpportunities);
 }
 
 export async function saveRoutingEvent(input: SaveRoutingEventInput): Promise<void> {
@@ -614,6 +617,128 @@ export async function detectAndSaveInefficiencies(): Promise<number> {
   }
 
   return created;
+}
+
+// ─── Automation opportunities ─────────────────────────────────────────────────
+
+export interface SaveAutomationOpportunityInput {
+  id: string;
+  taskFingerprint: string;
+  description: string;
+  verb: string;
+  object: string;
+  source: string;
+  frequency: number;
+  distinctRequesters: number;
+  distinctAssignees: number;
+  requesterPersonas: string[];
+  crossSystem: string[];
+  duvoFitScore: number;
+  estHoursPerMonth: number;
+  humanHandoffCount: number;
+  duvoAgentBrief: string;
+}
+
+export async function saveAutomationOpportunity(
+  input: SaveAutomationOpportunityInput,
+): Promise<void> {
+  const d = requireDb();
+  await d.insert(automationOpportunities).values({
+    id: input.id,
+    taskFingerprint: input.taskFingerprint,
+    description: input.description,
+    verb: input.verb,
+    object: input.object,
+    source: input.source,
+    frequency: input.frequency,
+    distinctRequesters: input.distinctRequesters,
+    distinctAssignees: input.distinctAssignees,
+    requesterPersonas: JSON.stringify(input.requesterPersonas),
+    crossSystem: JSON.stringify(input.crossSystem),
+    duvoFitScore: input.duvoFitScore,
+    estHoursPerMonth: input.estHoursPerMonth,
+    humanHandoffCount: input.humanHandoffCount,
+    duvoAgentBrief: input.duvoAgentBrief,
+  });
+}
+
+export async function getAutomationOpportunities(): Promise<SaveAutomationOpportunityInput[]> {
+  const d = requireDb();
+  const rows = await d
+    .select()
+    .from(automationOpportunities)
+    .orderBy(desc(automationOpportunities.duvoFitScore));
+  return rows.map((r) => ({
+    id: r.id,
+    taskFingerprint: r.taskFingerprint,
+    description: r.description,
+    verb: r.verb,
+    object: r.object,
+    source: r.source,
+    frequency: r.frequency,
+    distinctRequesters: r.distinctRequesters,
+    distinctAssignees: r.distinctAssignees,
+    requesterPersonas: JSON.parse(r.requesterPersonas) as string[],
+    crossSystem: JSON.parse(r.crossSystem) as string[],
+    duvoFitScore: r.duvoFitScore,
+    estHoursPerMonth: r.estHoursPerMonth,
+    humanHandoffCount: r.humanHandoffCount,
+    duvoAgentBrief: r.duvoAgentBrief,
+  }));
+}
+
+// ─── Message corpus for automation mining ────────────────────────────────────
+
+export interface MessageForMining {
+  text: string;
+  channelName: string;
+  department: string;
+}
+
+/**
+ * Fetch a sample of recent non-trivial messages with channel and department
+ * context, for use as the LLM corpus during automation mining.
+ */
+export async function getMessagesForMining(
+  limit = 200,
+  since?: Date | null,
+): Promise<MessageForMining[]> {
+  const d = requireDb();
+  const rows = await d
+    .select({
+      text: messages.text,
+      channelId: messages.channelId,
+      userId: messages.userId,
+    })
+    .from(messages)
+    .where(
+      since
+        ? sql`${messages.text} is not null and length(${messages.text}) > 15 and ${messages.ts} >= ${since}`
+        : sql`${messages.text} is not null and length(${messages.text}) > 15`,
+    )
+    .orderBy(desc(messages.ts))
+    .limit(limit);
+
+  const channelIds = [...new Set(rows.map((r) => r.channelId).filter(Boolean) as string[])];
+  const userIds = [...new Set(rows.map((r) => r.userId).filter(Boolean) as string[])];
+
+  const [channelRows, userRows] = await Promise.all([
+    channelIds.length > 0
+      ? d.select({ id: channels.id, name: channels.name }).from(channels).where(inArray(channels.id, channelIds))
+      : [],
+    userIds.length > 0
+      ? d.select({ id: users.id, department: users.department }).from(users).where(inArray(users.id, userIds))
+      : [],
+  ]);
+
+  const channelNameMap = new Map(channelRows.map((c) => [c.id, c.name ?? c.id]));
+  const deptMap = new Map(userRows.map((u) => [u.id, u.department ?? "Unknown"]));
+
+  return rows.map((r) => ({
+    text: r.text!,
+    channelName: channelNameMap.get(r.channelId ?? "") ?? "general",
+    department: deptMap.get(r.userId ?? "") ?? "Unknown",
+  }));
 }
 
 // Re-export for convenience so callers don't need to import schema separately
