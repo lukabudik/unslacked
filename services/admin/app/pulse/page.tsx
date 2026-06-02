@@ -1,50 +1,44 @@
-import { Smile, Moon, Grid3x3, Heart } from "lucide-react";
-import {
-  getSentiment,
-  getOverload,
-  getSilos,
-  getRecognition,
-  getKpis,
-} from "@/lib/api/client";
+import { Smile, Moon, Heart } from "lucide-react";
+import { getSentiment, getOverload, getRecognition, getSilos, getKpis } from "@/lib/api/client";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SentimentChart } from "@/components/pulse/SentimentChart";
 import { SiloMatrix } from "@/components/pulse/SiloMatrix";
-import { OverloadList } from "@/components/pulse/OverloadList";
 import { RecognitionList } from "@/components/pulse/RecognitionList";
+import { personaColor } from "@/lib/personas";
 
 export const dynamic = "force-dynamic";
 
 export default async function PulsePage() {
-  const [sentiment, overload, silos, recognition, kpis] = await Promise.all([
+  const [sentiment, overload, recognition, silos, kpis] = await Promise.all([
     getSentiment(),
     getOverload(),
-    getSilos(),
     getRecognition(),
+    getSilos(),
     getKpis(),
   ]);
 
   const avgAfterHours =
     overload.reduce((s, e) => s + e.afterHoursPct, 0) / Math.max(1, overload.length);
-  const sentimentPct = Math.round(((kpis.orgSentiment + 1) / 2) * 100);
+  const positivityPct = Math.round(((kpis.orgSentiment + 1) / 2) * 100);
+  const teamMood = [...sentiment].sort((a, b) => b.current - a.current);
 
   return (
     <div className="space-y-6">
       <div className="space-y-1">
         <h2 className="text-xl font-semibold tracking-tight">Org Pulse</h2>
         <p className="text-sm text-muted-foreground">
-          The human signal underneath the graph — team mood over time, who&apos;s carrying
-          too much load, which functions are siloed, and where recognition flows.
+          The human signal from real workspace data — reaction positivity by team,
+          where recognition flows, and which functions stay siloed.
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
-          label="Org sentiment"
-          value={`${sentimentPct}`}
+          label="Reaction positivity"
+          value={`${positivityPct}`}
           icon={<Smile className="h-3.5 w-3.5" />}
           accent="#10b981"
-          previous="0–100 mood index"
+          previous="0–100, from emoji reactions"
         />
         <StatCard
           label="After-hours load"
@@ -55,13 +49,6 @@ export default async function PulsePage() {
           previous="of top-load activity"
         />
         <StatCard
-          label="Cross-team links"
-          value={`${silos.filter((s) => s.strength >= 0.25).length}`}
-          icon={<Grid3x3 className="h-3.5 w-3.5" />}
-          accent="#6366f1"
-          previous="active dept pairs"
-        />
-        <StatCard
           label="Recognition given"
           value={`${recognition.reduce((s, e) => s + e.given, 0)}`}
           icon={<Heart className="h-3.5 w-3.5" />}
@@ -70,40 +57,32 @@ export default async function PulsePage() {
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Team sentiment over time</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Rolling mood per team, from message tone. Toggle a team to focus.
-            </p>
-          </CardHeader>
-          <CardContent>
-            <SentimentChart series={sentiment} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Silo matrix</CardTitle>
-            <p className="text-sm text-muted-foreground">Who talks to whom, across teams.</p>
-          </CardHeader>
-          <CardContent>
-            <SiloMatrix cells={silos} />
-          </CardContent>
-        </Card>
-      </div>
-
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Overload watch</CardTitle>
+            <CardTitle>Team mood</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Mentions, threads, and after-hours activity — who&apos;s closest to burnout.
+              Reaction positivity per team — share of positive vs. negative emoji.
             </p>
           </CardHeader>
-          <CardContent>
-            <OverloadList entries={overload} />
+          <CardContent className="space-y-3 pt-1">
+            {teamMood.map((s) => {
+              const pct = Math.round(((s.current + 1) / 2) * 100);
+              return (
+                <div key={s.team} className="flex items-center gap-3">
+                  <span className="w-28 shrink-0 truncate text-sm">{s.team}</span>
+                  <div className="h-2 flex-1 rounded-full bg-muted">
+                    <div
+                      className="h-2 rounded-full"
+                      style={{ width: `${pct}%`, backgroundColor: personaColor(s.persona) }}
+                    />
+                  </div>
+                  <span className="w-8 text-right text-xs tabular-nums text-muted-foreground">
+                    {pct}
+                  </span>
+                </div>
+              );
+            })}
           </CardContent>
         </Card>
 
@@ -119,6 +98,16 @@ export default async function PulsePage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Silo matrix</CardTitle>
+          <p className="text-sm text-muted-foreground">Who talks to whom, across teams.</p>
+        </CardHeader>
+        <CardContent>
+          <SiloMatrix cells={silos} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

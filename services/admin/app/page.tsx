@@ -5,7 +5,6 @@ import {
   Clock,
   EyeOff,
   HelpCircle,
-  Network,
   Repeat,
   ShieldAlert,
   Smile,
@@ -15,21 +14,15 @@ import {
 
 import {
   getActivityTimeline,
-  getAutomations,
   getCommsGraph,
   getKpis,
   getMiddlemen,
-  getPersonaRoutes,
-  getShadowRanks,
 } from "@/lib/api/client";
 import { WorkspaceHeader } from "@/components/dashboard/WorkspaceHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
-import { DataTabs } from "@/components/dashboard/DataTabs";
-import { ShadowOrgChart } from "@/components/dashboard/ShadowOrgChart";
 import { TimelineChart } from "@/components/charts/TimelineChart";
 import { PersonaDonut } from "@/components/charts/PersonaDonut";
 import { MiddlemenList } from "@/components/charts/MiddlemenList";
-import { GraphPreview } from "@/components/graph/GraphPreview";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Persona } from "@/lib/api/types";
 import type { ReactNode } from "react";
@@ -53,25 +46,24 @@ function CardLink({ href, children }: { href: string; children: string }) {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="space-y-3">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {title}
-      </h3>
+      <div className="flex items-center gap-2">
+        <span className="h-3.5 w-1 rounded-full bg-primary/70" aria-hidden />
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {title}
+        </h3>
+      </div>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">{children}</div>
     </section>
   );
 }
 
 export default async function OverviewPage() {
-  const [kpis, graph, middlemen, automations, routes, activity, shadowRanks] =
-    await Promise.all([
-      getKpis(),
-      getCommsGraph(),
-      getMiddlemen(),
-      getAutomations(),
-      getPersonaRoutes(),
-      getActivityTimeline(),
-      getShadowRanks(),
-    ]);
+  const [kpis, graph, middlemen, activity] = await Promise.all([
+    getKpis(),
+    getCommsGraph(),
+    getMiddlemen(),
+    getActivityTimeline(),
+  ]);
 
   const volByPersona = new Map<Persona, number>();
   graph.nodes.forEach((n) =>
@@ -106,10 +98,10 @@ export default async function OverviewPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <WorkspaceHeader people={graph.nodes.length} snapshot={snapshot} />
 
-      {/* Network efficiency — real week-over-week trends */}
+      {/* Headline efficiency KPIs — real week-over-week trends */}
       <Section title="Network efficiency">
         <StatCard
           label="Avg degrees of sep."
@@ -146,7 +138,47 @@ export default async function OverviewPage() {
         />
       </Section>
 
-      {/* Structure & risk */}
+      {/* Featured band — activity timeline + persona/middlemen side panel */}
+      <div className="grid gap-5 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Communication activity</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Messages, thread replies, and @-mentions per day. Pick a period or
+              toggle a series.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <TimelineChart data={activity} />
+          </CardContent>
+        </Card>
+
+        <div className="grid gap-5">
+          <Card>
+            <CardHeader>
+              <CardTitle>Messages by persona</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Share of volume across functions.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <PersonaDonut data={personaVolume} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
+              <CardTitle>Top middlemen</CardTitle>
+              <CardLink href="/graph">Inspect</CardLink>
+            </CardHeader>
+            <CardContent>
+              <MiddlemenList middlemen={middlemen.slice(0, 5)} people={graph.nodes} />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Supporting metrics */}
       <Section title="Structure & risk">
         <StatCard
           label="Shadow teams"
@@ -162,37 +194,30 @@ export default async function OverviewPage() {
           accent="#f59e0b"
           previous="key connectors"
         />
-        <Link href="/resilience">
-          <StatCard
-            label="Key-person risk"
-            value={`${kpis.keyPersonRiskCount}`}
-            icon={<ShieldAlert className="h-3.5 w-3.5" />}
-            accent="#ef4444"
-            previous="can't-lose people"
-          />
-        </Link>
-        <Link href="/resilience">
-          <StatCard
-            label="Single points of failure"
-            value={`${kpis.singlePointsOfFailure}`}
-            icon={<Bus className="h-3.5 w-3.5" />}
-            accent="#f59e0b"
-            previous="one-owner topics"
-          />
-        </Link>
+        <StatCard
+          label="Key-person risk"
+          value={`${kpis.keyPersonRiskCount}`}
+          icon={<ShieldAlert className="h-3.5 w-3.5" />}
+          accent="#ef4444"
+          previous="can't-lose people"
+        />
+        <StatCard
+          label="Single points of failure"
+          value={`${kpis.singlePointsOfFailure}`}
+          icon={<Bus className="h-3.5 w-3.5" />}
+          accent="#f59e0b"
+          previous="one-owner topics"
+        />
       </Section>
 
-      {/* Knowledge & mood */}
       <Section title="Knowledge & mood">
-        <Link href="/knowledge">
-          <StatCard
-            label="Open questions"
-            value={`${kpis.openQuestions}`}
-            icon={<HelpCircle className="h-3.5 w-3.5" />}
-            accent="#06b6d4"
-            previous="unanswered / slow"
-          />
-        </Link>
+        <StatCard
+          label="Open questions"
+          value={`${kpis.openQuestions}`}
+          icon={<HelpCircle className="h-3.5 w-3.5" />}
+          accent="#06b6d4"
+          previous="unanswered / slow"
+        />
         <StatCard
           label="Median time to answer"
           value={`${kpis.medianTimeToAnswerHours}h`}
@@ -209,107 +234,14 @@ export default async function OverviewPage() {
             previous="reaction positivity"
           />
         </Link>
-        <Link href="/knowledge">
-          <StatCard
-            label="Tribal knowledge"
-            value={`${(kpis.tribalKnowledgePct * 100).toFixed(0)}%`}
-            icon={<EyeOff className="h-3.5 w-3.5" />}
-            accent="#a855f7"
-            previous="Q&A hidden in DMs"
-          />
-        </Link>
+        <StatCard
+          label="Tribal knowledge"
+          value={`${(kpis.tribalKnowledgePct * 100).toFixed(0)}%`}
+          icon={<EyeOff className="h-3.5 w-3.5" />}
+          accent="#a855f7"
+          previous="Q&A hidden in DMs"
+        />
       </Section>
-
-      {/* Timeline + persona donut */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Communication activity</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Routing events, new group chats, and automation runs per day.
-              Pick a period or toggle a series.
-            </p>
-          </CardHeader>
-          <CardContent>
-            <TimelineChart data={activity} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Messages by persona</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Share of volume across functions.
-            </p>
-          </CardHeader>
-          <CardContent>
-            <PersonaDonut data={personaVolume} />
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Graph preview + middlemen */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle className="flex items-center gap-2">
-              <Network className="h-4 w-4" />
-              Communication graph
-            </CardTitle>
-            <CardLink href="/graph">Open full graph</CardLink>
-          </CardHeader>
-          <CardContent>
-            <GraphPreview graph={graph} height={320} />
-            <p className="mt-2 text-xs text-muted-foreground">
-              Red nodes are middlemen everything routes through. Dashed outline
-              marks a detected shadow team.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle>Top middlemen</CardTitle>
-            <CardLink href="/graph">Inspect</CardLink>
-          </CardHeader>
-          <CardContent>
-            <MiddlemenList middlemen={middlemen.slice(0, 5)} people={graph.nodes} />
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Shadow org chart */}
-      <Card>
-        <CardHeader className="flex-row items-center justify-between space-y-0">
-          <div className="space-y-1">
-            <CardTitle>Shadow org chart</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              People whose real influence outranks their title — the informal
-              backbone of the org.
-            </p>
-          </div>
-          <CardLink href="/graph">Open graph</CardLink>
-        </CardHeader>
-        <CardContent>
-          <ShadowOrgChart entries={shadowRanks} />
-        </CardContent>
-      </Card>
-
-      {/* Tabbed data table */}
-      <Card>
-        <CardHeader className="flex-row items-center justify-between space-y-0">
-          <CardTitle>Workspace data</CardTitle>
-          <CardLink href="/automations">View automations</CardLink>
-        </CardHeader>
-        <CardContent>
-          <DataTabs
-            automations={automations}
-            routes={routes}
-            middlemen={middlemen}
-            people={graph.nodes}
-          />
-        </CardContent>
-      </Card>
     </div>
   );
 }
