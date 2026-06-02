@@ -5,7 +5,7 @@
  *
  * Lives in @unslacked/db so every service (slack-mock, admin) shares it.
  */
-import { and, asc, eq, or } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, lt, or } from "drizzle-orm";
 import { db } from "./client";
 import {
   users as usersTable,
@@ -351,4 +351,142 @@ export async function toggleReaction(messageId: string, userId: string, emoji: s
   }
   await addReaction(messageId, userId, emoji);
   return "added";
+}
+
+// ---------------------------------------------------------------------------
+// Paginated channel timeline — load only the newest N top-level messages, then
+// older chunks on demand (scroll-up). Avoids fetching/rendering whole channels
+// (e.g. #general has ~1,900 messages). Index-served via messages(channel_id, ts).
+// ---------------------------------------------------------------------------
+
+export interface ThreadMetaLite {
+  count: number;
+  lastReplyTs: string;
+  participantIds: string[];
+}
+
+export interface TimelinePage {
+  messages: StoreMessage[]; // top-level only, ascending ts
+  reactions: Record<string, ReactionGroup[]>;
+  threads: Record<string, ThreadMetaLite>; // keyed by parent message id
+  hasMore: boolean; // are there older messages before this page?
+}
+
+const TIMELINE_LIMIT = 50;
+
+export async function getChannelTimeline(
+  channelId: string,
+  opts: { limit?: number; before?: string } = {},
+): Promise<TimelinePage> {
+  const limit = opts.limit ?? TIMELINE_LIMIT;
+  const beforeIso = opts.before ?? null;
+
+  let parents: StoreMessage[];
+  let hasMore: boolean;
+
+  if (db) {
+    const conds = [
+      eq(messagesTable.channelId, channelId),
+      or(isNull(messagesTable.threadTs), eq(messagesTable.threadTs, messagesTable.id)),
+    ];
+    if (beforeIso) conds.push(lt(messagesTable.ts, new Date(beforeIso)));
+    const rows = await db
+      .select()
+      .from(messagesTable)
+      .where(and(...conds))
+      .orderBy(desc(messagesTable.ts)) // newest first, then take a page…
+      .limit(limit + 1); // +1 to detect whether older messages remain
+    hasMore = rows.length > limit;
+    parents = rows
+      .slice(0, limit)
+      .reverse() // …reversed back to ascending for rendering
+      .map((m) => ({
+        id: m.id,
+        channelId: m.channelId,
+        userId: m.userId,
+        text: m.text,
+        threadTs: m.threadTs,
+        ts: m.ts.toISOString(),
+      }));
+  } else {
+    const all = fx.messages
+      .filter((m) => m.channelId === channelId && (!m.threadTs || m.threadTs === m.id))
+      .map((m) => ({ ...m, tsIso: fxTs(m.minute) }))
+      .sort((a, b) => b.tsIso.localeCompare(a.tsIso)); // newest first
+    const filtered = beforeIso ? all.filter((m) => m.tsIso < beforeIso) : all;
+    hasMore = filtered.length > limit;
+    parents = filtered
+      .slice(0, limit)
+      .reverse()
+      .map((m) => ({
+        id: m.id,
+        channelId: m.channelId,
+        userId: m.userId,
+        text: m.text,
+        threadTs: m.threadTs ?? null,
+        ts: m.tsIso,
+      }));
+  }
+
+  const ids = parents.map((m) => m.id);
+  const [threads, reactions] = await Promise.all([
+    _threadMeta(channelId, ids),
+    _reactionsForMessages(channelId, ids),
+  ]);
+  return { messages: parents, reactions, threads, hasMore };
+}
+
+async function _threadMeta(channelId: string, parentIds: string[]): Promise<Record<string, ThreadMetaLite>> {
+  if (!parentIds.length) return {};
+  let replies: { threadTs: string; userId: string; ts: string }[];
+  if (db) {
+    const rows = await db
+      .select({ threadTs: messagesTable.threadTs, userId: messagesTable.userId, ts: messagesTable.ts })
+      .from(messagesTable)
+      .where(inArray(messagesTable.threadTs, parentIds))
+      .orderBy(asc(messagesTable.ts));
+    replies = rows
+      .filter((r) => r.threadTs)
+      .map((r) => ({ threadTs: r.threadTs as string, userId: r.userId, ts: r.ts.toISOString() }));
+  } else {
+    const set = new Set(parentIds);
+    replies = fx.messages
+      .filter((m) => m.threadTs && m.threadTs !== m.id && set.has(m.threadTs))
+      .map((m) => ({ threadTs: m.threadTs as string, userId: m.userId, ts: fxTs(m.minute) }))
+      .sort((a, b) => a.ts.localeCompare(b.ts));
+  }
+  const out: Record<string, ThreadMetaLite> = {};
+  for (const r of replies) {
+    const meta = (out[r.threadTs] ??= { count: 0, lastReplyTs: r.ts, participantIds: [] });
+    meta.count += 1;
+    meta.lastReplyTs = r.ts;
+    if (!meta.participantIds.includes(r.userId)) meta.participantIds.push(r.userId);
+  }
+  return out;
+}
+
+async function _reactionsForMessages(channelId: string, ids: string[]): Promise<Record<string, ReactionGroup[]>> {
+  if (!ids.length) return {};
+  let rows: { messageId: string; userId: string; emoji: string }[];
+  if (db) {
+    rows = await db
+      .select({ messageId: reactionsTable.messageId, userId: reactionsTable.userId, emoji: reactionsTable.emoji })
+      .from(reactionsTable)
+      .where(inArray(reactionsTable.messageId, ids));
+  } else {
+    const set = new Set(ids);
+    rows = fx.reactions.filter((r) => set.has(r.messageId));
+  }
+  const byMessage: Record<string, ReactionGroup[]> = {};
+  for (const r of rows) {
+    const groups = (byMessage[r.messageId] ??= []);
+    const existing = groups.find((g) => g.emoji === r.emoji);
+    if (existing) {
+      existing.count += 1;
+      existing.userIds.push(r.userId);
+    } else {
+      groups.push({ emoji: r.emoji, count: 1, userIds: [r.userId] });
+    }
+  }
+  return byMessage;
 }

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { addMessage, toggleReaction } from "@unslacked/db";
+import { addMessage, toggleReaction, getChannelTimeline, type TimelinePage } from "@unslacked/db";
 import { VIEWER_ID } from "@/lib/viewer";
 
 /**
@@ -31,4 +31,15 @@ export async function toggleReactionAction(formData: FormData): Promise<void> {
 
   await toggleReaction(messageId, VIEWER_ID, emoji);
   revalidatePath(`/c/${channelId}`);
+}
+
+/**
+ * Fetch the page of top-level messages immediately older than `beforeIso`, for
+ * scroll-up pagination. Returns a fully serializable TimelinePage.
+ */
+export async function loadOlderMessages(channelId: string, beforeIso: string): Promise<TimelinePage> {
+  if (!channelId || !beforeIso) {
+    return { messages: [], reactions: {}, threads: {}, hasMore: false };
+  }
+  return getChannelTimeline(channelId, { before: beforeIso });
 }

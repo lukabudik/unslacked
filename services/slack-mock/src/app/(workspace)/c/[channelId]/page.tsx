@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { listUsers, listChannels, getHistory, getReactions } from "@unslacked/db";
+import { listUsers, listChannels, getChannelTimeline } from "@unslacked/db";
 import { ChannelHeader, ChannelTopicBar } from "@/components/slack/ChannelHeader";
-import { MessageList } from "@/components/slack/MessageList";
+import { ChannelTimeline } from "@/components/slack/ChannelTimeline";
 import { Composer } from "@/components/slack/Composer";
 import { ThreadPanel } from "@/components/slack/ThreadPanel";
 import { channelLabel } from "@/components/slack/utils";
@@ -20,10 +20,7 @@ export default async function ChannelPage({
   const channel = channels.find((c) => c.id === channelId);
   if (!channel) notFound();
 
-  const [messages, reactions] = await Promise.all([
-    getHistory(channelId),
-    getReactions(channelId),
-  ]);
+  const page = await getChannelTimeline(channelId);
 
   const userMap = Object.fromEntries(users.map((u) => [u.id, u]));
   const isDm = channel.kind === "im" || channel.kind === "mpim";
@@ -37,16 +34,14 @@ export default async function ChannelPage({
       <div className="flex min-h-0 flex-1 overflow-hidden">
         {/* main conversation column */}
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-            <MessageList
-              messages={messages}
-              users={userMap}
-              reactions={reactions}
-              channelName={label}
-              channelId={channelId}
-              isDm={isDm}
-            />
-          </div>
+          <ChannelTimeline
+            key={channelId}
+            channelId={channelId}
+            initialPage={page}
+            users={userMap}
+            channelName={label}
+            isDm={isDm}
+          />
 
           <Composer channelId={channelId} placeholderTarget={isDm ? label : `#${label}`} />
         </div>

@@ -1,52 +1,45 @@
-import type { StoreMessage, StoreUser, ReactionGroup } from "@unslacked/db";
+import type { StoreMessage, StoreUser, ReactionGroup, ThreadMetaLite } from "@unslacked/db";
 import { Message, type ThreadMeta } from "./Message";
 import { dayKey, formatDayDivider, shouldGroup } from "./utils";
 
+/**
+ * Pure renderer: given a slice of TOP-LEVEL messages (ascending ts) plus
+ * precomputed reactions/threads, render day dividers, consecutive-author
+ * grouping, reactions and thread affordances. All pagination/scroll state and
+ * the channel intro live in ChannelTimeline.
+ */
 export function MessageList({
   messages,
   users,
   reactions,
-  channelName,
+  threads,
   channelId,
-  isDm,
 }: {
   messages: StoreMessage[];
   users: Record<string, StoreUser>;
   reactions: Record<string, ReactionGroup[]>;
+  threads: Record<string, ThreadMetaLite>;
   channelName: string;
   channelId: string;
   isDm: boolean;
 }) {
-  // Split parents vs replies. A reply has threadTs pointing at its parent id.
-  const replyMap = new Map<string, StoreMessage[]>();
-  const parents: StoreMessage[] = [];
-  for (const m of messages) {
-    if (m.threadTs && m.threadTs !== m.id) {
-      const arr = replyMap.get(m.threadTs) ?? [];
-      arr.push(m);
-      replyMap.set(m.threadTs, arr);
-    } else {
-      parents.push(m);
-    }
-  }
-  // messages already arrive sorted asc by ts.
-
   let lastDay = "";
   let prevTopLevel: StoreMessage | null = null;
 
   return (
-    <div className="flex flex-col pt-4 pb-3">
-      <ConversationStart channelName={channelName} isDm={isDm} />
-
-      {parents.map((m) => {
-        const replies = (replyMap.get(m.id) ?? []).sort((a, b) => a.ts.localeCompare(b.ts));
-        const thread: ThreadMeta | undefined = replies.length
-          ? {
-              count: replies.length,
-              lastReplyTs: replies[replies.length - 1].ts,
-              participants: dedupeUsers(replies.map((r) => users[r.userId]).filter(Boolean) as StoreUser[]),
-            }
-          : undefined;
+    <div className="flex flex-col pb-3">
+      {messages.map((m) => {
+        const meta = threads[m.id];
+        const thread: ThreadMeta | undefined =
+          meta && meta.count > 0
+            ? {
+                count: meta.count,
+                lastReplyTs: meta.lastReplyTs,
+                participants: meta.participantIds
+                  .map((id) => users[id])
+                  .filter(Boolean) as StoreUser[],
+              }
+            : undefined;
 
         const dk = dayKey(m.ts);
         const showDivider = dk !== lastDay;
@@ -75,17 +68,6 @@ export function MessageList({
   );
 }
 
-function dedupeUsers(arr: StoreUser[]): StoreUser[] {
-  const seen = new Set<string>();
-  const out: StoreUser[] = [];
-  for (const u of arr) {
-    if (seen.has(u.id)) continue;
-    seen.add(u.id);
-    out.push(u);
-  }
-  return out;
-}
-
 function DayDivider({ label }: { label: string }) {
   return (
     <div className="relative my-2 flex items-center px-5">
@@ -94,30 +76,6 @@ function DayDivider({ label }: { label: string }) {
         {label}
       </span>
       <span className="h-px flex-1 bg-[#e2e2e2]" />
-    </div>
-  );
-}
-
-function ConversationStart({ channelName, isDm }: { channelName: string; isDm: boolean }) {
-  return (
-    <div className="px-5 pt-4 pb-2">
-      {isDm ? (
-        <p className="text-[15px] leading-relaxed text-[#616061]">
-          This is the very beginning of your direct message history with{" "}
-          <span className="font-bold text-[#1d1c1d]">{channelName}</span>.
-        </p>
-      ) : (
-        <>
-          <div className="mb-2 flex size-12 items-center justify-center rounded-xl bg-[#f0f0f0] text-2xl">👋</div>
-          <h2 className="text-[22px] font-extrabold text-[#1d1c1d]">
-            #{channelName}
-          </h2>
-          <p className="mt-1 text-[15px] leading-relaxed text-[#616061]">
-            This is the very beginning of the{" "}
-            <span className="font-bold text-[#1d1c1d]">#{channelName}</span> channel.
-          </p>
-        </>
-      )}
     </div>
   );
 }
