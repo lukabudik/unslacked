@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+:root {
+  --aubergine: #3f0e40;
+  --aubergine-dark: #350d36;
+  --aubergine-hover: #4f1050;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}

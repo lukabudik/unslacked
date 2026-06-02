@@ -1,0 +1,4 @@
+# pnpm 11 build-script approvals for this package's native deps.
+allowBuilds:
+  esbuild: true
+  sharp: true
