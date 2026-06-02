@@ -50,8 +50,8 @@
     },
     "build": {
       "file": "vo/build.mp3",
-      "duration": 13.932,
-      "text": "And we built all of it this weekend. A fully-working Slack — real UI and all — so a hundred AI agents could message each other into a living, six-week company. Then the engine that reads it, and the dashboard that reveals it."
+      "duration": 19.179,
+      "text": "We built this whole pipeline today. A working Slack clone — because we needed somewhere to simulate the data. A hundred AI agents role-played six weeks of chatter. An analysis agent reads it with the Anthropic SDK, and the dashboard turns it into Claude-enriched insight, plus automation briefs for Duvo."
     },
     "close": {
       "file": "vo/close.mp3",

@@ -24,14 +24,14 @@ It does **not** regenerate the voiceover (that costs ElevenLabs credits) — run
 `/with-timestamps` endpoint to get each clip's exact spoken length and writes
 `src/data/vo-manifest.json`. **The whole timeline is then sized from that manifest**
 (`src/lib/theme.ts`): each scene = lead-in + narration + a tail beat. Re-record the VO and
-the video re-times itself — total runtime is currently ~90s.
+the video re-times itself — total runtime is currently ~94s.
 
 - Clips render to `public/vo/*.mp3` (gitignored) and are muxed in via `<Audio>` in `src/Video.tsx`.
 - API key: `services/demo/.env.local` (gitignored) — `ELEVENLABS_API_KEY=...`.
 - The ElevenLabs MCP is also registered in Claude Code (local scope) for interactive use.
 - Edit the narration lines in `scripts/build-vo.mjs` (`LINES`).
 
-## The story (11 scenes, ~90s, voiceover-paced)
+## The story (11 scenes, ~94s, voiceover-paced)
 
 | # | Scene | Beat | File |
 |---|---|---|---|
@@ -44,7 +44,7 @@ the video re-times itself — total runtime is currently ~90s.
 | 7 | Automations | **Real** /automations screen — auto-drafts Duvo AI briefs. | `scenes/Automations.tsx` |
 | 8 | Assistant | In-Slack: agent reroutes a misdirected DM (1-click) + an ask-anytime bot. | `scenes/Assistant.tsx` |
 | 9 | Fix | The 5-hop chain collapses to one message; a routing rule materializes. | `scenes/Fix.tsx` |
-| 10 | Build | Hackathon "how we built it" — Slack mock → 100 agents → engine → dashboard. | `scenes/Build.tsx` |
+| 10 | Build | Hackathon "how we built it" — Slack clone → simulate 6wks → analyze (Anthropic SDK) → dashboard + Duvo. | `scenes/Build.tsx` |
 | 11 | Close | "unslacked — See who really runs your company." | `scenes/Close.tsx` |
 
 Timeline and crossfade durations live in `src/lib/theme.ts` (`scenes`, `TRANSITION`).
@@ -79,9 +79,10 @@ To re-pick the hero chain or tune the graph, edit `build-data.mjs` and re-run `p
 - `src/components/` — `SlackMock` (chrome + message row), `Avatar`, `RichText` (mention styling),
   `Background` (cinematic backdrop)
 
-The Slack and admin chrome are **recreated** in Remotion (styled to match the real apps) so the
-video renders anywhere without a live DB. To swap in real screen recordings later, drop captures
-into `public/` and replace the `World`/`Dashboard` scene bodies with `<OffthreadVideo>`.
+The Slack chrome and the in-Slack **Assistant** scene (routing nudge + "Unslacked Assistant" bot DM)
+are recreated in Remotion to faithfully match `services/slack-mock` (cream `AssistantNudge`, the
+gradient-✨ assistant identity, the "App" badge). The **admin** scenes use real screenshots (see above)
+rather than recreations, so the dashboard is exactly the running product.
 
 ## Notes
 

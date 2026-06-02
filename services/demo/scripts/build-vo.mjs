@@ -42,7 +42,7 @@ const LINES = [
   { id: "automations", text: "It also finds the work worth automating — the same requests, again and again — and drafts a ready-to-ship brief straight into a Duvo AI agent." },
   { id: "assistant", text: "And it lives right inside Slack. Message the wrong person, and an agent quietly tells you who really owns it — one click to reroute. Not sure who to ask? Just ask the bot." },
   { id: "fix", text: "The result: five hops and days of waiting become a single message, straight to the owner." },
-  { id: "build", text: "And we built all of it this weekend. A fully-working Slack — real UI and all — so a hundred AI agents could message each other into a living, six-week company. Then the engine that reads it, and the dashboard that reveals it." },
+  { id: "build", text: "We built this whole pipeline today. A working Slack clone — because we needed somewhere to simulate the data. A hundred AI agents role-played six weeks of chatter. An analysis agent reads it with the Anthropic SDK, and the dashboard turns it into Claude-enriched insight, plus automation briefs for Duvo." },
   { id: "close", text: "Unslacked. See who really runs your company." },
 ];
 
@@ -84,17 +84,27 @@ async function tts(voiceId, text) {
 const outDir = join(ROOT, "public", "vo");
 mkdirSync(outDir, { recursive: true });
 
+// optional partial regen: `node build-vo.mjs build assistant` only re-synths those ids (saves credits)
+const only = process.argv.slice(2).filter((x) => !x.startsWith("-"));
+const manifestPath = join(ROOT, "src", "data", "vo-manifest.json");
+
 const voice = await pickVoice();
 console.log(`voice: ${voice.name} (${voice.voice_id})`);
 
-const manifest = { voice: voice.name, voiceId: voice.voice_id, model: MODEL, clips: {} };
-for (const line of LINES) {
+let manifest = { voice: voice.name, voiceId: voice.voice_id, model: MODEL, clips: {} };
+if (only.length && existsSync(manifestPath)) {
+  manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  manifest.voice = voice.name;
+  manifest.voiceId = voice.voice_id;
+}
+const targets = only.length ? LINES.filter((l) => only.includes(l.id)) : LINES;
+for (const line of targets) {
   const { audio, duration } = await tts(voice.voice_id, line.text);
   writeFileSync(join(outDir, `${line.id}.mp3`), audio);
   manifest.clips[line.id] = { file: `vo/${line.id}.mp3`, duration: Math.round(duration * 1000) / 1000, text: line.text };
   console.log(`  ${line.id}: ${duration?.toFixed(2)}s`);
 }
 
-writeFileSync(join(ROOT, "src", "data", "vo-manifest.json"), JSON.stringify(manifest, null, 2));
+writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 const total = Object.values(manifest.clips).reduce((a, c) => a + c.duration, 0);
 console.log(`total narration: ${total.toFixed(1)}s -> src/data/vo-manifest.json`);

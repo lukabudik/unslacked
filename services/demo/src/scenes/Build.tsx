@@ -7,10 +7,10 @@ import { Icon } from "../components/AdminIcons";
 import { data } from "../lib/data";
 
 const STAGES = [
-  { icon: "network", title: "A real Slack", sub: "we built a fully-working Slack — UI and all", note: "agents had to actually message each other", color: brand.accentBright },
-  { icon: "activity", title: "100 AI agents", sub: "messaging in real time for six weeks", note: `${data.stats.messages.toLocaleString()} msgs · an organic company`, color: brand.gold },
-  { icon: "waypoints", title: "The routing engine", sub: "parallel Claude agents read every thread", note: `${data.stats.chains} hand-off chains found`, color: brand.danger },
-  { icon: "dashboard", title: "The dashboard", sub: "the shadow org chart, revealed", note: "who really runs the company", color: brand.good },
+  { n: "1", icon: "network", title: "A Slack clone", sub: "fully functional — built so we had somewhere to simulate the data", note: "real UI · threads · DMs · the bot", color: brand.accentBright },
+  { n: "2", icon: "activity", title: "Simulate 6 weeks", sub: "100 AI agents role-play six weeks of company chatter", note: `${data.stats.messages.toLocaleString()} messages, compressed`, color: brand.gold },
+  { n: "3", icon: "waypoints", title: "Analyze it", sub: "an agent reads every thread with the Anthropic SDK", note: "maps who routes whom", color: brand.danger },
+  { n: "4", icon: "dashboard", title: "Surface + act", sub: "a Claude-enriched dashboard + automation briefs", note: "ready to ship into Duvo", color: brand.good },
 ];
 
 export const Build: React.FC = () => {
@@ -26,8 +26,8 @@ export const Build: React.FC = () => {
 
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-start", paddingTop: 110 }}>
         <div style={{ opacity: title, textAlign: "center" }}>
-          <div style={{ color: brand.inkDim, fontSize: 19, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase" }}>Built this weekend</div>
-          <div style={{ color: brand.ink, fontSize: 56, fontWeight: 900, letterSpacing: -1.5, marginTop: 8 }}>Four pieces, from scratch.</div>
+          <div style={{ color: brand.inkDim, fontSize: 19, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase" }}>Built today</div>
+          <div style={{ color: brand.ink, fontSize: 56, fontWeight: 900, letterSpacing: -1.5, marginTop: 8 }}>How we built it.</div>
         </div>
       </AbsoluteFill>
 
@@ -46,8 +46,11 @@ export const Build: React.FC = () => {
                   </div>
                 )}
                 <div style={{ width: 320, opacity: sp, transform: `translateY(${(1 - sp) * 24}px)`, background: brand.panel, border: `1px solid ${brand.panelBorder}`, borderTop: `3px solid ${s.color}`, borderRadius: 16, padding: "22px 22px 20px", boxShadow: "0 20px 50px rgba(0,0,0,0.4)" }}>
-                  <div style={{ width: 46, height: 46, borderRadius: 12, background: s.color + "22", color: s.color, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <Icon name={s.icon} size={24} />
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{ width: 46, height: 46, borderRadius: 12, background: s.color + "22", color: s.color, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Icon name={s.icon} size={24} />
+                    </div>
+                    <span style={{ fontFamily: monoFamily, color: brand.inkFaint, fontSize: 28, fontWeight: 700 }}>{s.n}</span>
                   </div>
                   <div style={{ color: brand.ink, fontWeight: 800, fontSize: 23, marginTop: 16 }}>{s.title}</div>
                   <div style={{ color: brand.inkDim, fontSize: 16, marginTop: 6, lineHeight: 1.4, minHeight: 46 }}>{s.sub}</div>
