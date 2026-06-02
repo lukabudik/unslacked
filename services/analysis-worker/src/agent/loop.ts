@@ -6,9 +6,10 @@ import { mineAutomations } from "./automations.js";
 
 const anthropic = new Anthropic();
 
-// One conversation per worker — all run in parallel.
-// Keeps each agent's turn count low (3–5 turns) instead of hitting MAX_TURNS.
+// One conversation per worker keeps each agent's turn count low (3–5 turns).
 const CHUNK_SIZE = 1;
+// Max workers running simultaneously — caps concurrent Anthropic API calls.
+const MAX_CONCURRENT = 10;
 
 const WORKER_SYSTEM_PROMPT = `
 You are a routing-pattern analyst. You have been assigned a specific list of Slack conversations to process.
@@ -132,11 +133,14 @@ export async function runAnalysisLoop(
 
   onProgress?.({ phase: "workers" });
 
-  // Phase 1: workers read conversations and save raw signals in parallel
-  const workerCounts = await Promise.all(
-    chunks.map((ids, i) => runWorker(i, ids, onProgress)),
-  );
-  const toolCallCount = workerCounts.reduce((sum, n) => sum + n, 0);
+  // Phase 1: workers read conversations and save raw signals.
+  // Run MAX_CONCURRENT at a time to avoid hammering the Anthropic rate limit.
+  let toolCallCount = 0;
+  for (let i = 0; i < chunks.length; i += MAX_CONCURRENT) {
+    const batch = chunks.slice(i, i + MAX_CONCURRENT);
+    const counts = await Promise.all(batch.map((ids, j) => runWorker(i + j, ids, onProgress)));
+    toolCallCount += counts.reduce((sum, n) => sum + n, 0);
+  }
 
   // Phase 2: aggregate signals into inefficiencies (pure SQL, no LLM)
   onProgress?.({ phase: "aggregating" });

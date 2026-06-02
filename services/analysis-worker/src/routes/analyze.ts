@@ -18,7 +18,9 @@ export async function analyzeRoute(app: FastifyInstance) {
       "Access-Control-Allow-Origin": "*",
     });
 
-    const send = (data: object) => res.write(`data: ${JSON.stringify(data)}\n\n`);
+    const send = (data: object) => {
+      if (!res.writableEnded) res.write(`data: ${JSON.stringify(data)}\n\n`);
+    };
 
     const isFull = req.query.full === "true";
     const sinceOverride = req.query.since ? new Date(req.query.since) : null;
