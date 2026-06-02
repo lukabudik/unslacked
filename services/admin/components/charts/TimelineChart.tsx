@@ -62,7 +62,7 @@ export function TimelineChart({ data }: { data: ActivityPoint[] }) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="w-full space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           {SERIES.map((s) => {
@@ -103,7 +103,7 @@ export function TimelineChart({ data }: { data: ActivityPoint[] }) {
         />
       </div>
 
-      <ChartContainer config={config} className="h-[240px] w-full">
+      <ChartContainer config={config} className="h-[300px] w-full">
         <AreaChart data={filtered} margin={{ left: 4, right: 8, top: 8 }}>
           <defs>
             {SERIES.map((s) => (

@@ -155,7 +155,7 @@ export default async function OverviewPage() {
 
       {/* Featured band — activity timeline + persona/middlemen side panel */}
       <div className="grid gap-5 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2 flex flex-col">
           <CardHeader>
             <CardTitle>Communication activity</CardTitle>
             <p className="text-sm text-muted-foreground">
@@ -163,8 +163,10 @@ export default async function OverviewPage() {
               toggle a series.
             </p>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-1 flex-col">
+            <div className="flex-1" />
             <TimelineChart data={activity} />
+            <div className="flex-[2]" />
           </CardContent>
         </Card>
 
