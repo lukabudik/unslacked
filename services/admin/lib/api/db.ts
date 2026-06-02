@@ -1,5 +1,5 @@
 import "server-only";
-import { db, schema } from "@/lib/db";
+import { db, schema } from "@unslacked/db";
 import type {
   ActivityPoint,
   AutomationOpportunity,
