@@ -6,9 +6,9 @@ import { mineAutomations } from "./automations.js";
 
 const anthropic = new Anthropic();
 
-// How many conversations each worker handles.
-// With ~34 conversations → ~6 workers running in parallel.
-const CHUNK_SIZE = 6;
+// One conversation per worker — all run in parallel.
+// Keeps each agent's turn count low (3–5 turns) instead of hitting MAX_TURNS.
+const CHUNK_SIZE = 1;
 
 const WORKER_SYSTEM_PROMPT = `
 You are a routing-pattern analyst. You have been assigned a specific list of Slack conversations to process.
@@ -82,25 +82,28 @@ async function runWorker(
     if (response.stop_reason === "end_turn") break;
 
     if (response.stop_reason === "tool_use") {
-      const toolResults: Anthropic.ToolResultBlockParam[] = [];
+      const toolBlocks = response.content.filter((b) => b.type === "tool_use");
+      toolCallCount += toolBlocks.length;
 
-      for (const block of response.content) {
-        if (block.type !== "tool_use") continue;
-        toolCallCount++;
-        try { onProgress?.({ worker: workerIndex, toolName: block.name }); } catch { /* ignore */ }
-
-        try {
-          const result = await handleTool(block.name, block.input as Record<string, unknown>);
-          toolResults.push({ type: "tool_result", tool_use_id: block.id, content: result });
-        } catch (err) {
-          toolResults.push({
-            type: "tool_result",
-            tool_use_id: block.id,
-            content: `Error: ${err instanceof Error ? err.message : String(err)}`,
-            is_error: true,
-          });
-        }
-      }
+      const toolResults: Anthropic.ToolResultBlockParam[] = await Promise.all(
+        toolBlocks.map(async (block) => {
+          if (block.type !== "tool_use") {
+            return { type: "tool_result" as const, tool_use_id: "", content: "" };
+          }
+          try { onProgress?.({ worker: workerIndex, toolName: block.name }); } catch { /* ignore */ }
+          try {
+            const result = await handleTool(block.name, block.input as Record<string, unknown>);
+            return { type: "tool_result" as const, tool_use_id: block.id, content: result };
+          } catch (err) {
+            return {
+              type: "tool_result" as const,
+              tool_use_id: block.id,
+              content: `Error: ${err instanceof Error ? err.message : String(err)}`,
+              is_error: true,
+            };
+          }
+        }),
+      );
 
       messages.push({ role: "user", content: toolResults });
       continue;
