@@ -22,6 +22,10 @@ create schema if not exists slack;
 drop view if exists slack.routing_feed;
 drop view if exists slack.message_mentions;
 
+-- Drop the previous conversations_list signature so the new (p_types, …) one
+-- isn't left ambiguous against the old (boolean) overload.
+drop function if exists slack.conversations_list(boolean);
+
 -- ---------------------------------------------------------------------------
 -- helper: reactions for a message, Slack-shaped [{name,count,users[]}]
 -- ---------------------------------------------------------------------------
@@ -114,7 +118,12 @@ returns jsonb language sql stable as $$
 $$;
 
 -- https://api.slack.com/methods/conversations.list  (channels + DMs)
-create or replace function slack.conversations_list(include_archived boolean default true)
+-- p_types filters by kind, e.g. array['public_channel','private_channel'] or
+-- array['im','mpim']; null = everything. (Slack's `types` param, made easy.)
+create or replace function slack.conversations_list(
+  p_types text[] default null,
+  include_archived boolean default true
+)
 returns jsonb language sql stable as $$
   select jsonb_build_object(
     'ok', true,
@@ -137,7 +146,48 @@ returns jsonb language sql stable as $$
       ) as payload,
       ch.name as sort_name
     from public.channels ch
-    where include_archived or not ch.is_archived
+    where (include_archived or not ch.is_archived)
+      and (p_types is null or ch.kind = any(p_types))
+  ) t;
+$$;
+
+-- Just the channels (public + private), no DMs.
+create or replace function slack.channels_list(include_archived boolean default true)
+returns jsonb language sql stable as $$
+  select slack.conversations_list(array['public_channel','private_channel'], include_archived);
+$$;
+
+-- Just the DMs (1:1 `im` + group `mpim`). DMs have no name in Slack, so we
+-- resolve one from the participants. Pass p_user to get only that user's DMs.
+create or replace function slack.dms_list(p_user text default null)
+returns jsonb language sql stable as $$
+  select jsonb_build_object(
+    'ok', true,
+    'dms', coalesce(jsonb_agg(payload order by sort_name), '[]'::jsonb)
+  )
+  from (
+    select
+      jsonb_build_object(
+        'id', ch.id,
+        'is_im', ch.kind = 'im',
+        'is_mpim', ch.kind = 'mpim',
+        'members', (select coalesce(jsonb_agg(m.user_id order by m.user_id), '[]'::jsonb)
+                      from public.channel_members m where m.channel_id = ch.id),
+        -- resolved display name: the participants, joined (Slack shows the
+        -- other person's name; we give all members so it works DM or group DM)
+        'name', (select string_agg(u.real_name, ', ' order by u.real_name)
+                   from public.channel_members m join public.users u on u.id = m.user_id
+                   where m.channel_id = ch.id),
+        'member_names', (select coalesce(jsonb_agg(u.real_name order by u.real_name), '[]'::jsonb)
+                           from public.channel_members m join public.users u on u.id = m.user_id
+                           where m.channel_id = ch.id)
+      ) as payload,
+      ch.name as sort_name
+    from public.channels ch
+    where ch.kind in ('im', 'mpim')
+      and (p_user is null
+           or exists (select 1 from public.channel_members m
+                        where m.channel_id = ch.id and m.user_id = p_user))
   ) t;
 $$;
 
@@ -203,12 +253,19 @@ returns jsonb language sql stable as $$
 $$;
 
 -- ===========================================================================
--- Example calls for the backend
+-- Backend cookbook — the Slack API, as SQL
 -- ===========================================================================
--- select slack.users_list();
--- select slack.conversations_list();
--- select slack.conversations_history('C_ENGINEERING');               -- all
--- select slack.conversations_history('C_ENGINEERING', current_date); -- today
--- select slack.conversations_replies('C_INCIDENTS', 'M_I15');
+-- All users:                 select slack.users_list();
+-- One user:                  select slack.users_info('U_BOB');
+-- All conversations:         select slack.conversations_list();
+-- Channels only:             select slack.channels_list();
+-- DMs only:                  select slack.dms_list();
+-- A user's DMs:              select slack.dms_list('U_ALICE');
+-- Messages in a channel:     select slack.conversations_history('C_ENGINEERING');
+--   ...today only:           select slack.conversations_history('C_ENGINEERING', current_date);
+-- Messages in a DM:          select slack.conversations_history('D_ALICE_BOB');
+-- A whole thread:            select slack.conversations_replies('C_INCIDENTS', 'M_I15');
+--
+-- Prefer rows over JSON envelopes:
 -- select * from slack.messages where channel_id = 'C_OPS' and is_reply = false;
 -- select * from slack.channel_members where channel_id = 'C_ENGINEERING';

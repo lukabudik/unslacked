@@ -48,12 +48,19 @@ Apply once (`pnpm db:api`), then call:
 
 | Call | Returns (Slack-shaped JSON) |
 |------|------------------------------|
-| `select slack.users_list();` | `{ ok, members:[…] }` |
+| `select slack.users_list();` | `{ ok, members:[…] }` — all users |
 | `select slack.users_info('U_BOB');` | `{ ok, user:{…} }` |
-| `select slack.conversations_list();` | `{ ok, channels:[…] }` (channels + DMs, `is_private/is_im/is_mpim/is_archived`, `members[]`) |
-| `select slack.conversations_history('C_ENGINEERING');` | `{ ok, messages:[…], has_more }` (top-level only, each with `reply_count` + `reactions`) |
-| `select slack.conversations_history('C_ENGINEERING', current_date);` | same, **today's** messages |
-| `select slack.conversations_replies('C_INCIDENTS','M_I15');` | `{ ok, messages:[…] }` (a full thread) |
+| `select slack.conversations_list();` | `{ ok, channels:[…] }` — everything (channels + DMs) |
+| `select slack.channels_list();` | `{ ok, channels:[…] }` — **channels only** (public + private) |
+| `select slack.dms_list();` | `{ ok, dms:[…] }` — **DMs only**, with resolved `name`/`member_names` |
+| `select slack.dms_list('U_ALICE');` | same, only that user's DMs |
+| `select slack.conversations_history('C_ENGINEERING');` | `{ ok, messages:[…] }` — channel messages (top-level, each w/ `reply_count` + `reactions`) |
+| `select slack.conversations_history('D_ALICE_BOB');` | same — **works for a DM id too** |
+| `select slack.conversations_history('C_ENGINEERING', current_date);` | **today's** messages |
+| `select slack.conversations_replies('C_INCIDENTS','M_I15');` | `{ ok, messages:[…] }` — a full thread |
+
+`conversations_list` also takes a Slack-style `types` filter, e.g.
+`slack.conversations_list(array['private_channel'])`.
 
 Prefer rows over JSON envelopes? Two views:
 
