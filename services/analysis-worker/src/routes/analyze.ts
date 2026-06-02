@@ -8,7 +8,7 @@ import {
 import { runAnalysisLoop } from "../agent/loop.js";
 
 export async function analyzeRoute(app: FastifyInstance) {
-  app.post<{ Querystring: { full?: string } }>("/analyze", async (req, reply) => {
+  app.post<{ Querystring: { full?: string; since?: string } }>("/analyze", async (req, reply) => {
     reply.hijack();
     const res = reply.raw;
     res.writeHead(200, {
@@ -21,14 +21,15 @@ export async function analyzeRoute(app: FastifyInstance) {
     const send = (data: object) => res.write(`data: ${JSON.stringify(data)}\n\n`);
 
     const isFull = req.query.full === "true";
-    const lastRunAt = isFull ? null : await getLastRunCompletedAt();
+    const sinceOverride = req.query.since ? new Date(req.query.since) : null;
+    const lastRunAt = sinceOverride ?? (isFull ? null : await getLastRunCompletedAt());
     const runId = await startAnalysisRun(isFull);
 
     if (isFull) await clearAnalysis();
 
     send({
       type: "started",
-      mode: isFull ? "full" : "incremental",
+      mode: sinceOverride ? "since" : isFull ? "full" : "incremental",
       since: lastRunAt?.toISOString() ?? null,
     });
 

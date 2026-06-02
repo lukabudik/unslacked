@@ -699,7 +699,10 @@ export interface MessageForMining {
  * Fetch a sample of recent non-trivial messages with channel and department
  * context, for use as the LLM corpus during automation mining.
  */
-export async function getMessagesForMining(limit = 200): Promise<MessageForMining[]> {
+export async function getMessagesForMining(
+  limit = 200,
+  since?: Date | null,
+): Promise<MessageForMining[]> {
   const d = requireDb();
   const rows = await d
     .select({
@@ -708,7 +711,11 @@ export async function getMessagesForMining(limit = 200): Promise<MessageForMinin
       userId: messages.userId,
     })
     .from(messages)
-    .where(sql`${messages.text} is not null and length(${messages.text}) > 15`)
+    .where(
+      since
+        ? sql`${messages.text} is not null and length(${messages.text}) > 15 and ${messages.ts} >= ${since}`
+        : sql`${messages.text} is not null and length(${messages.text}) > 15`,
+    )
     .orderBy(desc(messages.ts))
     .limit(limit);
 

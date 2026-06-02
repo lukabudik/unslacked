@@ -141,7 +141,7 @@ export async function runAnalysisLoop(
 
   // Phase 3: LLM pass over messages to mine automation opportunities
   onProgress?.({ phase: "automations" });
-  const automationsFound = await mineAutomations();
+  const automationsFound = await mineAutomations(since);
 
   return {
     workers: chunks.length,

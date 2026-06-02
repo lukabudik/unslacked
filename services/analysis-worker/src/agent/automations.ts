@@ -47,8 +47,8 @@ Return a JSON array (no other text). Each element:
   "duvoAgentBrief": "2–3 sentences describing what the Duvo agent should do, what it reads, what it produces, and where it posts results"
 }`;
 
-export async function mineAutomations(): Promise<number> {
-  const msgs = await getMessagesForMining(200);
+export async function mineAutomations(since?: Date | null): Promise<number> {
+  const msgs = await getMessagesForMining(200, since);
   if (msgs.length === 0) return 0;
 
   const corpus = msgs
