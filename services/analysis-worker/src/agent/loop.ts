@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { detectAndSaveInefficiencies } from "@unslacked/db";
 import { toolDefinitions, handleTool, buildContext, messagesSeen } from "./tools.js";
 import { fetchConversations } from "../slackClient.js";
+import { mineAutomations } from "./automations.js";
 
 const anthropic = new Anthropic();
 
@@ -35,7 +36,7 @@ const WORKER_TOOLS = toolDefinitions.filter(
 export interface ProgressEvent {
   worker?: number;
   toolName?: string;
-  phase?: "workers" | "aggregating";
+  phase?: "workers" | "aggregating" | "automations";
 }
 
 export interface AnalysisResult {
@@ -43,6 +44,7 @@ export interface AnalysisResult {
   toolCallCount: number;
   messagesSeen: number;
   inefficienciesFound: number;
+  automationsFound: number;
   summary: string;
 }
 
@@ -137,11 +139,16 @@ export async function runAnalysisLoop(
   onProgress?.({ phase: "aggregating" });
   const inefficienciesFound = await detectAndSaveInefficiencies();
 
+  // Phase 3: LLM pass over messages to mine automation opportunities
+  onProgress?.({ phase: "automations" });
+  const automationsFound = await mineAutomations();
+
   return {
     workers: chunks.length,
     toolCallCount,
     messagesSeen,
     inefficienciesFound,
-    summary: `Analyzed ${conversations.length} conversations across ${chunks.length} parallel workers. Found ${inefficienciesFound} inefficiencies.`,
+    automationsFound,
+    summary: `Analyzed ${conversations.length} conversations across ${chunks.length} parallel workers. Found ${inefficienciesFound} inefficiencies and ${automationsFound} automation opportunities.`,
   };
 }

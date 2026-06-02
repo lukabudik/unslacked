@@ -62,6 +62,7 @@ type RawGroupMember = Pick<
 type RawGroup = Pick<typeof schema.userGroups.$inferSelect, "id" | "name" | "handle">;
 type RawRoutingEvent = typeof schema.routingEvents.$inferSelect;
 type RawRouterScore = typeof schema.routerScores.$inferSelect;
+type RawAutomationOpportunity = typeof schema.automationOpportunities.$inferSelect;
 
 interface Bundle {
   graph: CommsGraph;
@@ -109,7 +110,7 @@ function bundle(): Promise<Bundle> {
 async function load(): Promise<Bundle> {
   if (!db) throw new Error("DATABASE_URL is not set");
 
-  const [usersRaw, channelsRaw, messagesRaw, mentionsRaw, reactionsRaw, groupMembersRaw, groupsRaw, routingEventsRaw, routerScoresRaw] =
+  const [usersRaw, channelsRaw, messagesRaw, mentionsRaw, reactionsRaw, groupMembersRaw, groupsRaw, routingEventsRaw, routerScoresRaw, automationOpportunitiesRaw] =
     await Promise.all([
       db.select().from(schema.users),
       db.select().from(schema.channels),
@@ -151,6 +152,7 @@ async function load(): Promise<Bundle> {
         .from(schema.userGroups),
       db.select().from(schema.routingEvents),
       db.select().from(schema.routerScores),
+      db.select().from(schema.automationOpportunities).orderBy(schema.automationOpportunities.duvoFitScore),
     ]);
 
   return build(
@@ -162,7 +164,8 @@ async function load(): Promise<Bundle> {
     groupMembersRaw as RawGroupMember[],
     groupsRaw as RawGroup[],
     routingEventsRaw as RawRoutingEvent[],
-    routerScoresRaw as RawRouterScore[]
+    routerScoresRaw as RawRouterScore[],
+    automationOpportunitiesRaw as RawAutomationOpportunity[]
   );
 }
 
@@ -175,7 +178,8 @@ function build(
   groupMembersRaw: RawGroupMember[] = [],
   groupsRaw: RawGroup[] = [],
   routingEventsRaw: RawRoutingEvent[] = [],
-  routerScoresRaw: RawRouterScore[] = []
+  routerScoresRaw: RawRouterScore[] = [],
+  automationOpportunitiesRaw: RawAutomationOpportunity[] = []
 ): Bundle {
   const humans = usersRaw.filter((u) => !u.isBot);
   const isHuman = new Set(humans.map((u) => u.id));
@@ -555,8 +559,29 @@ function build(
     });
   }
 
-  // ── automations (curated; no source table for these yet) ───
-  const automations = curatedAutomations();
+  // ── automations — real mined data when available ───────────
+  const automations: AutomationOpportunity[] =
+    automationOpportunitiesRaw.length > 0
+      ? automationOpportunitiesRaw
+          .sort((a, b) => b.duvoFitScore - a.duvoFitScore)
+          .map((r) => ({
+            id: r.id,
+            taskFingerprint: r.taskFingerprint,
+            description: r.description,
+            verb: r.verb,
+            object: r.object,
+            source: r.source,
+            frequency: r.frequency,
+            distinctRequesters: r.distinctRequesters,
+            distinctAssignees: r.distinctAssignees,
+            requesterPersonas: JSON.parse(r.requesterPersonas) as string[],
+            crossSystem: JSON.parse(r.crossSystem) as string[],
+            duvoFitScore: r.duvoFitScore,
+            estHoursPerMonth: r.estHoursPerMonth,
+            humanHandoffCount: r.humanHandoffCount,
+            duvoAgentBrief: r.duvoAgentBrief,
+          }))
+      : curatedAutomations();
 
   // =========================================================================
   // RESILIENCE / KNOWLEDGE / PULSE derivations
