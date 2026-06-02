@@ -139,9 +139,39 @@ export const routingRules = pgTable(
   (t) => [index("routing_rules_topic_idx").on(t.topic)],
 );
 
+/**
+ * Automation opportunities mined by the analysis-worker's LLM pass.
+ * Replaces the hardcoded list in the admin dashboard once populated.
+ */
+export const automationOpportunities = pgTable("automation_opportunities", {
+  id: text("id").primaryKey(),
+  taskFingerprint: text("task_fingerprint").notNull(),
+  description: text("description").notNull(),
+  verb: text("verb").notNull(),
+  object: text("object").notNull(),
+  source: text("source"), // nullable — not every task has a clear single source
+  frequency: integer("frequency").notNull().default(1),
+  distinctRequesters: integer("distinct_requesters").notNull().default(1),
+  distinctAssignees: integer("distinct_assignees").notNull().default(1),
+  requesterPersonas: text("requester_personas").notNull().default("[]"), // JSON array
+  crossSystem: text("cross_system").notNull().default("[]"),             // JSON array
+  duvoFitScore: doublePrecision("duvo_fit_score").notNull().default(0),
+  estHoursPerMonth: doublePrecision("est_hours_per_month").notNull().default(0),
+  humanHandoffCount: integer("human_handoff_count").notNull().default(1),
+  duvoAgentBrief: text("duvo_agent_brief").notNull().default(""),
+  // Grounding: real message IDs backing this opportunity + the likely domain
+  // owner (matched from responsibility_claims). frequency / distinctRequesters /
+  // requesterPersonas are recomputed from the actual corpus, not LLM-guessed.
+  evidence: text("evidence").notNull().default("[]"),                    // JSON array of message IDs
+  topic: text("topic"),                                                  // matched responsibility topic
+  ownerUserId: text("owner_user_id").references(() => users.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type AnalysisRun = typeof analysisRuns.$inferSelect;
 export type RoutingEvent = typeof routingEvents.$inferSelect;
 export type RouterScore = typeof routerScores.$inferSelect;
 export type ResponsibilityClaim = typeof responsibilityClaims.$inferSelect;
 export type Inefficiency = typeof inefficiencies.$inferSelect;
 export type RoutingRule = typeof routingRules.$inferSelect;
+export type AutomationOpportunityRow = typeof automationOpportunities.$inferSelect;

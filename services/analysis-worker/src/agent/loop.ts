@@ -1,13 +1,20 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { detectAndSaveInefficiencies } from "@unslacked/db";
-import { toolDefinitions, handleTool, buildContext, messagesSeen } from "./tools.js";
+import {
+  toolDefinitions,
+  handleTool,
+  buildContext,
+  messagesSeen,
+} from "./tools.js";
 import { fetchConversations } from "../slackClient.js";
+import { mineAutomations } from "./automations.js";
 
 const anthropic = new Anthropic();
 
-// How many conversations each worker handles.
-// With ~34 conversations → ~6 workers running in parallel.
-const CHUNK_SIZE = 6;
+// One conversation per worker keeps each agent's turn count low (3–5 turns).
+const CHUNK_SIZE = 2;
+// Max workers running simultaneously — caps concurrent Anthropic API calls.
+const MAX_CONCURRENT = 30;
 
 const WORKER_SYSTEM_PROMPT = `
 You are a routing-pattern analyst. You have been assigned a specific list of Slack conversations to process.
@@ -35,7 +42,7 @@ const WORKER_TOOLS = toolDefinitions.filter(
 export interface ProgressEvent {
   worker?: number;
   toolName?: string;
-  phase?: "workers" | "aggregating";
+  phase?: "workers" | "aggregating" | "automations";
 }
 
 export interface AnalysisResult {
@@ -43,6 +50,7 @@ export interface AnalysisResult {
   toolCallCount: number;
   messagesSeen: number;
   inefficienciesFound: number;
+  automationsFound: number;
   summary: string;
 }
 
@@ -51,6 +59,9 @@ async function runWorker(
   conversationIds: string[],
   onProgress?: (event: ProgressEvent) => void,
 ): Promise<number> {
+  console.info(
+    `[worker ${workerIndex}] start conversations=${conversationIds.join(",")}`,
+  );
   const messages: Anthropic.MessageParam[] = [
     {
       role: "user",
@@ -67,46 +78,78 @@ async function runWorker(
   while (turn < MAX_TURNS) {
     turn++;
 
-    const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 8192,
-      system: WORKER_SYSTEM_PROMPT,
-      tools: WORKER_TOOLS,
-      messages,
-    });
+    let response: Anthropic.Message;
+    try {
+      response = await anthropic.messages.create({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 4096,
+        system: WORKER_SYSTEM_PROMPT,
+        tools: WORKER_TOOLS,
+        messages,
+      });
+    } catch (err) {
+      console.error(
+        `[worker ${workerIndex}] Anthropic API error on turn ${turn}: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      throw err;
+    }
 
     messages.push({ role: "assistant", content: response.content });
 
     if (response.stop_reason === "end_turn") break;
 
     if (response.stop_reason === "tool_use") {
-      const toolResults: Anthropic.ToolResultBlockParam[] = [];
+      const toolBlocks = response.content.filter((b) => b.type === "tool_use");
+      toolCallCount += toolBlocks.length;
 
-      for (const block of response.content) {
-        if (block.type !== "tool_use") continue;
-        toolCallCount++;
-        try { onProgress?.({ worker: workerIndex, toolName: block.name }); } catch { /* ignore */ }
-
-        try {
-          const result = await handleTool(block.name, block.input as Record<string, unknown>);
-          toolResults.push({ type: "tool_result", tool_use_id: block.id, content: result });
-        } catch (err) {
-          toolResults.push({
-            type: "tool_result",
-            tool_use_id: block.id,
-            content: `Error: ${err instanceof Error ? err.message : String(err)}`,
-            is_error: true,
-          });
-        }
-      }
+      const toolResults: Anthropic.ToolResultBlockParam[] = await Promise.all(
+        toolBlocks.map(async (block) => {
+          if (block.type !== "tool_use") {
+            return {
+              type: "tool_result" as const,
+              tool_use_id: "",
+              content: "",
+            };
+          }
+          try {
+            onProgress?.({ worker: workerIndex, toolName: block.name });
+          } catch {
+            /* ignore */
+          }
+          try {
+            const result = await handleTool(
+              block.name,
+              block.input as Record<string, unknown>,
+            );
+            return {
+              type: "tool_result" as const,
+              tool_use_id: block.id,
+              content: result,
+            };
+          } catch (err) {
+            return {
+              type: "tool_result" as const,
+              tool_use_id: block.id,
+              content: `Error: ${err instanceof Error ? err.message : String(err)}`,
+              is_error: true,
+            };
+          }
+        }),
+      );
 
       messages.push({ role: "user", content: toolResults });
       continue;
     }
 
-    break; // max_tokens or unexpected stop
+    console.warn(
+      `[worker ${workerIndex}] unexpected stop_reason=${response.stop_reason}`,
+    );
+    break;
   }
 
+  console.info(
+    `[worker ${workerIndex}] done turns=${turn} toolCalls=${toolCallCount}`,
+  );
   return toolCallCount;
 }
 
@@ -127,21 +170,41 @@ export async function runAnalysisLoop(
 
   onProgress?.({ phase: "workers" });
 
-  // Phase 1: workers read conversations and save raw signals in parallel
-  const workerCounts = await Promise.all(
-    chunks.map((ids, i) => runWorker(i, ids, onProgress)),
-  );
-  const toolCallCount = workerCounts.reduce((sum, n) => sum + n, 0);
+  // Phase 1: workers read conversations and save raw signals.
+  // Run MAX_CONCURRENT at a time to avoid hammering the Anthropic rate limit.
+  let toolCallCount = 0;
+  for (let i = 0; i < chunks.length; i += MAX_CONCURRENT) {
+    const batch = chunks.slice(i, i + MAX_CONCURRENT);
+    console.info(
+      `[loop] batch ${Math.floor(i / MAX_CONCURRENT) + 1}/${Math.ceil(chunks.length / MAX_CONCURRENT)} workers=${batch.length}`,
+    );
+    const counts = await Promise.all(
+      batch.map((ids, j) =>
+        runWorker(i + j, ids, onProgress).catch((err) => {
+          console.error(
+            `[worker ${i + j}] failed: ${err instanceof Error ? err.stack : String(err)}`,
+          );
+          return 0;
+        }),
+      ),
+    );
+    toolCallCount += counts.reduce((sum, n) => sum + n, 0);
+  }
 
   // Phase 2: aggregate signals into inefficiencies (pure SQL, no LLM)
   onProgress?.({ phase: "aggregating" });
   const inefficienciesFound = await detectAndSaveInefficiencies();
+
+  // Phase 3: LLM pass over messages to mine automation opportunities
+  onProgress?.({ phase: "automations" });
+  const automationsFound = await mineAutomations(since);
 
   return {
     workers: chunks.length,
     toolCallCount,
     messagesSeen,
     inefficienciesFound,
-    summary: `Analyzed ${conversations.length} conversations across ${chunks.length} parallel workers. Found ${inefficienciesFound} inefficiencies.`,
+    automationsFound,
+    summary: `Analyzed ${conversations.length} conversations across ${chunks.length} parallel workers. Found ${inefficienciesFound} inefficiencies and ${automationsFound} automation opportunities.`,
   };
 }

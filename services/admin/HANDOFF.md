@@ -87,25 +87,29 @@ them (see TODO 2).
 
 ## 4. TODOs to make it fully workable
 
-### TODO 1 — Real Duvo automation suggestions (highest value)
-**File:** `lib/api/db.ts` → `automations()` / `curatedAutomations()`
+### TODO 1 — Real Duvo automation suggestions ✅ DONE
+**Files:** `lib/api/db.ts` reads `automation_opportunities`; mining lives in
+`services/analysis-worker/src/agent/automations.ts` (Phase 3 of `/analyze`).
 **Type:** `AutomationOpportunity` in `lib/api/types.ts`
 
-Today this returns a static, hand-written list. Replace with real **task mining**:
+The analysis-worker mines real opportunities (no longer a hand-written list):
 
-- Mine recurring tasks from `messages.text` (+ threads): extract `verb` + `object`
-  (e.g. "reconcile" + "budget table"), normalize into a `taskFingerprint`, and count
-  `frequency`, `distinctRequesters`, `distinctAssignees`, `requesterPersonas`.
-- Detect `crossSystem` mentions (Excel/SAP/Stripe/GitHub/…) from text.
-- Compute `duvoFitScore` (how automatable) and `estHoursPerMonth`
-  (`frequency × manual minutes / 60`).
-- Generate `duvoAgentBrief` (NL brief) — ideally via an LLM pass over the cluster of
-  matching messages.
+- **Discovery:** one Claude (Sonnet) pass over a sample of recent messages proposes
+  4–8 candidate tasks with `verb`/`object`/`crossSystem`/`duvoFitScore`, distinctive
+  `keywords`, and `estMinutesPerTask`.
+- **Grounding:** each candidate is verified against the *full* corpus
+  (`groundTask()` in `analysis-queries.ts`) — `frequency`, `distinctRequesters`, and
+  `requesterPersonas` are **real counts**, not LLM guesses; `estHoursPerMonth =
+  real frequency × estMinutesPerTask / 60`; `evidence` holds backing message IDs.
+- **Owner enrichment:** matched to `responsibility_claims` → `topic` + `ownerUserId`.
+- Results land in `automation_opportunities`; `db.ts` `SELECT`s and maps them, falling
+  back to `curatedAutomations()` until the miner has run.
 
-**Recommended:** the heavy NLP/LLM extraction should run in a backend job that writes
-an `automation_opportunities` table; the dashboard then just `SELECT`s it (add the
-table to `lib/db/schema.ts` and map it in `automations()`). Mining 391+ messages
-inline on each request is not viable long-term.
+> `duvoFitScore` and `estMinutesPerTask` remain LLM **estimates** (the table header
+> labels hours "Est."); the volume numbers are now corpus-grounded.
+
+Requires `pnpm --filter @unslacked/db db:push` to apply the schema (nullable `source`
++ `evidence`/`topic`/`owner_user_id` columns).
 
 ### TODO 2 — Real routing (Persona-pair routes + feed)
 **Files:** `lib/api/db.ts` → `personaRoutes()`, `routingFeed()`, `middlemen()`

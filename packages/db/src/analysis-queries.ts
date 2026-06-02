@@ -8,6 +8,8 @@ import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "./client";
 import {
   analysisRuns,
+  automationOpportunities,
+  channels,
   inefficiencies,
   messages,
   responsibilityClaims,
@@ -99,6 +101,7 @@ export async function clearAnalysis(): Promise<void> {
   await d.delete(inefficiencies);
   await d.delete(routingEvents);
   await d.delete(responsibilityClaims);
+  await d.delete(automationOpportunities);
 }
 
 export async function saveRoutingEvent(input: SaveRoutingEventInput): Promise<void> {
@@ -614,6 +617,221 @@ export async function detectAndSaveInefficiencies(): Promise<number> {
   }
 
   return created;
+}
+
+// ─── Automation opportunities ─────────────────────────────────────────────────
+
+export interface SaveAutomationOpportunityInput {
+  id: string;
+  taskFingerprint: string;
+  description: string;
+  verb: string;
+  object: string;
+  source: string | null;
+  frequency: number;
+  distinctRequesters: number;
+  distinctAssignees: number;
+  requesterPersonas: string[];
+  crossSystem: string[];
+  duvoFitScore: number;
+  estHoursPerMonth: number;
+  humanHandoffCount: number;
+  duvoAgentBrief: string;
+  evidence?: string[];         // grounding: real message IDs backing this
+  topic?: string | null;       // matched responsibility topic
+  ownerUserId?: string | null; // likely domain owner
+}
+
+export async function saveAutomationOpportunity(
+  input: SaveAutomationOpportunityInput,
+): Promise<void> {
+  const d = requireDb();
+  await d.insert(automationOpportunities).values({
+    id: input.id,
+    taskFingerprint: input.taskFingerprint,
+    description: input.description,
+    verb: input.verb,
+    object: input.object,
+    source: input.source,
+    frequency: input.frequency,
+    distinctRequesters: input.distinctRequesters,
+    distinctAssignees: input.distinctAssignees,
+    requesterPersonas: JSON.stringify(input.requesterPersonas),
+    crossSystem: JSON.stringify(input.crossSystem),
+    duvoFitScore: input.duvoFitScore,
+    estHoursPerMonth: input.estHoursPerMonth,
+    humanHandoffCount: input.humanHandoffCount,
+    duvoAgentBrief: input.duvoAgentBrief,
+    evidence: JSON.stringify(input.evidence ?? []),
+    topic: input.topic ?? null,
+    ownerUserId: input.ownerUserId ?? null,
+  });
+}
+
+export async function getAutomationOpportunities(): Promise<SaveAutomationOpportunityInput[]> {
+  const d = requireDb();
+  const rows = await d
+    .select()
+    .from(automationOpportunities)
+    .orderBy(desc(automationOpportunities.duvoFitScore));
+  return rows.map((r) => ({
+    id: r.id,
+    taskFingerprint: r.taskFingerprint,
+    description: r.description,
+    verb: r.verb,
+    object: r.object,
+    source: r.source,
+    frequency: r.frequency,
+    distinctRequesters: r.distinctRequesters,
+    distinctAssignees: r.distinctAssignees,
+    requesterPersonas: JSON.parse(r.requesterPersonas) as string[],
+    crossSystem: JSON.parse(r.crossSystem) as string[],
+    duvoFitScore: r.duvoFitScore,
+    estHoursPerMonth: r.estHoursPerMonth,
+    humanHandoffCount: r.humanHandoffCount,
+    duvoAgentBrief: r.duvoAgentBrief,
+    evidence: JSON.parse(r.evidence) as string[],
+    topic: r.topic,
+    ownerUserId: r.ownerUserId,
+  }));
+}
+
+// ─── Grounding helpers (turn LLM guesses into real corpus-backed numbers) ──────
+
+export interface TopicOwner {
+  topic: string;
+  keywords: string;
+  userId: string;
+  confidence: number;
+}
+
+/** Topic owners from responsibility_claims, highest-confidence first. */
+export async function getResponsibilityOwners(): Promise<TopicOwner[]> {
+  const d = requireDb();
+  return d
+    .select({
+      topic: responsibilityClaims.topic,
+      keywords: responsibilityClaims.keywords,
+      userId: responsibilityClaims.userId,
+      confidence: responsibilityClaims.confidence,
+    })
+    .from(responsibilityClaims)
+    .orderBy(desc(responsibilityClaims.confidence));
+}
+
+export interface TaskGrounding {
+  frequency: number;          // real count of messages matching the task terms
+  distinctRequesters: number; // distinct authors of those messages
+  requesterPersonas: string[]; // distinct departments of those authors
+  evidence: string[];         // sample message IDs (up to 8)
+}
+
+/**
+ * Ground an LLM-proposed task against the real corpus: count messages whose text
+ * matches any of the given terms, and collect real requesters/departments/evidence.
+ * Returns zeros when nothing matches (caller keeps the LLM estimate as fallback).
+ */
+export async function groundTask(terms: string[]): Promise<TaskGrounding> {
+  const d = requireDb();
+  const clean = [
+    ...new Set(
+      terms
+        .map((t) => t.toLowerCase().replace(/[^a-z0-9 ]/g, " ").trim())
+        .filter((t) => t.length >= 4),
+    ),
+  ].slice(0, 8);
+  if (clean.length === 0) {
+    return { frequency: 0, distinctRequesters: 0, requesterPersonas: [], evidence: [] };
+  }
+
+  const pattern = sql.join(
+    clean.map((t) => sql`lower(${messages.text}) like ${"%" + t + "%"}`),
+    sql` or `,
+  );
+  const rows = await d
+    .select({ id: messages.id, userId: messages.userId })
+    .from(messages)
+    .where(sql`(${pattern})`)
+    .limit(2000);
+
+  if (rows.length === 0) {
+    return { frequency: 0, distinctRequesters: 0, requesterPersonas: [], evidence: [] };
+  }
+
+  const requesterIds = [...new Set(rows.map((r) => r.userId).filter(Boolean) as string[])];
+  const deptRows = requesterIds.length
+    ? await d
+        .select({ id: users.id, department: users.department, isBot: users.isBot })
+        .from(users)
+        .where(inArray(users.id, requesterIds))
+    : [];
+  const personas = [
+    ...new Set(
+      deptRows.filter((u) => !u.isBot).map((u) => u.department).filter(Boolean) as string[],
+    ),
+  ];
+  const humanIds = new Set(deptRows.filter((u) => !u.isBot).map((u) => u.id));
+
+  return {
+    frequency: rows.length,
+    distinctRequesters: requesterIds.filter((id) => humanIds.has(id)).length,
+    requesterPersonas: personas,
+    evidence: rows.slice(0, 8).map((r) => r.id),
+  };
+}
+
+// ─── Message corpus for automation mining ────────────────────────────────────
+
+export interface MessageForMining {
+  text: string;
+  channelName: string;
+  department: string;
+}
+
+/**
+ * Fetch a sample of recent non-trivial messages with channel and department
+ * context, for use as the LLM corpus during automation mining.
+ */
+export async function getMessagesForMining(
+  limit = 200,
+  since?: Date | null,
+): Promise<MessageForMining[]> {
+  const d = requireDb();
+  const rows = await d
+    .select({
+      text: messages.text,
+      channelId: messages.channelId,
+      userId: messages.userId,
+    })
+    .from(messages)
+    .where(
+      since
+        ? sql`${messages.text} is not null and length(${messages.text}) > 15 and ${messages.ts} >= ${since}`
+        : sql`${messages.text} is not null and length(${messages.text}) > 15`,
+    )
+    .orderBy(desc(messages.ts))
+    .limit(limit);
+
+  const channelIds = [...new Set(rows.map((r) => r.channelId).filter(Boolean) as string[])];
+  const userIds = [...new Set(rows.map((r) => r.userId).filter(Boolean) as string[])];
+
+  const [channelRows, userRows] = await Promise.all([
+    channelIds.length > 0
+      ? d.select({ id: channels.id, name: channels.name }).from(channels).where(inArray(channels.id, channelIds))
+      : [],
+    userIds.length > 0
+      ? d.select({ id: users.id, department: users.department }).from(users).where(inArray(users.id, userIds))
+      : [],
+  ]);
+
+  const channelNameMap = new Map(channelRows.map((c) => [c.id, c.name ?? c.id]));
+  const deptMap = new Map(userRows.map((u) => [u.id, u.department ?? "Unknown"]));
+
+  return rows.map((r) => ({
+    text: r.text!,
+    channelName: channelNameMap.get(r.channelId ?? "") ?? "general",
+    department: deptMap.get(r.userId ?? "") ?? "Unknown",
+  }));
 }
 
 // Re-export for convenience so callers don't need to import schema separately
