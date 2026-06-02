@@ -189,14 +189,16 @@ export function ForceGraph({
     return m;
   }, [graph]);
 
-  // Anchor points for each cluster, arranged on a circle around the origin.
+  // Anchor points for each cluster on an ellipse that matches the canvas aspect
+  // ratio, so wide canvases spread clusters across the full width instead of
+  // shrinking everything to fit the height.
   const centers = React.useMemo(() => {
     const m = new Map<string, { x: number; y: number }>();
-    // wider ring as more teams appear, so clusters don't crowd each other
-    const R = Math.max(220, graph.clusters.length * 70, Math.min(width, height) * 0.42);
+    const eW = Math.max(160, width * 0.42);
+    const eH = Math.max(120, height * 0.38);
     graph.clusters.forEach((c, i) => {
       const a = (i / graph.clusters.length) * Math.PI * 2 - Math.PI / 2;
-      m.set(c.id, { x: Math.cos(a) * R, y: Math.sin(a) * R });
+      m.set(c.id, { x: Math.cos(a) * eW, y: Math.sin(a) * eH });
     });
     return m;
   }, [graph, width, height]);

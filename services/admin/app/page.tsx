@@ -5,6 +5,7 @@ import {
   Clock,
   EyeOff,
   HelpCircle,
+  Network,
   Repeat,
   ShieldAlert,
   Smile,
@@ -17,12 +18,14 @@ import {
   getCommsGraph,
   getKpis,
   getMiddlemen,
+  getPersonaRoutes,
 } from "@/lib/api/client";
 import { WorkspaceHeader } from "@/components/dashboard/WorkspaceHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { TimelineChart } from "@/components/charts/TimelineChart";
 import { PersonaDonut } from "@/components/charts/PersonaDonut";
 import { MiddlemenList } from "@/components/charts/MiddlemenList";
+import { GraphPreview } from "@/components/graph/GraphPreview";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Persona } from "@/lib/api/types";
 import type { ReactNode } from "react";
@@ -58,12 +61,24 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 export default async function OverviewPage() {
-  const [kpis, graph, middlemen, activity] = await Promise.all([
+  const [kpis, graph, middlemen, activity, routes] = await Promise.all([
     getKpis(),
     getCommsGraph(),
     getMiddlemen(),
     getActivityTimeline(),
+    getPersonaRoutes(),
   ]);
+
+  const redundantByPerson = new Map(middlemen.map((m) => [m.personId, m.redundantRelays]));
+  const routingEdgeMap = new Map<string, number>();
+  routes.forEach((r) => {
+    const key = `${r.viaMiddlemanId}|${r.toPersonId}`;
+    routingEdgeMap.set(key, (routingEdgeMap.get(key) ?? 0) + r.occurrences);
+  });
+  const routingEdges = [...routingEdgeMap.entries()].map(([key, count]) => {
+    const [router, target] = key.split("|");
+    return { router, target, count, redundantRelays: redundantByPerson.get(router) ?? 0 };
+  });
 
   const volByPersona = new Map<Persona, number>();
   graph.nodes.forEach((n) =>
@@ -242,6 +257,35 @@ export default async function OverviewPage() {
           previous="Q&A hidden in DMs"
         />
       </Section>
+
+      {/* Graph preview */}
+      <div className="grid gap-5 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex-row items-center justify-between space-y-0">
+            <CardTitle className="flex items-center gap-2">
+              <Network className="h-4 w-4" />
+              Communication graph
+            </CardTitle>
+            <CardLink href="/graph">Open full graph</CardLink>
+          </CardHeader>
+          <CardContent>
+            <GraphPreview graph={graph} routingEdges={routingEdges} height={320} />
+            <p className="mt-2 text-xs text-muted-foreground">
+              Red arrows = routing inefficiencies. Click the graph to explore.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex-row items-center justify-between space-y-0">
+            <CardTitle>Top middlemen</CardTitle>
+            <CardLink href="/graph">Inspect</CardLink>
+          </CardHeader>
+          <CardContent>
+            <MiddlemenList middlemen={middlemen.slice(0, 5)} people={graph.nodes} />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
