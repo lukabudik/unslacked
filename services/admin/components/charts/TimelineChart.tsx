@@ -13,9 +13,9 @@ import { cn } from "@/lib/utils";
 import { DateRangePicker, type RangePreset } from "./DateRangePicker";
 
 const SERIES = [
-  { key: "routingEvents", label: "Routing events", color: "var(--chart-1)" },
-  { key: "groupChats", label: "New group chats", color: "var(--chart-2)" },
-  { key: "automationRuns", label: "Automation runs", color: "var(--chart-4)" },
+  { key: "messages", label: "Messages", color: "var(--chart-1)" },
+  { key: "threadReplies", label: "Thread replies", color: "var(--chart-2)" },
+  { key: "mentions", label: "@-mentions", color: "var(--chart-4)" },
 ] as const;
 
 type SeriesKey = (typeof SERIES)[number]["key"];

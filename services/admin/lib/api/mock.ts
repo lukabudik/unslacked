@@ -478,9 +478,9 @@ export function activityTimeline(): ActivityPoint[] {
     out.push({
       date: d.toISOString().slice(0, 10),
       label: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-      routingEvents: Math.max(3, routing),
-      groupChats: Math.max(2, chats),
-      automationRuns: rndInt(2, 11),
+      messages: Math.max(3, routing) * 4,
+      threadReplies: Math.max(2, chats),
+      mentions: rndInt(2, 11),
     });
   }
   return out;
@@ -505,11 +505,12 @@ export function kpis(): OrgKpis {
     avgDegreesOfSeparation: 2.4,
     crossFnReachDirectPct: 0.68,
     shadowTeamsDetected: graph().clusters.filter((c) => !c.matchesOrgChart).length,
-    redundantChannelsDetected: 6,
     busFactor: 4,
     hoursRecoverablePerMonth: automations().reduce((s, a) => s + a.estHoursPerMonth, 0),
     // sparkline: degrees of separation trending down over 8 weeks
     trendDegreesOfSeparation: [3.6, 3.4, 3.3, 3.0, 2.9, 2.7, 2.5, 2.4],
+    trendCrossFnReach: [0.58, 0.6, 0.61, 0.63, 0.64, 0.66, 0.67, 0.68],
+    trendActivity: [120, 138, 145, 150, 162, 171, 168, 180],
     keyPersonRiskCount: keyPersonRisks().filter((k) => k.riskScore >= 0.5).length,
     singlePointsOfFailure: topicOwnership().filter((t) => t.concentration === "single").length,
     openQuestions: openQuestions().length,

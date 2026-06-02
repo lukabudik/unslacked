@@ -120,28 +120,29 @@ export interface AutomationOpportunity {
 
 // ── Activity timeline (org events per day) ──────────────────
 export interface ActivityPoint {
-  date: string;           // ISO date (yyyy-mm-dd) for the bucket
-  label: string;          // display label, e.g. "Jun 2"
-  routingEvents: number;  // pre-emptive routing suggestions fired
-  groupChats: number;     // new group chats / channels created
-  automationRuns: number; // automation opportunities surfaced / run
+  date: string;          // ISO date (yyyy-mm-dd) for the bucket
+  label: string;         // display label, e.g. "Jun 2"
+  messages: number;      // messages posted that day
+  threadReplies: number; // thread replies that day
+  mentions: number;      // @-mentions that day
 }
 
 // ── Org health KPI rollup ───────────────────────────────────
 export interface OrgKpis {
   redundantRelaysEliminated: number;
   avgDegreesOfSeparation: number;
-  crossFnReachDirectPct: number;       // % cross-fn requests hitting right person
+  crossFnReachDirectPct: number;       // share of comms edges that cross departments
   shadowTeamsDetected: number;
-  redundantChannelsDetected: number;
   busFactor: number;                   // # of people whose removal fragments org
   hoursRecoverablePerMonth: number;    // sum of automation opps
-  trendDegreesOfSeparation: number[];  // sparkline series
+  trendDegreesOfSeparation: number[];  // real per-week avg shortest path
+  trendCrossFnReach: number[];         // real per-week cross-dept share
+  trendActivity: number[];             // real per-week interaction volume
   // resilience / health headline numbers (surfaced on overview too)
   keyPersonRiskCount: number;          // people flagged high single-person risk
   singlePointsOfFailure: number;       // topics with exactly one real owner
   openQuestions: number;               // questions still unanswered/slow
-  orgSentiment: number;                // -1..1 blended org mood
+  orgSentiment: number;                // -1..1 reaction-positivity index
   medianTimeToAnswerHours: number;     // median first-reply latency on questions
   tribalKnowledgePct: number;          // 0..1 share of Q&A happening in DMs
 }

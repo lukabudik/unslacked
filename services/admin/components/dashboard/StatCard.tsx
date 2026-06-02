@@ -11,6 +11,37 @@ interface StatCardProps {
   previous?: string; // e.g. "Prev 2.7"
   accent?: string; // hex, for the icon chip
   goodDirection?: "up" | "down"; // which direction is "good" (green)
+  spark?: number[]; // optional inline sparkline series (real trend)
+}
+
+/** Minimal inline sparkline — normalized polyline, no axes. */
+function Sparkline({ data, color }: { data: number[]; color: string }) {
+  if (data.length < 2) return null;
+  const w = 100;
+  const h = 22;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const span = max - min || 1;
+  const pts = data
+    .map((v, i) => {
+      const x = (i / (data.length - 1)) * w;
+      const y = h - ((v - min) / span) * (h - 2) - 1;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="mt-2 h-5 w-full" preserveAspectRatio="none" aria-hidden>
+      <polyline
+        points={pts}
+        fill="none"
+        stroke={color}
+        strokeWidth={1.5}
+        vectorEffect="non-scaling-stroke"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
 }
 
 export function StatCard({
@@ -21,6 +52,7 @@ export function StatCard({
   previous,
   accent = "#6366f1",
   goodDirection = "up",
+  spark,
 }: StatCardProps) {
   const hasDelta = deltaPct != null;
   const isUp = (deltaPct ?? 0) >= 0;
@@ -68,6 +100,8 @@ export function StatCard({
             <span className="text-muted-foreground">{previous}</span>
           ) : null}
         </div>
+
+        {spark && spark.length > 1 ? <Sparkline data={spark} color={accent} /> : null}
       </CardContent>
     </Card>
   );

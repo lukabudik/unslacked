@@ -32,6 +32,7 @@ import { MiddlemenList } from "@/components/charts/MiddlemenList";
 import { GraphPreview } from "@/components/graph/GraphPreview";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Persona } from "@/lib/api/types";
+import type { ReactNode } from "react";
 
 // Always read fresh data from the DB so counts stay live.
 export const dynamic = "force-dynamic";
@@ -45,6 +46,18 @@ function CardLink({ href, children }: { href: string; children: string }) {
       {children}
       <ArrowRight className="h-3.5 w-3.5" />
     </Link>
+  );
+}
+
+/** A labeled group of stat cards — gives the dashboard clear visual hierarchy. */
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="space-y-3">
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {title}
+      </h3>
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">{children}</div>
+    </section>
   );
 }
 
@@ -68,11 +81,16 @@ export default async function OverviewPage() {
     .map(([persona, volume]) => ({ persona, volume }))
     .sort((a, b) => b.volume - a.volume);
 
-  const lastSep =
-    kpis.trendDegreesOfSeparation[kpis.trendDegreesOfSeparation.length - 1];
-  const prevSep =
-    kpis.trendDegreesOfSeparation[kpis.trendDegreesOfSeparation.length - 2];
-  const sepDelta = ((lastSep - prevSep) / prevSep) * 100;
+  // Real week-over-week deltas from the trend series (undefined when <2 weeks).
+  const pctDelta = (arr: number[]): number | undefined => {
+    if (!arr || arr.length < 2) return undefined;
+    const prev = arr[arr.length - 2];
+    const last = arr[arr.length - 1];
+    if (!prev) return undefined;
+    return Number((((last - prev) / Math.abs(prev)) * 100).toFixed(1));
+  };
+  const sepDelta = pctDelta(kpis.trendDegreesOfSeparation);
+  const crossFnDelta = pctDelta(kpis.trendCrossFnReach);
 
   const snapshot = {
     generatedAt: new Date().toISOString(),
@@ -91,41 +109,45 @@ export default async function OverviewPage() {
     <div className="space-y-6">
       <WorkspaceHeader people={graph.nodes.length} snapshot={snapshot} />
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
+      {/* Network efficiency — real week-over-week trends */}
+      <Section title="Network efficiency">
+        <StatCard
+          label="Avg degrees of sep."
+          value={kpis.avgDegreesOfSeparation.toFixed(1)}
+          icon={<Waypoints className="h-3.5 w-3.5" />}
+          accent="#06b6d4"
+          spark={kpis.trendDegreesOfSeparation}
+          deltaPct={sepDelta}
+          previous="week over week"
+          goodDirection="down"
+        />
+        <StatCard
+          label="Cross-team reach"
+          value={`${(kpis.crossFnReachDirectPct * 100).toFixed(0)}%`}
+          icon={<Target className="h-3.5 w-3.5" />}
+          accent="#8b5cf6"
+          spark={kpis.trendCrossFnReach.map((v) => v * 100)}
+          deltaPct={crossFnDelta}
+          previous="cross-dept comms"
+        />
         <StatCard
           label="Hours recoverable / mo"
           value={`${kpis.hoursRecoverablePerMonth}h`}
           icon={<Clock className="h-3.5 w-3.5" />}
           accent="#6366f1"
-          deltaPct={18.2}
-          previous="vs prev mo"
+          previous="if automated"
         />
         <StatCard
           label="Relays eliminated"
           value={`${kpis.redundantRelaysEliminated}`}
           icon={<Repeat className="h-3.5 w-3.5" />}
           accent="#10b981"
-          deltaPct={12.0}
-          previous="Prev 33"
+          previous="routed via middlemen"
         />
-        <StatCard
-          label="Avg degrees of sep."
-          value={kpis.avgDegreesOfSeparation.toFixed(1)}
-          icon={<Waypoints className="h-3.5 w-3.5" />}
-          accent="#06b6d4"
-          deltaPct={Number(sepDelta.toFixed(1))}
-          previous={`Prev ${prevSep.toFixed(1)}`}
-          goodDirection="down"
-        />
-        <StatCard
-          label="Cross-fn reach"
-          value={`${(kpis.crossFnReachDirectPct * 100).toFixed(0)}%`}
-          icon={<Target className="h-3.5 w-3.5" />}
-          accent="#8b5cf6"
-          deltaPct={6.4}
-          previous="Prev 62%"
-        />
+      </Section>
+
+      {/* Structure & risk */}
+      <Section title="Structure & risk">
         <StatCard
           label="Shadow teams"
           value={`${kpis.shadowTeamsDetected}`}
@@ -138,12 +160,8 @@ export default async function OverviewPage() {
           value={`${kpis.busFactor}`}
           icon={<Bus className="h-3.5 w-3.5" />}
           accent="#f59e0b"
-          previous="single points of failure"
+          previous="key connectors"
         />
-      </div>
-
-      {/* Risk & health row — cross-links to the new surfaces */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Link href="/resilience">
           <StatCard
             label="Key-person risk"
@@ -162,6 +180,10 @@ export default async function OverviewPage() {
             previous="one-owner topics"
           />
         </Link>
+      </Section>
+
+      {/* Knowledge & mood */}
+      <Section title="Knowledge & mood">
         <Link href="/knowledge">
           <StatCard
             label="Open questions"
@@ -171,16 +193,32 @@ export default async function OverviewPage() {
             previous="unanswered / slow"
           />
         </Link>
+        <StatCard
+          label="Median time to answer"
+          value={`${kpis.medianTimeToAnswerHours}h`}
+          icon={<Clock className="h-3.5 w-3.5" />}
+          accent="#0ea5e9"
+          previous="first reply latency"
+        />
         <Link href="/pulse">
           <StatCard
             label="Org sentiment"
             value={`${Math.round(((kpis.orgSentiment + 1) / 2) * 100)}`}
             icon={<Smile className="h-3.5 w-3.5" />}
             accent="#10b981"
-            previous="0–100 mood index"
+            previous="reaction positivity"
           />
         </Link>
-      </div>
+        <Link href="/knowledge">
+          <StatCard
+            label="Tribal knowledge"
+            value={`${(kpis.tribalKnowledgePct * 100).toFixed(0)}%`}
+            icon={<EyeOff className="h-3.5 w-3.5" />}
+            accent="#a855f7"
+            previous="Q&A hidden in DMs"
+          />
+        </Link>
+      </Section>
 
       {/* Timeline + persona donut */}
       <div className="grid gap-6 lg:grid-cols-3">
@@ -241,52 +279,21 @@ export default async function OverviewPage() {
       </div>
 
       {/* Shadow org chart */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <div className="space-y-1">
-              <CardTitle>Shadow org chart</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                People whose real influence outranks their title — the informal
-                backbone of the org.
-              </p>
-            </div>
-            <CardLink href="/graph">Open graph</CardLink>
-          </CardHeader>
-          <CardContent>
-            <ShadowOrgChart entries={shadowRanks} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle>Resilience</CardTitle>
-            <CardLink href="/resilience">Inspect</CardLink>
-          </CardHeader>
-          <CardContent className="space-y-4 pt-1">
-            <div>
-              <div className="text-3xl font-semibold tabular-nums text-red-600">
-                {kpis.keyPersonRiskCount}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                people the org can&apos;t afford to lose
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-lg bg-muted/50 p-3">
-                <div className="text-lg font-semibold tabular-nums">
-                  {kpis.singlePointsOfFailure}
-                </div>
-                <div className="text-xs text-muted-foreground">one-owner topics</div>
-              </div>
-              <div className="rounded-lg bg-muted/50 p-3">
-                <div className="text-lg font-semibold tabular-nums">{kpis.openQuestions}</div>
-                <div className="text-xs text-muted-foreground">open questions</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader className="flex-row items-center justify-between space-y-0">
+          <div className="space-y-1">
+            <CardTitle>Shadow org chart</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              People whose real influence outranks their title — the informal
+              backbone of the org.
+            </p>
+          </div>
+          <CardLink href="/graph">Open graph</CardLink>
+        </CardHeader>
+        <CardContent>
+          <ShadowOrgChart entries={shadowRanks} />
+        </CardContent>
+      </Card>
 
       {/* Tabbed data table */}
       <Card>

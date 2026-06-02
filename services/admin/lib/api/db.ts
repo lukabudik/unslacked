@@ -41,6 +41,86 @@ function seniorityFromTitle(title: string | null): Person["seniority"] {
   return "IC";
 }
 
+interface WeeklyInteraction {
+  a: string;
+  b: string;
+  week: number;
+}
+
+export interface WindowedTrends {
+  weekLabels: string[];
+  degreesSeries: number[];   // avg shortest path per week (real)
+  crossTeamSeries: number[]; // cross-dept share of interactions per week (real)
+  volumeSeries: number[];    // interaction volume per week
+}
+
+/**
+ * Real week-over-week trends computed from the actual message timestamps.
+ * For each week we rebuild the interaction graph (mentions + thread replies)
+ * and measure avg shortest path + cross-department share — so the dashboard
+ * sparklines/deltas are grounded, not decorative.
+ */
+function windowedTrends(
+  interactions: WeeklyInteraction[],
+  deptOf: (id: string) => string | undefined,
+  weeks: number[],
+): WindowedTrends {
+  const labels: string[] = [];
+  const degrees: number[] = [];
+  const crossTeam: number[] = [];
+  const volume: number[] = [];
+
+  for (const w of weeks) {
+    const wk = interactions.filter((i) => i.week === w);
+    labels.push(new Date(w).toLocaleDateString("en-US", { month: "short", day: "numeric" }));
+    volume.push(wk.length);
+
+    // cross-department share
+    const cross = wk.filter((i) => deptOf(i.a) && deptOf(i.b) && deptOf(i.a) !== deptOf(i.b)).length;
+    crossTeam.push(wk.length ? Math.round((cross / wk.length) * 100) / 100 : 0);
+
+    // avg shortest path over this week's undirected interaction graph
+    const adj = new Map<string, Set<string>>();
+    for (const i of wk) {
+      if (i.a === i.b) continue;
+      (adj.get(i.a) ?? adj.set(i.a, new Set()).get(i.a)!).add(i.b);
+      (adj.get(i.b) ?? adj.set(i.b, new Set()).get(i.b)!).add(i.a);
+    }
+    degrees.push(Math.round(avgShortestPath(adj) * 100) / 100);
+  }
+
+  return { weekLabels: labels, degreesSeries: degrees, crossTeamSeries: crossTeam, volumeSeries: volume };
+}
+
+/** Mean of finite pairwise shortest paths via BFS from every node. */
+function avgShortestPath(adj: Map<string, Set<string>>): number {
+  const nodes = [...adj.keys()];
+  if (nodes.length < 2) return 0;
+  let sum = 0;
+  let count = 0;
+  for (const start of nodes) {
+    const dist = new Map<string, number>([[start, 0]]);
+    const queue = [start];
+    while (queue.length) {
+      const cur = queue.shift()!;
+      const d = dist.get(cur)!;
+      for (const nb of adj.get(cur) ?? []) {
+        if (!dist.has(nb)) {
+          dist.set(nb, d + 1);
+          queue.push(nb);
+        }
+      }
+    }
+    for (const [node, d] of dist) {
+      if (node !== start && d > 0) {
+        sum += d;
+        count++;
+      }
+    }
+  }
+  return count ? sum / count : 0;
+}
+
 type RawUser = typeof schema.users.$inferSelect;
 type RawChannel = typeof schema.channels.$inferSelect;
 type RawMessage = Pick<
@@ -379,6 +459,12 @@ function build(
   // Prefer router_scores when populated; fall back to betweenness ranking.
   const routerScoreMap = new Map(routerScoresRaw.map((r) => [r.userId, r]));
   const hasRouterScores = routerScoresRaw.length > 0;
+  // router_scores is often empty (worker stub); fall back to a REAL count of
+  // routing_events per router rather than a betweenness guess.
+  const routedCountByUser = new Map<string, number>();
+  for (const ev of routingEventsRaw) {
+    routedCountByUser.set(ev.routerUserId, (routedCountByUser.get(ev.routerUserId) ?? 0) + 1);
+  }
 
   function buildMiddlemanEntry(p: Person): MiddlemanInsight {
     const rs = routerScoreMap.get(p.id);
@@ -393,7 +479,7 @@ function build(
       personId: p.id,
       betweenness: rs ? round2(rs.routerScore) : p.betweenness,
       bridgesPairs: Math.max(1, Math.round((bridged * (bridged - 1)) / 2) + bridged),
-      redundantRelays: rs ? rs.routedCount : Math.round(p.betweenness * 10) + 1,
+      redundantRelays: rs ? rs.routedCount : (routedCountByUser.get(p.id) ?? 0),
       topBridgedPersonas: top.slice(0, 3).map(([d]) => d as Persona),
     };
   }
@@ -553,11 +639,37 @@ function build(
     activity.push({
       date: date.toISOString().slice(0, 10),
       label: date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-      routingEvents: b.mentions,
-      groupChats: b.threads,
-      automationRuns: Math.round(b.msgs / 3),
+      messages: b.msgs,
+      threadReplies: b.threads,
+      mentions: b.mentions,
     });
   }
+
+  // ── real week-over-week trends (from actual message timestamps) ──
+  const WEEK = 7 * DAY;
+  const weekKey = (t: number) => Math.floor((t - minDay) / WEEK) * WEEK + minDay;
+  const weekSet = new Set<number>();
+  const interactions: WeeklyInteraction[] = [];
+  const pushInteraction = (a?: string | null, b?: string | null, ts?: string | Date | null) => {
+    if (!a || !b || a === b || !isHuman.has(a) || !isHuman.has(b)) return;
+    const t = +new Date(ts ?? 0);
+    if (!t) return;
+    const wk = weekKey(t);
+    weekSet.add(wk);
+    interactions.push({ a, b, week: wk });
+  };
+  for (const mn of mentionsRaw) {
+    const msg = mn.messageId ? msgById.get(mn.messageId) : undefined;
+    if (msg) pushInteraction(msg.userId, mn.mentionedUserId, msg.ts);
+  }
+  for (const m of messagesRaw) {
+    if (m.threadTs && m.threadTs !== m.id) {
+      const p = msgById.get(m.threadTs);
+      if (p) pushInteraction(m.userId, p.userId, m.ts);
+    }
+  }
+  const weeksSorted = [...weekSet].sort((a, b) => a - b);
+  const trends = windowedTrends(interactions, (id) => dept.get(id), weeksSorted);
 
   // ── automations — real mined data when available ───────────
   const automations: AutomationOpportunity[] =
@@ -829,29 +941,56 @@ function build(
     .sort((a, b) => b.occurrences - a.occurrences)
     .slice(0, 12);
 
-  // ── sentiment by team (SYNTHESIZED deterministic walk) ─────
-  const dayLabels = activity.map((a) => ({ date: a.date, label: a.label }));
-  const seedFor = (s: string) => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 1009, 7);
-  const deptList = clusters.map((c) => c.label).slice(0, 8);
+  // ── sentiment by team — REAL reaction-positivity index ─────
+  // Mood proxy from emoji reactions: (positive − negative) / total, bucketed by
+  // the reacted message's author-department and week. No synthesis.
+  const POS_EMOJI = new Set(["👍","🎉","🙌","❤️","🔥","✅","😄","🙏","💪","👏","😍","🚀","💯","😊","🥳","✨","💚"]);
+  const NEG_EMOJI = new Set(["👎","😢","😡","😞","😤","💀","😬","😱","🙄","😠","😟","🚨"]);
+  const moodByTeamWeek = new Map<string, Map<number, { pos: number; neg: number; total: number }>>();
+  for (const r of reactionsRaw) {
+    const msg = msgById.get(r.messageId);
+    if (!msg?.userId || !isHuman.has(msg.userId)) continue;
+    const team = dept.get(msg.userId);
+    if (!team) continue;
+    const t = +new Date(msg.ts ?? 0);
+    if (!t) continue;
+    const wk = weekKey(t);
+    const wkMap = moodByTeamWeek.get(team) ?? new Map<number, { pos: number; neg: number; total: number }>();
+    const cell = wkMap.get(wk) ?? { pos: 0, neg: 0, total: 0 };
+    if (POS_EMOJI.has(r.emoji)) cell.pos++;
+    else if (NEG_EMOJI.has(r.emoji)) cell.neg++;
+    cell.total++;
+    wkMap.set(wk, cell);
+    moodByTeamWeek.set(team, wkMap);
+  }
+  const moodScore = (c?: { pos: number; neg: number; total: number }) =>
+    c && c.total ? round2((c.pos - c.neg) / c.total) : 0;
+
+  // Real departments (aligned with personas), busiest first.
+  const deptCount = new Map<string, number>();
+  for (const u of humans) if (u.department) deptCount.set(u.department, (deptCount.get(u.department) ?? 0) + 1);
+  const deptList = [...deptCount.entries()].sort((a, b) => b[1] - a[1]).map(([d]) => d).slice(0, 8);
+
   const sentiment: SentimentSeries[] = deptList.map((team) => {
-    let seed = seedFor(team);
-    const nextRand = () => {
-      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-      return seed / 0x7fffffff;
-    };
-    const base = 0.15 + nextRand() * 0.55; // baseline mood per team
-    let v = base;
-    const points = dayLabels.map(({ date, label }) => {
-      v = Math.max(-0.6, Math.min(0.95, v + (nextRand() - 0.5) * 0.18));
-      return { date, label, score: round2(v) };
-    });
-    const current = points.length ? points[points.length - 1].score : round2(base);
+    const wkMap = moodByTeamWeek.get(team) ?? new Map();
+    const points = weeksSorted.map((w) => ({
+      date: new Date(w).toISOString().slice(0, 10),
+      label: new Date(w).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      score: moodScore(wkMap.get(w)),
+    }));
+    const current = points.length ? points[points.length - 1].score : 0;
     const delta = points.length ? round2(current - points[0].score) : 0;
     return { team, persona: team, current, delta, points };
   });
-  const orgSentiment = sentiment.length
-    ? round2(sentiment.reduce((s, x) => s + x.current, 0) / sentiment.length)
-    : 0;
+
+  // Org-wide positivity across all reactions.
+  let gPos = 0, gNeg = 0, gTotal = 0;
+  for (const r of reactionsRaw) {
+    if (POS_EMOJI.has(r.emoji)) gPos++;
+    else if (NEG_EMOJI.has(r.emoji)) gNeg++;
+    gTotal++;
+  }
+  const orgSentiment = gTotal ? round2((gPos - gNeg) / gTotal) : 0;
 
   // ── overload / notification load ───────────────────────────
   const afterHours = new Map<string, { total: number; off: number }>();
@@ -974,15 +1113,13 @@ function build(
       edges.length ? crossDeptEdges / edges.length : 0
     ),
     shadowTeamsDetected: shadowTeams,
-    redundantChannelsDetected: channelsRaw.filter(
-      (c) => c.kind === "mpim" || c.kind === "im"
-    ).length,
     busFactor: Math.max(1, busFactor),
     hoursRecoverablePerMonth: automations.reduce((s, a) => s + a.estHoursPerMonth, 0),
-    trendDegreesOfSeparation: [
-      avgSep + 1.0, avgSep + 0.8, avgSep + 0.7, avgSep + 0.5,
-      avgSep + 0.4, avgSep + 0.2, avgSep + 0.1, avgSep,
-    ].map((n) => round2(n)),
+    // Real weekly trends from the message corpus (fallback to the current value
+    // if there's only one week of data).
+    trendDegreesOfSeparation: trends.degreesSeries.length > 1 ? trends.degreesSeries : [avgSep],
+    trendCrossFnReach: trends.crossTeamSeries.length > 1 ? trends.crossTeamSeries : [],
+    trendActivity: trends.volumeSeries,
     keyPersonRiskCount: keyPersonRisks.filter((k) => k.riskScore >= 0.5).length,
     singlePointsOfFailure: topicOwnership.filter((t) => t.concentration === "single").length,
     openQuestions: openQuestions.length,
