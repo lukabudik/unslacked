@@ -10,5 +10,7 @@
 export * from "./schema";
 export * from "./client";
 export * from "./queries";
+export * from "./analysis-queries";
+export * from "./slack-api-queries";
 export * from "./mentions";
 export * as fixtures from "./fixtures";

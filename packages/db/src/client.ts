@@ -9,7 +9,11 @@ import * as schema from "./schema";
  */
 const url = process.env.DATABASE_URL;
 
-export const db = url ? drizzle(neon(url), { schema }) : null;
+// Raw Neon SQL executor — use for calling the `slack.*` schema functions.
+// Null when DATABASE_URL is unset; callers that need it should check isDbConfigured.
+export const sql = url ? neon(url) : null;
+
+export const db = sql ? drizzle(sql, { schema }) : null;
 
 export const isDbConfigured = Boolean(url);
 
