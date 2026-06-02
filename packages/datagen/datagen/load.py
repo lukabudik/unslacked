@@ -66,10 +66,13 @@ def load(org: dict, sim: dict, verbose: bool = True) -> dict:
     with _conn() as conn, conn.cursor() as cur:
         if verbose:
             print("  wiping…", flush=True)
-        for t in ("reactions", "mentions", "user_group_members", "user_groups",
-                  "routing_events", "router_scores", "messages", "channel_members",
-                  "channels", "users"):
-            cur.execute(f"DELETE FROM {t}")
+        # Truncate every public table (incl. any analysis tables teammates added
+        # that FK-reference users) so a reseed is robust to new tables. CASCADE
+        # handles FK order. Derived analysis data is invalidated by the reseed.
+        cur.execute("SELECT tablename FROM pg_tables WHERE schemaname='public'")
+        tables = [r[0] for r in cur.fetchall()]
+        if tables:
+            cur.execute("TRUNCATE TABLE " + ", ".join(f'"{t}"' for t in tables) + " RESTART IDENTITY CASCADE")
 
         cur.executemany(
             "INSERT INTO users (id,name,real_name,email,title,department,team,avatar_color,"

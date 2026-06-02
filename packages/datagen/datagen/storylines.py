@@ -19,11 +19,11 @@ from .simulate import _say, _add_reactions
 END = datetime(2026, 6, 1, tzinfo=timezone.utc)
 
 
-def _gen_outlines(org, n):
+def _gen_batch(org, k):
     chans = [c["key"] for c in org["channels"] if c["kind"] in ("public_channel", "private_channel")]
     sys = f"{bp.COMPANY_BLURB}\nYou design realistic ongoing workplace storylines. Return ONLY a JSON array."
     user = (
-        f"Invent {n} distinct ongoing storylines that unfold over ~6 weeks at this company — arcs you could "
+        f"Invent {k} distinct ongoing storylines that unfold over ~6 weeks at this company — arcs you could "
         "follow across many Slack messages. Mix kinds: product launches, incidents + postmortems, hiring & "
         "onboarding, reorgs, vendor/infra migrations, and big decisions/debates. Each object: "
         '{"title": str, "kind": str, "channel": one of ' + str(chans) + ', '
@@ -32,10 +32,23 @@ def _gen_outlines(org, n):
         "→ resolution → follow-up). JSON array only."
     )
     try:
-        data = parse_json(complete_text(sys, None, user, max_tokens=3000, temperature=1.0))
-        return [o for o in data if isinstance(o, dict) and o.get("beats")][:n]
+        data = parse_json(complete_text(sys, None, user, max_tokens=2200, temperature=1.0))
+        return [o for o in data if isinstance(o, dict) and o.get("beats")]
     except Exception:
         return []
+
+
+def _gen_outlines(org, n):
+    """Batch the outlines (≤5 per call) so larger n doesn't blow the token budget."""
+    out = []
+    attempts = 0
+    while len(out) < n and attempts < n:  # attempts guard against a dead batch looping
+        got = _gen_batch(org, min(5, n - len(out)))
+        attempts += 1
+        if not got:
+            continue
+        out.extend(got)
+    return out[:n]
 
 
 async def _run_storyline(sem, static, ctx, ck, cast, outline, start, weeks, counter, rng):
