@@ -1,15 +1,20 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { detectAndSaveInefficiencies } from "@unslacked/db";
-import { toolDefinitions, handleTool, buildContext, messagesSeen } from "./tools.js";
+import {
+  toolDefinitions,
+  handleTool,
+  buildContext,
+  messagesSeen,
+} from "./tools.js";
 import { fetchConversations } from "../slackClient.js";
 import { mineAutomations } from "./automations.js";
 
 const anthropic = new Anthropic();
 
 // One conversation per worker keeps each agent's turn count low (3–5 turns).
-const CHUNK_SIZE = 3;
+const CHUNK_SIZE = 2;
 // Max workers running simultaneously — caps concurrent Anthropic API calls.
-const MAX_CONCURRENT = 15;
+const MAX_CONCURRENT = 30;
 
 const WORKER_SYSTEM_PROMPT = `
 You are a routing-pattern analyst. You have been assigned a specific list of Slack conversations to process.
@@ -54,7 +59,9 @@ async function runWorker(
   conversationIds: string[],
   onProgress?: (event: ProgressEvent) => void,
 ): Promise<number> {
-  console.info(`[worker ${workerIndex}] start conversations=${conversationIds.join(",")}`);
+  console.info(
+    `[worker ${workerIndex}] start conversations=${conversationIds.join(",")}`,
+  );
   const messages: Anthropic.MessageParam[] = [
     {
       role: "user",
@@ -81,7 +88,9 @@ async function runWorker(
         messages,
       });
     } catch (err) {
-      console.error(`[worker ${workerIndex}] Anthropic API error on turn ${turn}: ${err instanceof Error ? err.message : String(err)}`);
+      console.error(
+        `[worker ${workerIndex}] Anthropic API error on turn ${turn}: ${err instanceof Error ? err.message : String(err)}`,
+      );
       throw err;
     }
 
@@ -96,12 +105,27 @@ async function runWorker(
       const toolResults: Anthropic.ToolResultBlockParam[] = await Promise.all(
         toolBlocks.map(async (block) => {
           if (block.type !== "tool_use") {
-            return { type: "tool_result" as const, tool_use_id: "", content: "" };
+            return {
+              type: "tool_result" as const,
+              tool_use_id: "",
+              content: "",
+            };
           }
-          try { onProgress?.({ worker: workerIndex, toolName: block.name }); } catch { /* ignore */ }
           try {
-            const result = await handleTool(block.name, block.input as Record<string, unknown>);
-            return { type: "tool_result" as const, tool_use_id: block.id, content: result };
+            onProgress?.({ worker: workerIndex, toolName: block.name });
+          } catch {
+            /* ignore */
+          }
+          try {
+            const result = await handleTool(
+              block.name,
+              block.input as Record<string, unknown>,
+            );
+            return {
+              type: "tool_result" as const,
+              tool_use_id: block.id,
+              content: result,
+            };
           } catch (err) {
             return {
               type: "tool_result" as const,
@@ -117,11 +141,15 @@ async function runWorker(
       continue;
     }
 
-    console.warn(`[worker ${workerIndex}] unexpected stop_reason=${response.stop_reason}`);
+    console.warn(
+      `[worker ${workerIndex}] unexpected stop_reason=${response.stop_reason}`,
+    );
     break;
   }
 
-  console.info(`[worker ${workerIndex}] done turns=${turn} toolCalls=${toolCallCount}`);
+  console.info(
+    `[worker ${workerIndex}] done turns=${turn} toolCalls=${toolCallCount}`,
+  );
   return toolCallCount;
 }
 
@@ -147,14 +175,18 @@ export async function runAnalysisLoop(
   let toolCallCount = 0;
   for (let i = 0; i < chunks.length; i += MAX_CONCURRENT) {
     const batch = chunks.slice(i, i + MAX_CONCURRENT);
-    console.info(`[loop] batch ${Math.floor(i / MAX_CONCURRENT) + 1}/${Math.ceil(chunks.length / MAX_CONCURRENT)} workers=${batch.length}`);
+    console.info(
+      `[loop] batch ${Math.floor(i / MAX_CONCURRENT) + 1}/${Math.ceil(chunks.length / MAX_CONCURRENT)} workers=${batch.length}`,
+    );
     const counts = await Promise.all(
       batch.map((ids, j) =>
         runWorker(i + j, ids, onProgress).catch((err) => {
-          console.error(`[worker ${i + j}] failed: ${err instanceof Error ? err.stack : String(err)}`);
+          console.error(
+            `[worker ${i + j}] failed: ${err instanceof Error ? err.stack : String(err)}`,
+          );
           return 0;
-        })
-      )
+        }),
+      ),
     );
     toolCallCount += counts.reduce((sum, n) => sum + n, 0);
   }
