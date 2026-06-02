@@ -62,6 +62,36 @@ Apply once (`pnpm db:api`), then call:
 `conversations_list` also takes a Slack-style `types` filter, e.g.
 `slack.conversations_list(array['private_channel'])`.
 
+### From Python (Tom)
+
+Connect to Neon with the `DATABASE_URL` from **team Discord** and call the
+functions — `psycopg` hands you the JSON back as plain dicts:
+
+```python
+import os, psycopg
+from psycopg.rows import tuple_row
+
+conn = psycopg.connect(os.environ["DATABASE_URL"])  # Neon URL (Discord), pooled is fine
+
+with conn.cursor(row_factory=tuple_row) as cur:
+    users    = cur.execute("select slack.users_list()").fetchone()[0]["members"]
+    channels = cur.execute("select slack.channels_list()").fetchone()[0]["channels"]
+    dms      = cur.execute("select slack.dms_list()").fetchone()[0]["dms"]
+
+    # messages from a channel OR a dm (today only — drop the 2nd arg for all)
+    cur.execute("select slack.conversations_history(%s, current_date)", ["C_ENGINEERING"])
+    messages = cur.fetchone()[0]["messages"]      # [{id, ts, user, text, reply_count, reactions}, ...]
+
+    # walk a thread
+    cur.execute("select slack.conversations_replies(%s, %s)", ["C_INCIDENTS", "M_I15"])
+    thread = cur.fetchone()[0]["messages"]
+```
+
+The returned `jsonb` is already a Python `dict`/`list` — no `json.loads`. Each
+message's `user` is a Slack user id (resolve via `users_list`); mentions sit in
+`text` as `<@U_ID>` for you to parse. Prefer DataFrames? Query the
+`slack.messages` / `slack.channel_members` views as normal rows instead.
+
 Prefer rows over JSON envelopes? Two views:
 
 ```sql
