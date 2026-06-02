@@ -7,12 +7,14 @@ export function MessageList({
   users,
   reactions,
   channelName,
+  channelId,
   isDm,
 }: {
   messages: StoreMessage[];
   users: Record<string, StoreUser>;
   reactions: Record<string, ReactionGroup[]>;
   channelName: string;
+  channelId: string;
   isDm: boolean;
 }) {
   // Split parents vs replies. A reply has threadTs pointing at its parent id.
@@ -64,6 +66,7 @@ export function MessageList({
               grouped={grouped}
               reactions={reactions[m.id]}
               thread={thread}
+              channelId={channelId}
             />
           </div>
         );

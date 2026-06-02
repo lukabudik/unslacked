@@ -749,7 +749,143 @@ export const messages: FixtureMessage[] = [
 
   // DM Ivan-Carol wrap
   { id: "M_DM_IC4", channelId: "D_IVAN_CAROL", userId: "U_CAROL", text: "Nice work today — coupon validation's merged. You're picking this up fast.", minute: 659 },
-  { id: "M_DM_IC5", channelId: "D_IVAN_CAROL", userId: "U_IVAN", text: "Thanks for the patience 🙏 the flag pattern finally clicked.", threadTs: "M_DM_IC1", minute: 662 },];
+  { id: "M_DM_IC5", channelId: "D_IVAN_CAROL", userId: "U_IVAN", text: "Thanks for the patience 🙏 the flag pattern finally clicked.", threadTs: "M_DM_IC1", minute: 662 },
+
+  // =========================================================================
+  // WAVE 4 — deepen routing (more multi-hop), grow threads to 4-8 replies,
+  // make DMs/group-DMs feel like real back-and-forth. New ids only.
+  // =========================================================================
+
+  // ---- #ops: a 4-hop switchboard relay (Ivan → Frank → Bob → Carol → Radek) ----
+  { id: "M_O33", channelId: "C_OPS", userId: "U_IVAN", text: "Trying to get a service account for the nightly export job — no idea where to even start. Help?", minute: 670 },
+  { id: "M_O34", channelId: "C_OPS", userId: "U_FRANK", text: "Service accounts are an eng-platform thing, not ops. <@U_BOB> who owns service-account provisioning now?", threadTs: "M_O33", minute: 672 },
+  { id: "M_O35", channelId: "C_OPS", userId: "U_BOB", text: "We moved that under the data platform — <@U_CAROL> set up the IAM roles, she'll know the right scope to grant.", threadTs: "M_O33", minute: 675 },
+  { id: "M_O36", channelId: "C_OPS", userId: "U_CAROL", text: "I own the roles but the actual key issuance is gated behind <@U_RADEK>'s vault — Radek has to mint it. I'll tell him the scope.", threadTs: "M_O33", minute: 678 },
+  { id: "M_O37", channelId: "C_OPS", userId: "U_RADEK", text: "Minted a read-only export account, scoped to the warehouse only. Creds in your vault inbox <@U_IVAN>. Rotate it in 90 days.", threadTs: "M_O33", minute: 682 },
+  { id: "M_O38", channelId: "C_OPS", userId: "U_IVAN", text: "Four people later, but I have it 😅 thank you all 🙏", threadTs: "M_O33", minute: 685 },
+  // Frank routing again, fast
+  { id: "M_O39", channelId: "C_OPS", userId: "U_NINA", text: "A prospect is asking for our SOC 2 report. Do we have one and who can send it?", minute: 688 },
+  { id: "M_O40", channelId: "C_OPS", userId: "U_FRANK", text: "Security/compliance docs sit with <@U_RADEK> (he ran the audit) — and anything that leaves the building needs <@U_TOMAS> to sign off first.", threadTs: "M_O39", minute: 690 },
+  { id: "M_O41", channelId: "C_OPS", userId: "U_RADEK", text: "We have Type I, Type II is in progress. <@U_TOMAS> ok to share Type I under NDA?", threadTs: "M_O39", minute: 693 },
+  { id: "M_O42", channelId: "C_OPS", userId: "U_TOMAS", text: "Yes, Type I under signed NDA only. <@U_NINA> get the NDA from me first, then Radek sends the report.", threadTs: "M_O39", minute: 696 },
+  // Sara answers directly (non-routing)
+  { id: "M_O43", channelId: "C_OPS", userId: "U_TEREZA", text: "Which warehouse handles the Ostrava returns now?", minute: 699 },
+  { id: "M_O44", channelId: "C_OPS", userId: "U_SARA", text: "All Ostrava + Brno returns route to W2 since the consolidation. Send them there.", threadTs: "M_O43", minute: 701 },
+
+  // ---- #engineering: a deep incident-style debug thread (7 replies) ----
+  { id: "M_E42", channelId: "C_ENGINEERING", userId: "U_OSCAR", text: "Mobile push notifications stopped sending ~30 min ago. No code change on our side. Anyone?", minute: 705 },
+  { id: "M_E43", channelId: "C_ENGINEERING", userId: "U_BOB", text: "Push goes through the notification service — <@U_NORA> owns that, and <@U_RADEK> for the FCM/APNs creds.", threadTs: "M_E42", minute: 707 },
+  { id: "M_E44", channelId: "C_ENGINEERING", userId: "U_NORA", text: "Service is up, queue is draining fine. So messages are being accepted but not delivered — smells like a credential problem.", threadTs: "M_E42", minute: 710 },
+  { id: "M_E45", channelId: "C_ENGINEERING", userId: "U_RADEK", text: "Checking… the APNs cert expired this morning. Classic. Renewing now.", threadTs: "M_E42", minute: 713 },
+  { id: "M_E46", channelId: "C_ENGINEERING", userId: "U_OSCAR", text: "Android (FCM) is also dead though, not just iOS. So it's not only the APNs cert?", threadTs: "M_E42", minute: 716 },
+  { id: "M_E47", channelId: "C_ENGINEERING", userId: "U_NORA", text: "Good catch. Both dead = upstream. The provider's status page just went red. It's their outage, not ours.", threadTs: "M_E42", minute: 719 },
+  { id: "M_E48", channelId: "C_ENGINEERING", userId: "U_RADEK", text: "Confirmed, provider incident. Cert was a real (separate) problem so I renewed it anyway. We're queued and will flush when they recover.", threadTs: "M_E42", minute: 722 },
+  { id: "M_E49", channelId: "C_ENGINEERING", userId: "U_OSCAR", text: "Provider's back, queue flushed, pushes flowing. Two bugs for the price of one 😮‍💨 thanks both.", threadTs: "M_E42", minute: 726 },
+  // Carol answers directly, plus a design-review nitpick thread spinning off
+  { id: "M_E50", channelId: "C_ENGINEERING", userId: "U_DAVE", text: "RFC: should the new orders API be REST or do we finally do GraphQL? Genuinely undecided.", minute: 730 },
+  { id: "M_E51", channelId: "C_ENGINEERING", userId: "U_CAROL", text: "REST. We have one consumer and a tight schema — GraphQL is solving a problem we don't have yet. Revisit when mobile + web + partners all diverge.", threadTs: "M_E50", minute: 733 },
+  { id: "M_E52", channelId: "C_ENGINEERING", userId: "U_NORA", text: "Agree with Carol. The flexibility cost isn't worth it for two endpoints. Keep it boring.", threadTs: "M_E50", minute: 736 },
+  { id: "M_E53", channelId: "C_ENGINEERING", userId: "U_OSCAR", text: "Mobile would love field-selection eventually, but not enough to take on the server complexity now. REST +1.", threadTs: "M_E50", minute: 739 },
+  { id: "M_E54", channelId: "C_ENGINEERING", userId: "U_DAVE", text: "Sold. REST it is, I'll write it up as ADR-0014 so we stop relitigating this every quarter 😄", threadTs: "M_E50", minute: 742 },
+
+  // ---- #incidents: deeper SEV2 debugging back-and-forth (8 replies) ----
+  { id: "M_I15", channelId: "C_INCIDENTS", userId: "U_MALLORY", text: "🚨 Bumping to SEV2: a wave of customers reporting they were double-charged on checkout. ~20 tickets in 15 min and climbing.", minute: 745 },
+  { id: "M_I16", channelId: "C_INCIDENTS", userId: "U_RADEK", text: "I'll IC. <@U_CAROL> pricing/payments is you — can you look at the charge path?", threadTs: "M_I15", minute: 747 },
+  { id: "M_I17", channelId: "C_INCIDENTS", userId: "U_CAROL", text: "Looking. Payment intents are being created twice for some sessions. Smells like a client retry hitting a non-idempotent endpoint.", threadTs: "M_I15", minute: 750 },
+  { id: "M_I18", channelId: "C_INCIDENTS", userId: "U_OSCAR", text: "Mobile added an auto-retry on network timeout last release. If the charge endpoint isn't idempotent, that'd do it. 😬", threadTs: "M_I15", minute: 753 },
+  { id: "M_I19", channelId: "C_INCIDENTS", userId: "U_CAROL", text: "That's it. The charge endpoint takes no idempotency key. Mobile retry → second intent → second charge.", threadTs: "M_I15", minute: 756 },
+  { id: "M_I20", channelId: "C_INCIDENTS", userId: "U_RADEK", text: "Stop the bleeding first: <@U_OSCAR> can you feature-flag off the auto-retry remotely without an app release?", threadTs: "M_I15", minute: 759 },
+  { id: "M_I21", channelId: "C_INCIDENTS", userId: "U_OSCAR", text: "Yes — it's behind a remote config. Killing it now. Done, retries disabled for all clients.", threadTs: "M_I15", minute: 762 },
+  { id: "M_I22", channelId: "C_INCIDENTS", userId: "U_CAROL", text: "Bleeding stopped. Real fix is an idempotency key on the charge endpoint — PR in progress. <@U_MALLORY> can you pull the list of affected customers for refunds?", threadTs: "M_I15", minute: 765 },
+  { id: "M_I23", channelId: "C_INCIDENTS", userId: "U_MALLORY", text: "Already querying. ~34 customers double-charged, total €2,180. I'll auto-refund the duplicates and send an apology + credit.", threadTs: "M_I15", minute: 768 },
+  { id: "M_I24", channelId: "C_INCIDENTS", userId: "U_LENKA", text: "Approve the goodwill credits up to €25/customer without asking. Anything bigger, ping me.", threadTs: "M_I15", minute: 771 },
+  { id: "M_I25", channelId: "C_INCIDENTS", userId: "U_RADEK", text: "Resolved. Idempotency-key PR merged + backfill refunds running. Postmortem Thursday — action item: idempotency audit on all money-moving endpoints. Thanks all. 🙏", threadTs: "M_I15", minute: 775 },
+
+  // ---- #product: Grace multi-hop again (Klara → Grace → Heidi → Jonas → Carol) ----
+  { id: "M_P19", channelId: "C_PRODUCT", userId: "U_KLARA", text: "I want to ship a 'recommended delivery slot' nudge. Do we have the data to power it?", minute: 780 },
+  { id: "M_P20", channelId: "C_PRODUCT", userId: "U_GRACE", text: "Data feasibility is <@U_HEIDI>'s call — Heidi, do we have the slot-demand signal at the granularity Klara needs?", threadTs: "M_P19", minute: 783 },
+  { id: "M_P21", channelId: "C_PRODUCT", userId: "U_HEIDI", text: "We have aggregate demand, not per-user. <@U_JONAS> built the slot model — Jonas, can it personalize or is it global only?", threadTs: "M_P19", minute: 786 },
+  { id: "M_P22", channelId: "C_PRODUCT", userId: "U_JONAS", text: "Model's global today. To personalize I'd need per-user history exposed in the serving layer, and that's an eng change — <@U_CAROL>?", threadTs: "M_P19", minute: 789 },
+  { id: "M_P23", channelId: "C_PRODUCT", userId: "U_CAROL", text: "Doable — I can expose a per-user features endpoint, maybe 3 days. But let's ship the global nudge first <@U_KLARA> and personalize in v2. Faster signal.", threadTs: "M_P19", minute: 792 },
+  { id: "M_P24", channelId: "C_PRODUCT", userId: "U_KLARA", text: "Global v1, personalized v2 — perfect, that's shippable this sprint. Thanks for walking it down the chain everyone 🙏", threadTs: "M_P19", minute: 795 },
+  // Pavel answers directly (non-routing)
+  { id: "M_P25", channelId: "C_PRODUCT", userId: "U_MILA", text: "Quick one — should the slot nudge be a banner or an inline highlight on the slot itself?", minute: 798 },
+  { id: "M_P26", channelId: "C_PRODUCT", userId: "U_PAVEL", text: "Inline highlight. Banners get banner-blindness and we already have one for promos. Highlight the recommended slot with a subtle badge.", threadTs: "M_P25", minute: 801 },
+
+  // ---- #hiring: a real hiring debrief thread (6 replies) ----
+  { id: "M_H08", channelId: "C_HIRING", userId: "U_PETRA", text: "Debrief time — Senior Backend, Candidate B onsite is done. Going around: thumbs up/down + one line. I'll start: strong yes on values + ownership.", minute: 805 },
+  { id: "M_H09", channelId: "C_HIRING", userId: "U_CAROL", text: "System design: strong yes. Reasoned about idempotency and backpressure unprompted — exactly what we just got burned on. Senior-level.", threadTs: "M_H08", minute: 808 },
+  { id: "M_H10", channelId: "C_HIRING", userId: "U_BOB", text: "Coding round: yes, with a note. Clean code, but went quiet when stuck instead of thinking out loud. Coachable, not a blocker.", threadTs: "M_H08", minute: 811 },
+  { id: "M_H11", channelId: "C_HIRING", userId: "U_GRACE", text: "Product collaboration round: yes. Asked about users before jumping to solutions. Rare for a backend hire.", threadTs: "M_H08", minute: 814 },
+  { id: "M_H12", channelId: "C_HIRING", userId: "U_LUKAS", text: "References came back clean, both former leads would rehire. No red flags.", threadTs: "M_H08", minute: 817 },
+  { id: "M_H13", channelId: "C_HIRING", userId: "U_ALICE", text: "Unanimous yes then. <@U_PETRA> make the offer at the top of band — we lose good seniors to slow offers. Move fast.", threadTs: "M_H08", minute: 820 },
+  { id: "M_H14", channelId: "C_HIRING", userId: "U_PETRA", text: "On it — offer goes out today, will report back. 🤞", threadTs: "M_H08", minute: 823 },
+
+  // ---- #leadership: a meatier strategy thread ----
+  { id: "M_L07", channelId: "C_LEADERSHIP", userId: "U_VIKTOR", text: "Sales context for planning: two enterprise deals are gating on multi-warehouse + an SLA guarantee. ~€600k combined ARR if we can commit.", minute: 826 },
+  { id: "M_L08", channelId: "C_LEADERSHIP", userId: "U_GRACE", text: "Multi-warehouse is buildable this quarter if we deprioritize the referral program. <@U_BOB> agree on the trade?", threadTs: "M_L07", minute: 829 },
+  { id: "M_L09", channelId: "C_LEADERSHIP", userId: "U_BOB", text: "Agree. Referral is nice-to-have; €600k is not. I'll repoint Nora + the new hire at multi-warehouse once the offer's signed.", threadTs: "M_L07", minute: 832 },
+  { id: "M_L10", channelId: "C_LEADERSHIP", userId: "U_FRANK", text: "Ops caveat: multi-warehouse routing needs the new depot live first, or we can't actually fulfill it. That's a 6-week lead time.", threadTs: "M_L07", minute: 835 },
+  { id: "M_L11", channelId: "C_LEADERSHIP", userId: "U_LENKA", text: "So the real critical path is the depot, not the code. <@U_FRANK> can you compress the 6 weeks if we throw budget at it?", threadTs: "M_L07", minute: 838 },
+  { id: "M_L12", channelId: "C_LEADERSHIP", userId: "U_FRANK", text: "Maybe 4 weeks with a rush fit-out, +€40k. Worth it against €600k ARR.", threadTs: "M_L07", minute: 841 },
+  { id: "M_L13", channelId: "C_LEADERSHIP", userId: "U_ALICE", text: "Do it. Depot rush + multi-warehouse build in parallel, referral parked. <@U_VIKTOR> tell the customers Q3, conservatively.", threadTs: "M_L07", minute: 844 },
+
+  // ---- DM D_ALICE_GRACE: real back-and-forth with routing ----
+  { id: "M_DM_AG3", channelId: "D_ALICE_GRACE", userId: "U_ALICE", text: "Separately — the board asked who'd own multi-warehouse if it's our Q3 bet. Is that you or Pavel?", minute: 847 },
+  { id: "M_DM_AG4", channelId: "D_ALICE_GRACE", userId: "U_GRACE", text: "Pavel owns the spec, but for the cross-functional ops+eng coordination you actually want <@U_FRANK> as the driver. He's the bottleneck and the unblocker.", threadTs: "M_DM_AG1", minute: 850 },
+  { id: "M_DM_AG5", channelId: "D_ALICE_GRACE", userId: "U_ALICE", text: "Makes sense. I'll name Frank as DRI and Pavel as product lead in the deck.", minute: 853 },
+  { id: "M_DM_AG6", channelId: "D_ALICE_GRACE", userId: "U_GRACE", text: "👍 and loop me only on the product decisions, don't make me the routing hub for ops 😄", threadTs: "M_DM_AG1", minute: 856 },
+
+  // ---- DM D_IVAN_BOB: junior asking the router "who do I ask about X" ----
+  { id: "M_DM_IB5", channelId: "D_IVAN_BOB", userId: "U_IVAN", text: "Last DM I promise — who actually decides our tech-stack choices? Feels like it's all tribal knowledge.", minute: 859 },
+  { id: "M_DM_IB6", channelId: "D_IVAN_BOB", userId: "U_BOB", text: "Fair. Architecture decisions = ADRs, and <@U_CAROL> is the de-facto owner of those. Infra/platform calls are <@U_RADEK>. I just ratify.", threadTs: "M_DM_IB1", minute: 862 },
+  { id: "M_DM_IB7", channelId: "D_IVAN_BOB", userId: "U_IVAN", text: "So basically you route me to Carol or Radek for almost everything 😅", threadTs: "M_DM_IB1", minute: 865 },
+  { id: "M_DM_IB8", channelId: "D_IVAN_BOB", userId: "U_BOB", text: "Ha. That's literally my job description. Knowing who, not knowing everything. You'll do the same in a year.", threadTs: "M_DM_IB1", minute: 868 },
+
+  // ---- DM D_JUDY_FRANK: ongoing, with a routing handoff ----
+  { id: "M_DM_JF5", channelId: "D_JUDY_FRANK", userId: "U_JUDY", text: "New one — Krayton wants a custom SLA in the contract. Who signs off on committing to specific uptime numbers?", minute: 871 },
+  { id: "M_DM_JF6", channelId: "D_JUDY_FRANK", userId: "U_FRANK", text: "Two people: <@U_RADEK> confirms what uptime we can actually hit, then <@U_TOMAS> signs the contractual commitment. Don't promise a number before Radek blesses it.", threadTs: "M_DM_JF1", minute: 874 },
+  { id: "M_DM_JF7", channelId: "D_JUDY_FRANK", userId: "U_JUDY", text: "Got it. You're basically the org's search engine for 'who do I ask' 😂", threadTs: "M_DM_JF1", minute: 877 },
+  { id: "M_DM_JF8", channelId: "D_JUDY_FRANK", userId: "U_FRANK", text: "If I had a koruna for every time someone said that 💸", threadTs: "M_DM_JF1", minute: 880 },
+
+  // ---- New DM D_ALICE_BOB continuation: viewer-facing real convo ----
+  { id: "M_DM_AB7", channelId: "D_ALICE_BOB", userId: "U_ALICE", text: "If we park referral and add the new senior hire, are you genuinely confident on multi-warehouse for Q3?", minute: 883 },
+  { id: "M_DM_AB8", channelId: "D_ALICE_BOB", userId: "U_BOB", text: "On the code, yes. My only real worry is the depot timeline — that's <@U_FRANK>'s critical path, not mine. If he hits 4 weeks, we ship.", threadTs: "M_DM_AB1", minute: 886 },
+  { id: "M_DM_AB9", channelId: "D_ALICE_BOB", userId: "U_ALICE", text: "He's committed to 4 with the rush budget. So eng is the safe part?", threadTs: "M_DM_AB1", minute: 889 },
+  { id: "M_DM_AB10", channelId: "D_ALICE_BOB", userId: "U_BOB", text: "Eng is the safe part. Write it down so you can hold me to it 😄", threadTs: "M_DM_AB1", minute: 892 },
+
+  // ---- Group DM G_ALICE_HEADS: board-prep follow-up with routing ----
+  { id: "M_GA7", channelId: "G_ALICE_HEADS", userId: "U_ALICE", text: "Board follow-up: they want a single owner named for the multi-warehouse bet. I'm putting <@U_FRANK> as DRI. Objections?", minute: 895 },
+  { id: "M_GA8", channelId: "G_ALICE_HEADS", userId: "U_BOB", text: "None. Frank's the right call since the depot's the bottleneck. I'll own the eng deliverable under him.", threadTs: "M_GA1", minute: 898 },
+  { id: "M_GA9", channelId: "G_ALICE_HEADS", userId: "U_GRACE", text: "Agreed, with Pavel as product lead. I'll stay out of the day-to-day routing.", threadTs: "M_GA1", minute: 901 },
+  { id: "M_GA10", channelId: "G_ALICE_HEADS", userId: "U_FRANK", text: "Accepted. I'll run a weekly multi-warehouse sync — eng, ops, product, sales each send one person. <@U_VIKTOR> who's your rep?", threadTs: "M_GA1", minute: 904 },
+  { id: "M_GA11", channelId: "G_ALICE_HEADS", userId: "U_VIKTOR", text: "Me, until it's live. I want eyes on it given the €600k riding on it.", threadTs: "M_GA1", minute: 907 },
+
+  // ---- Group DM G_SUPPORT_ESC: deeper escalation with multi-hop ----
+  { id: "M_GS5", channelId: "G_SUPPORT_ESC", userId: "U_TEREZA", text: "New escalation: enterprise customer says our API rate limits are too aggressive and breaking their integration.", minute: 910 },
+  { id: "M_GS6", channelId: "G_SUPPORT_ESC", userId: "U_MALLORY", text: "That's a platform decision, out of support's hands. <@U_FRANK> who owns API rate-limit policy?", threadTs: "M_GS1", minute: 913 },
+  { id: "M_GS7", channelId: "G_SUPPORT_ESC", userId: "U_FRANK", text: "Rate limits are set in the gateway — that's <@U_RADEK>. But raising a customer's limit is also a commercial call, so <@U_GRACE> should weigh in on whether we tier it.", threadTs: "M_GS1", minute: 916 },
+  { id: "M_GS8", channelId: "G_SUPPORT_ESC", userId: "U_GRACE", text: "Let's make rate limits a plan tier rather than a per-customer hack. <@U_RADEK> what's safe to offer on an 'enterprise' tier without risking the platform?", threadTs: "M_GS1", minute: 919 },
+  { id: "M_GS9", channelId: "G_SUPPORT_ESC", userId: "U_RADEK", text: "Enterprise tier at 10x the default is safe — we have headroom. I'll add the tier config today. <@U_TEREZA> tell the customer it's coming this week.", threadTs: "M_GS1", minute: 922 },
+  { id: "M_GS10", channelId: "G_SUPPORT_ESC", userId: "U_TEREZA", text: "Relayed, customer's happy to wait. Crisis averted 🙏", threadTs: "M_GS1", minute: 925 },
+
+  // ---- Group DM G_RELEASE: deeper release back-and-forth ----
+  { id: "M_GR8", channelId: "G_RELEASE", userId: "U_RADEK", text: "Pre-release check for the idempotency fix + tier config — any concerns before I cut it?", minute: 928 },
+  { id: "M_GR9", channelId: "G_RELEASE", userId: "U_CAROL", text: "Idempotency migration is backward-compatible, tested the double-submit case on staging. Green from me.", threadTs: "M_GR1", minute: 931 },
+  { id: "M_GR10", channelId: "G_RELEASE", userId: "U_DAVE", text: "Frontend has no changes in this one. No-op for web.", threadTs: "M_GR1", minute: 934 },
+  { id: "M_GR11", channelId: "G_RELEASE", userId: "U_BOB", text: "Ship it. <@U_RADEK> you're IC again. Same drill — only ping me for a rollback call.", threadTs: "M_GR1", minute: 937 },
+  { id: "M_GR12", channelId: "G_RELEASE", userId: "U_RADEK", text: "Deployed, monitored 30 min, zero double-charges, rate-limit tier live. Clean release 🎉", threadTs: "M_GR1", minute: 941 },
+
+  // ---- #general & #watercooler: more life ----
+  { id: "M_G12", channelId: "C_GENERAL", userId: "U_ALICE", text: "We hit 97.4% on-time last month and just closed two more deals. Proud of this team. 🙌 Details at the all-hands.", minute: 944 },
+  { id: "M_G13", channelId: "C_GENERAL", userId: "U_PETRA", text: "Back from PTO 🌴 thanks <@U_LUKAS> for holding it down. People/Office requests can come straight to me again.", minute: 947 },
+  { id: "M_G14", channelId: "C_GENERAL", userId: "U_LUKAS", text: "Welcome back! The printer survived. Mostly.", threadTs: "M_G13", minute: 949 },
+
+  { id: "M_W15", channelId: "C_WATERCOOLER", userId: "U_OSCAR", text: "Two production incidents this week and it's only Wednesday. The plant 'Deploy' is thriving though 🪴", minute: 952 },
+  { id: "M_W16", channelId: "C_WATERCOOLER", userId: "U_CAROL", text: "Deploy outlives us all 😌", threadTs: "M_W15", minute: 954 },
+  { id: "M_W17", channelId: "C_WATERCOOLER", userId: "U_RADEK", text: "I have started talking to Deploy. It does not route my questions elsewhere, unlike <@U_FRANK>.", threadTs: "M_W15", minute: 957 },
+  { id: "M_W18", channelId: "C_WATERCOOLER", userId: "U_FRANK", text: "Deploy doesn't know who owns the pricing service either. We're the same.", threadTs: "M_W15", minute: 960 },
+  { id: "M_W19", channelId: "C_WATERCOOLER", userId: "U_IVAN", text: "😂😂 I've asked Frank 'who do I ask' more times than I've asked Google this month", threadTs: "M_W15", minute: 963 },];
 
 export const reactions: FixtureReaction[] = [
   // M_G01 welcome (general — everyone)
@@ -969,4 +1105,113 @@ export const reactions: FixtureReaction[] = [
   { messageId: "M_H07", userId: "U_EVE", emoji: "👍" },
   { messageId: "M_D12", userId: "U_DAVE", emoji: "🙏" },
   { messageId: "M_DM_IC4", userId: "U_IVAN", emoji: "🎉" },
+
+  // ---- WAVE 4 reactions ----
+  // #ops 4-hop relay — people appreciating the chain finally resolving
+  { messageId: "M_O37", userId: "U_IVAN", emoji: "🙏" },
+  { messageId: "M_O37", userId: "U_CAROL", emoji: "👍" },
+  { messageId: "M_O37", userId: "U_FRANK", emoji: "✅" },
+  { messageId: "M_O38", userId: "U_FRANK", emoji: "😂" },
+  { messageId: "M_O38", userId: "U_CAROL", emoji: "😂" },
+  { messageId: "M_O38", userId: "U_RADEK", emoji: "🙌" },
+  { messageId: "M_O42", userId: "U_NINA", emoji: "🙏" },
+  { messageId: "M_O42", userId: "U_RADEK", emoji: "👍" },
+  { messageId: "M_O44", userId: "U_TEREZA", emoji: "🙏" },
+
+  // #engineering push-notif debug + REST/GraphQL RFC
+  { messageId: "M_E47", userId: "U_RADEK", emoji: "🔥" },
+  { messageId: "M_E47", userId: "U_OSCAR", emoji: "😮" },
+  { messageId: "M_E47", userId: "U_BOB", emoji: "👀" },
+  { messageId: "M_E49", userId: "U_NORA", emoji: "😮‍💨" },
+  { messageId: "M_E49", userId: "U_RADEK", emoji: "😮‍💨" },
+  { messageId: "M_E49", userId: "U_BOB", emoji: "🙏" },
+  { messageId: "M_E51", userId: "U_NORA", emoji: "💯" },
+  { messageId: "M_E51", userId: "U_DAVE", emoji: "👍" },
+  { messageId: "M_E51", userId: "U_OSCAR", emoji: "👍" },
+  { messageId: "M_E54", userId: "U_CAROL", emoji: "😂" },
+  { messageId: "M_E54", userId: "U_NORA", emoji: "🎉" },
+  { messageId: "M_E54", userId: "U_BOB", emoji: "👍" },
+
+  // #incidents double-charge SEV2 — heavy reactions
+  { messageId: "M_I15", userId: "U_RADEK", emoji: "👀" },
+  { messageId: "M_I15", userId: "U_CAROL", emoji: "👀" },
+  { messageId: "M_I15", userId: "U_BOB", emoji: "😬" },
+  { messageId: "M_I18", userId: "U_CAROL", emoji: "😬" },
+  { messageId: "M_I18", userId: "U_RADEK", emoji: "👀" },
+  { messageId: "M_I19", userId: "U_RADEK", emoji: "🎯" },
+  { messageId: "M_I19", userId: "U_OSCAR", emoji: "😬" },
+  { messageId: "M_I21", userId: "U_CAROL", emoji: "🙏" },
+  { messageId: "M_I21", userId: "U_RADEK", emoji: "🙌" },
+  { messageId: "M_I23", userId: "U_RADEK", emoji: "🙏" },
+  { messageId: "M_I23", userId: "U_LENKA", emoji: "👍" },
+  { messageId: "M_I23", userId: "U_ALICE", emoji: "🙏" },
+  { messageId: "M_I25", userId: "U_CAROL", emoji: "🙏" },
+  { messageId: "M_I25", userId: "U_BOB", emoji: "🙏" },
+  { messageId: "M_I25", userId: "U_MALLORY", emoji: "🙌" },
+  { messageId: "M_I25", userId: "U_OSCAR", emoji: "🙏" },
+  { messageId: "M_I25", userId: "U_ALICE", emoji: "🙌" },
+
+  // #product chain-walk
+  { messageId: "M_P23", userId: "U_KLARA", emoji: "🙏" },
+  { messageId: "M_P23", userId: "U_HEIDI", emoji: "👍" },
+  { messageId: "M_P23", userId: "U_GRACE", emoji: "👍" },
+  { messageId: "M_P24", userId: "U_GRACE", emoji: "🙌" },
+  { messageId: "M_P24", userId: "U_CAROL", emoji: "🎉" },
+  { messageId: "M_P24", userId: "U_JONAS", emoji: "🙏" },
+  { messageId: "M_P26", userId: "U_MILA", emoji: "👍" },
+
+  // #hiring debrief — strong unanimous
+  { messageId: "M_H09", userId: "U_BOB", emoji: "💯" },
+  { messageId: "M_H09", userId: "U_PETRA", emoji: "🙌" },
+  { messageId: "M_H13", userId: "U_PETRA", emoji: "👍" },
+  { messageId: "M_H13", userId: "U_BOB", emoji: "💯" },
+  { messageId: "M_H13", userId: "U_CAROL", emoji: "🙌" },
+  { messageId: "M_H13", userId: "U_GRACE", emoji: "🎉" },
+  { messageId: "M_H14", userId: "U_ALICE", emoji: "🤞" },
+  { messageId: "M_H14", userId: "U_BOB", emoji: "🤞" },
+
+  // #leadership strategy
+  { messageId: "M_L12", userId: "U_ALICE", emoji: "👀" },
+  { messageId: "M_L12", userId: "U_LENKA", emoji: "👍" },
+  { messageId: "M_L13", userId: "U_VIKTOR", emoji: "🔥" },
+  { messageId: "M_L13", userId: "U_GRACE", emoji: "👍" },
+  { messageId: "M_L13", userId: "U_BOB", emoji: "👍" },
+  { messageId: "M_L13", userId: "U_FRANK", emoji: "💪" },
+
+  // DMs (incl. Alice the viewer)
+  { messageId: "M_DM_AB10", userId: "U_ALICE", emoji: "😄" },
+  { messageId: "M_DM_AG6", userId: "U_ALICE", emoji: "😂" },
+  { messageId: "M_DM_IB8", userId: "U_IVAN", emoji: "🙏" },
+  { messageId: "M_DM_JF7", userId: "U_FRANK", emoji: "😂" },
+  { messageId: "M_DM_JF8", userId: "U_JUDY", emoji: "💸" },
+
+  // Group DMs
+  { messageId: "M_GA10", userId: "U_VIKTOR", emoji: "👍" },
+  { messageId: "M_GA10", userId: "U_BOB", emoji: "👍" },
+  { messageId: "M_GS9", userId: "U_TEREZA", emoji: "🙏" },
+  { messageId: "M_GS9", userId: "U_GRACE", emoji: "👍" },
+  { messageId: "M_GS9", userId: "U_MALLORY", emoji: "🙌" },
+  { messageId: "M_GR12", userId: "U_BOB", emoji: "🎉" },
+  { messageId: "M_GR12", userId: "U_CAROL", emoji: "🙌" },
+  { messageId: "M_GR12", userId: "U_DAVE", emoji: "🎉" },
+
+  // #general & #watercooler
+  { messageId: "M_G12", userId: "U_BOB", emoji: "🙌" },
+  { messageId: "M_G12", userId: "U_FRANK", emoji: "🙌" },
+  { messageId: "M_G12", userId: "U_GRACE", emoji: "🎉" },
+  { messageId: "M_G12", userId: "U_VIKTOR", emoji: "🔥" },
+  { messageId: "M_G12", userId: "U_HEIDI", emoji: "🎉" },
+  { messageId: "M_G12", userId: "U_MALLORY", emoji: "🙌" },
+  { messageId: "M_G13", userId: "U_FRANK", emoji: "🎉" },
+  { messageId: "M_G13", userId: "U_LUKAS", emoji: "🙌" },
+  { messageId: "M_G13", userId: "U_IVAN", emoji: "👋" },
+  { messageId: "M_W15", userId: "U_CAROL", emoji: "😂" },
+  { messageId: "M_W15", userId: "U_DAVE", emoji: "🪴" },
+  { messageId: "M_W17", userId: "U_FRANK", emoji: "😂" },
+  { messageId: "M_W17", userId: "U_IVAN", emoji: "😂" },
+  { messageId: "M_W17", userId: "U_CAROL", emoji: "🤣" },
+  { messageId: "M_W18", userId: "U_RADEK", emoji: "😂" },
+  { messageId: "M_W18", userId: "U_SARA", emoji: "😂" },
+  { messageId: "M_W19", userId: "U_FRANK", emoji: "😂" },
+  { messageId: "M_W19", userId: "U_BOB", emoji: "😂" },
 ];

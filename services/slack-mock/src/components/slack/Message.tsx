@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { StoreMessage, StoreUser, ReactionGroup } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "./UserAvatar";
@@ -5,6 +6,7 @@ import { RichText } from "./RichText";
 import { ReactionBar } from "./ReactionBar";
 import { displayName, formatTime } from "./utils";
 import { ThreadIcon } from "./icons";
+import { toggleReactionAction } from "@/app/actions";
 
 export interface ThreadMeta {
   count: number;
@@ -12,12 +14,15 @@ export interface ThreadMeta {
   lastReplyTs: string;
 }
 
+const HOVER_EMOJI = ["😀", "👍", "✅"];
+
 export function Message({
   message,
   users,
   grouped,
   reactions,
   thread,
+  channelId,
   compact = false,
 }: {
   message: StoreMessage;
@@ -25,11 +30,13 @@ export function Message({
   grouped: boolean;
   reactions?: ReactionGroup[];
   thread?: ThreadMeta;
+  channelId: string;
   /** thread-panel style replies render slightly tighter */
   compact?: boolean;
 }) {
   const user = users[message.userId];
   const name = displayName(users, message.userId);
+  const threadHref = `/c/${channelId}?thread=${message.id}`;
 
   return (
     <div
@@ -71,11 +78,11 @@ export function Message({
           <RichText text={message.text} users={users} />
         </div>
 
-        {reactions && <ReactionBar groups={reactions} />}
+        {reactions && <ReactionBar groups={reactions} channelId={channelId} messageId={message.id} />}
 
         {thread && thread.count > 0 && (
-          <button
-            type="button"
+          <Link
+            href={threadHref}
             className="mt-1.5 inline-flex max-w-full items-center gap-2 rounded-lg border border-transparent py-0.5 pr-2 pl-1 text-left transition-colors hover:border-[#ddd] hover:bg-white hover:shadow-sm"
           >
             <span className="flex -space-x-1">
@@ -90,36 +97,49 @@ export function Message({
               View thread
             </span>
             <ThreadIcon className="size-3.5 text-[#9b9b9b]" />
-          </button>
+          </Link>
         )}
       </div>
 
       {/* hover action toolbar */}
-      <MessageActions />
+      <MessageActions channelId={channelId} messageId={message.id} threadHref={threadHref} />
     </div>
   );
 }
 
-function MessageActions() {
+function MessageActions({
+  channelId,
+  messageId,
+  threadHref,
+}: {
+  channelId: string;
+  messageId: string;
+  threadHref: string;
+}) {
   return (
     <div className="absolute -top-3 right-4 hidden rounded-lg border border-black/10 bg-white shadow-md group-hover:flex">
-      {["😀", "👍", "✅"].map((e) => (
-        <button
-          key={e}
-          type="button"
-          className="flex size-8 items-center justify-center rounded-md text-[15px] hover:bg-[#f4f4f4]"
-        >
-          {e}
-        </button>
+      {HOVER_EMOJI.map((e) => (
+        <form key={e} action={toggleReactionAction}>
+          <input type="hidden" name="channelId" value={channelId} />
+          <input type="hidden" name="messageId" value={messageId} />
+          <input type="hidden" name="emoji" value={e} />
+          <button
+            type="submit"
+            aria-label={`React ${e}`}
+            className="flex size-8 items-center justify-center rounded-md text-[15px] hover:bg-[#f4f4f4]"
+          >
+            {e}
+          </button>
+        </form>
       ))}
       <span className="my-1 w-px bg-black/10" />
-      <button
-        type="button"
+      <Link
+        href={threadHref}
         aria-label="Reply in thread"
         className="flex size-8 items-center justify-center rounded-md text-[#616061] hover:bg-[#f4f4f4]"
       >
         <ThreadIcon className="size-4" />
-      </button>
+      </Link>
       <button
         type="button"
         aria-label="More actions"

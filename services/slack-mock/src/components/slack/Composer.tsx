@@ -1,12 +1,70 @@
+"use client";
+
+import { useRef } from "react";
 import {
   BoldIcon, ItalicIcon, StrikeIcon, CodeIcon, LinkIcon, ListIcon,
   EmojiIcon, AtIcon, PlusIcon, VideoIcon, MicIcon, SendIcon,
 } from "./icons";
+import { sendMessage } from "@/app/actions";
 
-export function Composer({ placeholderTarget }: { placeholderTarget: string }) {
+export function Composer({
+  channelId,
+  placeholderTarget,
+  threadTs,
+  variant = "channel",
+}: {
+  channelId: string;
+  placeholderTarget: string;
+  /** when set, the composer posts a reply into this thread */
+  threadTs?: string;
+  /** "channel" = full toolbar w/ wrapper padding; "thread" = tighter footer composer */
+  variant?: "channel" | "thread";
+}) {
+  const formRef = useRef<HTMLFormElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const sendBtnRef = useRef<HTMLButtonElement>(null);
+
+  function syncSendState() {
+    const btn = sendBtnRef.current;
+    const val = inputRef.current?.value.trim() ?? "";
+    if (!btn) return;
+    const enabled = val.length > 0;
+    btn.disabled = !enabled;
+    btn.className = enabled
+      ? "flex size-7 items-center justify-center rounded-md bg-[#007a5a] text-white transition-colors hover:bg-[#148567]"
+      : "flex size-7 items-center justify-center rounded-md bg-[#007a5a]/20 text-[#007a5a]/50";
+  }
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if ((inputRef.current?.value.trim() ?? "").length === 0) return;
+      formRef.current?.requestSubmit();
+    }
+  }
+
+  function onSubmit() {
+    // Defer the clear: React serializes the form's FormData synchronously during
+    // this submit event. Clearing the value now would blank `text` before it's
+    // captured (the action would get an empty body). RAF runs after dispatch.
+    requestAnimationFrame(() => {
+      if (inputRef.current) inputRef.current.value = "";
+      syncSendState();
+      inputRef.current?.focus();
+    });
+  }
+
   return (
-    <div className="px-5 pb-5 pt-1">
-      <div className="overflow-hidden rounded-xl border border-[#a9a9a9]/60 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] focus-within:border-[#1d1c1d]/40">
+    <div className={variant === "thread" ? "px-3 pb-3 pt-1" : "px-5 pb-5 pt-1"}>
+      <form
+        ref={formRef}
+        action={sendMessage}
+        onSubmit={onSubmit}
+        className="overflow-hidden rounded-xl border border-[#a9a9a9]/60 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] focus-within:border-[#1d1c1d]/40"
+      >
+        <input type="hidden" name="channelId" value={channelId} />
+        {threadTs && <input type="hidden" name="threadTs" value={threadTs} />}
+
         {/* formatting toolbar */}
         <div className="flex items-center gap-0.5 border-b border-[#e8e8e8] px-2 py-1.5">
           <ToolbarBtn label="Bold"><BoldIcon className="size-4" /></ToolbarBtn>
@@ -18,14 +76,18 @@ export function Composer({ placeholderTarget }: { placeholderTarget: string }) {
           <ToolbarBtn label="Code"><CodeIcon className="size-4" /></ToolbarBtn>
         </div>
 
-        {/* fake input row */}
-        <div
-          className="min-h-[44px] px-3 py-2.5 text-[15px] text-[#9b9b9b] select-none"
-          role="textbox"
+        {/* real input row */}
+        <textarea
+          ref={inputRef}
+          name="text"
+          rows={1}
+          autoComplete="off"
+          onChange={syncSendState}
+          onKeyDown={onKeyDown}
+          placeholder={`Message ${placeholderTarget}`}
+          className="block max-h-40 min-h-[44px] w-full resize-none border-0 bg-transparent px-3 py-2.5 text-[15px] text-[#1d1c1d] outline-none placeholder:text-[#9b9b9b]"
           aria-label={`Message ${placeholderTarget}`}
-        >
-          Message {placeholderTarget}
-        </div>
+        />
 
         {/* action row */}
         <div className="flex items-center justify-between px-2 py-1.5">
@@ -38,7 +100,8 @@ export function Composer({ placeholderTarget }: { placeholderTarget: string }) {
             <ToolbarBtn label="Record audio"><MicIcon className="size-[18px]" /></ToolbarBtn>
           </div>
           <button
-            type="button"
+            ref={sendBtnRef}
+            type="submit"
             aria-label="Send"
             disabled
             className="flex size-7 items-center justify-center rounded-md bg-[#007a5a]/20 text-[#007a5a]/50"
@@ -46,10 +109,7 @@ export function Composer({ placeholderTarget }: { placeholderTarget: string }) {
             <SendIcon className="size-4" />
           </button>
         </div>
-      </div>
-      <p className="mt-1.5 px-1 text-[11px] text-[#9b9b9b]">
-        This is a read-only mock — the composer doesn&apos;t send messages.
-      </p>
+      </form>
     </div>
   );
 }

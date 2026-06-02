@@ -5,16 +5,18 @@
  * Everything here returns plain JS shapes; the API routes wrap them into
  * Slack-Web-API-style envelopes (see app/api/slack/*).
  */
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import {
   users as usersTable,
   channels as channelsTable,
   channelMembers,
   messages as messagesTable,
+  mentions as mentionsTable,
   reactions as reactionsTable,
 } from "@/db/schema";
 import * as fx from "@/db/fixtures";
+import { parseMentions } from "./mentions";
 
 export interface StoreUser {
   id: string;
@@ -181,4 +183,120 @@ export async function getReactions(channelId: string): Promise<Record<string, Re
     }
   }
   return byMessage;
+}
+
+// ---------------------------------------------------------------------------
+// Writes. These mutate Neon when configured; otherwise they mutate the
+// in-memory fixtures (works within a single running process, resets on reload).
+// Runtime writes use real wall-clock time — the no-Date determinism rule only
+// applies to the seed fixtures.
+// ---------------------------------------------------------------------------
+
+let memSeq = 0;
+function newId(prefix: string): string {
+  memSeq += 1;
+  // crypto.randomUUID is available in the Node/Next server runtime.
+  const rand = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${memSeq}`;
+  return `${prefix}_${rand}`;
+}
+
+export async function addMessage(input: {
+  channelId: string;
+  userId: string;
+  text: string;
+  threadTs?: string | null;
+}): Promise<StoreMessage> {
+  const id = newId("M");
+  const now = new Date();
+  const mentionIds = parseMentions(input.text);
+
+  if (db) {
+    await db.insert(messagesTable).values({
+      id,
+      channelId: input.channelId,
+      userId: input.userId,
+      text: input.text,
+      threadTs: input.threadTs ?? null,
+      ts: now,
+    });
+    if (mentionIds.length) {
+      await db
+        .insert(mentionsTable)
+        .values(mentionIds.map((uid) => ({ id: `${id}:${uid}`, messageId: id, mentionedUserId: uid })));
+    }
+  } else {
+    const maxMinute = fx.messages.reduce((mx, m) => Math.max(mx, m.minute), 0);
+    fx.messages.push({
+      id,
+      channelId: input.channelId,
+      userId: input.userId,
+      text: input.text,
+      threadTs: input.threadTs ?? undefined,
+      minute: maxMinute + 1,
+    });
+  }
+
+  return {
+    id,
+    channelId: input.channelId,
+    userId: input.userId,
+    text: input.text,
+    threadTs: input.threadTs ?? null,
+    ts: now.toISOString(),
+  };
+}
+
+/** Add a reaction; idempotent on (message, user, emoji). */
+export async function addReaction(messageId: string, userId: string, emoji: string): Promise<void> {
+  if (db) {
+    await db.insert(reactionsTable).values({ messageId, userId, emoji }).onConflictDoNothing();
+  } else if (!fx.reactions.some((r) => r.messageId === messageId && r.userId === userId && r.emoji === emoji)) {
+    fx.reactions.push({ messageId, userId, emoji });
+  }
+}
+
+export async function removeReaction(messageId: string, userId: string, emoji: string): Promise<void> {
+  if (db) {
+    await db
+      .delete(reactionsTable)
+      .where(
+        and(
+          eq(reactionsTable.messageId, messageId),
+          eq(reactionsTable.userId, userId),
+          eq(reactionsTable.emoji, emoji),
+        ),
+      );
+  } else {
+    const i = fx.reactions.findIndex(
+      (r) => r.messageId === messageId && r.userId === userId && r.emoji === emoji,
+    );
+    if (i >= 0) fx.reactions.splice(i, 1);
+  }
+}
+
+/** Add the reaction if absent, remove it if the user already reacted. */
+export async function toggleReaction(messageId: string, userId: string, emoji: string): Promise<"added" | "removed"> {
+  let exists: boolean;
+  if (db) {
+    const rows = await db
+      .select()
+      .from(reactionsTable)
+      .where(
+        and(
+          eq(reactionsTable.messageId, messageId),
+          eq(reactionsTable.userId, userId),
+          eq(reactionsTable.emoji, emoji),
+        ),
+      );
+    exists = rows.length > 0;
+  } else {
+    exists = fx.reactions.some((r) => r.messageId === messageId && r.userId === userId && r.emoji === emoji);
+  }
+
+  if (exists) {
+    await removeReaction(messageId, userId, emoji);
+    return "removed";
+  }
+  await addReaction(messageId, userId, emoji);
+  return "added";
 }

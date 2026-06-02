@@ -3,14 +3,18 @@ import { listUsers, listChannels, getHistory, getReactions } from "@/lib/store";
 import { ChannelHeader, ChannelTopicBar } from "@/components/slack/ChannelHeader";
 import { MessageList } from "@/components/slack/MessageList";
 import { Composer } from "@/components/slack/Composer";
+import { ThreadPanel } from "@/components/slack/ThreadPanel";
 import { channelLabel } from "@/components/slack/utils";
 
 export default async function ChannelPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ channelId: string }>;
+  searchParams: Promise<{ thread?: string }>;
 }) {
   const { channelId } = await params;
+  const { thread } = await searchParams;
 
   const [users, channels] = await Promise.all([listUsers(), listChannels()]);
   const channel = channels.find((c) => c.id === channelId);
@@ -30,17 +34,34 @@ export default async function ChannelPage({
       <ChannelHeader channel={channel} users={userMap} />
       <ChannelTopicBar topic={channel.topic} isDm={isDm} />
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-        <MessageList
-          messages={messages}
-          users={userMap}
-          reactions={reactions}
-          channelName={label}
-          isDm={isDm}
-        />
-      </div>
+      <div className="flex min-h-0 flex-1 overflow-hidden">
+        {/* main conversation column */}
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+            <MessageList
+              messages={messages}
+              users={userMap}
+              reactions={reactions}
+              channelName={label}
+              channelId={channelId}
+              isDm={isDm}
+            />
+          </div>
 
-      <Composer placeholderTarget={isDm ? label : `#${label}`} />
+          <Composer channelId={channelId} placeholderTarget={isDm ? label : `#${label}`} />
+        </div>
+
+        {/* thread panel (URL-driven via ?thread=<parentMessageId>) */}
+        {thread && (
+          <ThreadPanel
+            channelId={channelId}
+            parentId={thread}
+            channelLabel={label}
+            isDm={isDm}
+            users={userMap}
+          />
+        )}
+      </div>
     </>
   );
 }
