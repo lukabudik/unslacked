@@ -1,7 +1,17 @@
+import { appendFileSync, writeFileSync } from "node:fs";
 import { loadOrg } from "./org.js";
 import { World } from "./world.js";
 import { startServer } from "./server.js";
 import { Simulation, type SimConfig } from "./orchestrator.js";
+
+const TRANSCRIPT = "out/transcript.jsonl";
+
+/** Persist every message + channel-creation so a run can be analyzed afterward. */
+function persist(world: World) {
+  writeFileSync(TRANSCRIPT, ""); // fresh per run
+  world.on("message", (m) => appendFileSync(TRANSCRIPT, JSON.stringify({ k: "message", ...m }) + "\n"));
+  world.on("channel", (c) => appendFileSync(TRANSCRIPT, JSON.stringify({ k: "channel", ...c }) + "\n"));
+}
 
 function parseArgs(argv: string[]): SimConfig {
   const get = (flag: string, def: number) => {
@@ -14,6 +24,8 @@ function parseArgs(argv: string[]): SimConfig {
     agents: get("--agents", 12),
     ticks: get("--ticks", 6),
     concurrency: get("--concurrency", 6),
+    forever: argv.includes("--forever"),
+    tickDelayMs: get("--tick-delay", 0),
   };
 }
 
@@ -29,6 +41,7 @@ async function main() {
   const world = new World();
   seedWorld(world, org);
 
+  persist(world);
   const server = startServer(world, config);
   console.log(`[main] org: ${org.users.length} users, ${org.channels.length} channels`);
   console.log(`[main] ws server: ${server.url}  (health: http://localhost:${server.port}/health)`);

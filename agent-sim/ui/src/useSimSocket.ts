@@ -135,6 +135,8 @@ function reducer(state: SimState, action: Action): SimState {
             });
           }
           const prev = base.messagesByChannel[m.channelId] ?? [];
+          // ignore duplicates (e.g. a second socket / reconnect re-delivering)
+          if (prev.some((x) => x.id === m.id)) return state;
           const isFocused =
             base.focus === m.channelId || base.focus === ALL_ACTIVITY;
           return {

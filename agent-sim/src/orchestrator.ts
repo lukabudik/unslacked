@@ -5,6 +5,8 @@ export interface SimConfig {
   agents: number; // how many of the org's people are active
   ticks: number;
   concurrency: number; // max concurrent turns
+  forever?: boolean; // run until stopped (ignore ticks)
+  tickDelayMs?: number; // pause between ticks (paces a live watch + cost)
 }
 
 /** map a tick index to a compressed sim-time label */
@@ -73,7 +75,10 @@ export class Simulation {
     console.log("[sim] first tick in 4s — open the UI now to watch live");
     await new Promise((r) => setTimeout(r, 4000));
 
-    for (let tick = 0; tick < this.config.ticks; tick++) {
+    for (let tick = 0; this.config.forever || tick < this.config.ticks; tick++) {
+      if (tick > 0 && this.config.tickDelayMs) {
+        await new Promise((r) => setTimeout(r, this.config.tickDelayMs));
+      }
       const clock = simClock(tick);
       this.world.emit("tick", { n: tick + 1, simClock: clock });
 
@@ -98,6 +103,6 @@ export class Simulation {
       });
     }
 
-    this.world.emit("done", {});
+    if (!this.config.forever) this.world.emit("done", {});
   }
 }
