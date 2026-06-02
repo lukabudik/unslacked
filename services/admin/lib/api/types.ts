@@ -137,4 +137,137 @@ export interface OrgKpis {
   busFactor: number;                   // # of people whose removal fragments org
   hoursRecoverablePerMonth: number;    // sum of automation opps
   trendDegreesOfSeparation: number[];  // sparkline series
+  // resilience / health headline numbers (surfaced on overview too)
+  keyPersonRiskCount: number;          // people flagged high single-person risk
+  singlePointsOfFailure: number;       // topics with exactly one real owner
+  openQuestions: number;               // questions still unanswered/slow
+  orgSentiment: number;                // -1..1 blended org mood
+  medianTimeToAnswerHours: number;     // median first-reply latency on questions
+  tribalKnowledgePct: number;          // 0..1 share of Q&A happening in DMs
+}
+
+// ── Risk & Resilience ───────────────────────────────────────
+// A person whose departure would hurt: high betweenness AND/OR the sole owner
+// of one or more knowledge domains. The headline "who can't we afford to lose".
+export interface KeyPersonRisk {
+  personId: string;
+  name: string;
+  persona: Persona;
+  team: string;
+  title?: string;
+  riskScore: number;             // 0..1 composite
+  betweenness: number;           // 0..1
+  answerShare: number;           // 0..1 share of answers in their domains
+  soleOwnedTopics: TopicRef[];   // domains where they're the dominant owner
+  busFactorContribution: boolean;// removal fragments the org
+  exposure: string;              // "Sole owner of 4 topics; bridges 3 teams"
+}
+
+// Knowledge concentration per topic (channel): how dominant the top owner is.
+export interface TopicOwnership {
+  topicId: string;
+  topicLabel: string;
+  persona: Persona;              // department the topic skews to
+  ownerId: string;
+  ownerName: string;
+  ownerShare: number;            // 0..1 — dominance of the top contributor
+  contributors: number;          // distinct people active in the topic
+  concentration: "single" | "thin" | "healthy";
+}
+
+// Offboarding decay: a deactivated (or about-to-leave) user still being routed
+// to — a dead end in the routing graph.
+export interface DeadEndRoute {
+  userId: string;
+  name: string;
+  persona: Persona;
+  title?: string;
+  deactivated: boolean;
+  staleMentions: number;         // times still @-mentioned
+  groups: string[];              // usergroups they still belong to
+  lastSeenAt: string;            // ISO of their last message
+}
+
+// ── Knowledge & Q&A ─────────────────────────────────────────
+export interface OpenQuestion {
+  id: string;
+  text: string;
+  channel: string;
+  askedById: string;
+  askedByName: string;
+  persona: Persona;
+  at: string;                    // ISO
+  ageHours: number;
+  status: "unanswered" | "slow" | "tribal"; // tribal = answered only in a DM
+  likeliestOwnerId?: string;
+  likeliestOwnerName?: string;
+}
+
+// Who is the de-facto answerer for which domains.
+export interface ExpertiseEntry {
+  personId: string;
+  name: string;
+  persona: Persona;
+  title?: string;
+  domains: TopicRef[];           // topics they answer in most
+  answers: number;               // replies authored
+  uniqueAskers: number;          // distinct people they helped
+}
+
+// A repeated question pattern — prime FAQ/automation candidate.
+export interface RecurringQuestion {
+  id: string;
+  pattern: string;               // "How do I get prod access?"
+  occurrences: number;
+  uniqueAskers: number;
+  channel: string;
+  answeredByName?: string;
+  automatable: boolean;          // good Duvo/FAQ-bot candidate
+}
+
+// ── Org Pulse (culture / load) ──────────────────────────────
+export interface SentimentSeries {
+  team: string;
+  persona: Persona;
+  current: number;               // -1..1
+  delta: number;                 // change vs window start
+  points: { date: string; label: string; score: number }[];
+}
+
+export interface OverloadEntry {
+  personId: string;
+  name: string;
+  persona: Persona;
+  mentionsReceived: number;
+  afterHoursPct: number;         // 0..1 of their activity outside 8–18
+  threadsPulledInto: number;
+  overloadScore: number;         // 0..1
+}
+
+// Dept→dept communication strength (silo matrix cell).
+export interface SiloCell {
+  from: Persona;
+  to: Persona;
+  strength: number;              // 0..1 normalized
+}
+
+export interface RecognitionEntry {
+  personId: string;
+  name: string;
+  persona: Persona;
+  received: number;              // reactions received on their messages
+  given: number;                 // reactions they gave
+  ratio: number;                 // received / max(1, given)
+}
+
+// ── Shadow org chart (influence vs title) ───────────────────
+export interface ShadowRankEntry {
+  personId: string;
+  name: string;
+  persona: Persona;
+  title?: string;
+  seniority: "IC" | "Lead" | "Manager" | "Exec";
+  influenceRank: number;         // 1 = most influential
+  formalRank: number;            // 1 = most senior by title
+  gap: number;                   // formalRank - influenceRank (+ = punches above title)
 }

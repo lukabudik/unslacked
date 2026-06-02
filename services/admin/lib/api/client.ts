@@ -4,11 +4,22 @@ import type {
   ActivityPoint,
   AutomationOpportunity,
   CommsGraph,
+  DeadEndRoute,
+  ExpertiseEntry,
+  KeyPersonRisk,
   MiddlemanInsight,
+  OpenQuestion,
   OrgKpis,
+  OverloadEntry,
   PersonaPairRoute,
+  RecognitionEntry,
+  RecurringQuestion,
   RoutingEvent,
+  SentimentSeries,
+  ShadowRankEntry,
+  SiloCell,
   Topic,
+  TopicOwnership,
 } from "./types";
 
 // Data source selection:
@@ -51,4 +62,49 @@ export async function getActivityTimeline(): Promise<ActivityPoint[]> {
 
 export async function getTopics(): Promise<Topic[]> {
   return USE_DB ? realdb.topicsCatalog() : mock.topics();
+}
+
+// ── Resilience / Knowledge / Pulse ──────────────────────────
+export async function getKeyPersonRisks(): Promise<KeyPersonRisk[]> {
+  return USE_DB ? realdb.keyPersonRisks() : mock.keyPersonRisks();
+}
+
+export async function getTopicOwnership(): Promise<TopicOwnership[]> {
+  return USE_DB ? realdb.topicOwnership() : mock.topicOwnership();
+}
+
+export async function getDeadEndRoutes(): Promise<DeadEndRoute[]> {
+  return USE_DB ? realdb.deadEndRoutes() : mock.deadEndRoutes();
+}
+
+export async function getOpenQuestions(): Promise<OpenQuestion[]> {
+  return USE_DB ? realdb.openQuestions() : mock.openQuestions();
+}
+
+export async function getExpertise(): Promise<ExpertiseEntry[]> {
+  return USE_DB ? realdb.expertise() : mock.expertise();
+}
+
+export async function getRecurringQuestions(): Promise<RecurringQuestion[]> {
+  return USE_DB ? realdb.recurringQuestions() : mock.recurringQuestions();
+}
+
+export async function getSentiment(): Promise<SentimentSeries[]> {
+  return USE_DB ? realdb.sentiment() : mock.sentiment();
+}
+
+export async function getOverload(): Promise<OverloadEntry[]> {
+  return USE_DB ? realdb.overload() : mock.overload();
+}
+
+export async function getSilos(): Promise<SiloCell[]> {
+  return USE_DB ? realdb.silos() : mock.silos();
+}
+
+export async function getRecognition(): Promise<RecognitionEntry[]> {
+  return USE_DB ? realdb.recognition() : mock.recognition();
+}
+
+export async function getShadowRanks(): Promise<ShadowRankEntry[]> {
+  return USE_DB ? realdb.shadowRanks() : mock.shadowRanks();
 }

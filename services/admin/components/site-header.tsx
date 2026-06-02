@@ -16,6 +16,9 @@ const TITLES: Record<string, string> = {
   "/graph": "Communication Graph",
   "/automations": "Automations",
   "/routing": "Routing",
+  "/resilience": "Risk & Resilience",
+  "/knowledge": "Knowledge & Q&A",
+  "/pulse": "Org Pulse",
 };
 
 export function SiteHeader({ people }: { people: PalettePerson[] }) {

@@ -67,6 +67,17 @@ task-miner exist.
 | `getPersonaRoutes()`     | **derived** from middleman neighbors (heuristic) | ⚠️ replace |
 | `getRoutingFeed()`       | **derived** from recent cross-dept @-mentions | ⚠️ replace |
 | `getAutomations()`       | **`curatedAutomations()` — hardcoded list** | ⚠️ replace |
+| `getKeyPersonRisks()`    | betweenness + sole-ownership + mention share — computed | ✅ real |
+| `getTopicOwnership()`    | per-channel dominant-author share — computed | ✅ real |
+| `getDeadEndRoutes()`     | mentions/usergroups still pointing at deactivated users | ✅ real |
+| `getOpenQuestions()`     | question-heuristic on top-level msgs + reply latency | 🟡 heuristic |
+| `getExpertise()`         | thread replies authored + distinct askers helped | ✅ real |
+| `getRecurringQuestions()`| keyword-signature clustering of question text | 🟡 heuristic |
+| `getSentiment()`         | **synthesized** deterministic walk per team (no LLM yet) | ⚠️ replace |
+| `getOverload()`          | mentions + threads + after-hours (UTC hour) — computed | 🟡 real-ish |
+| `getSilos()`             | dept→dept comms strength from edges — computed | ✅ real |
+| `getRecognition()`       | reactions received vs given — computed | ✅ real |
+| `getShadowRanks()`       | influence rank (betweenness) vs formal rank (title) | ✅ real |
 
 The DB tables `routing_events` and `router_scores` currently have **0 rows**, which
 is why routing is derived. Once the backend router populates them, switch to reading
@@ -157,10 +168,13 @@ should come from the shared package.
 
 ```
 app/                         # routes (server components; call client.ts)
-  page.tsx                   # Overview dashboard
+  page.tsx                   # Overview dashboard (+ health KPI row, shadow org chart)
   graph/page.tsx             # Communication graph (scope/topic filters)
   automations/page.tsx       # Duvo opportunities table
   routing/page.tsx           # Persona-pair routes + live feed
+  resilience/page.tsx        # Risk & Resilience — key-person risk, SPOFs, offboarding decay
+  knowledge/page.tsx         # Knowledge & Q&A — open questions, expertise, recurring Qs
+  pulse/page.tsx             # Org Pulse — sentiment, overload, silo matrix, recognition
 lib/api/
   client.ts                  # ⭐ only data entrypoint (source toggle)
   db.ts                      # live Neon → contract (real + ⚠️ derived bits)
@@ -168,6 +182,35 @@ lib/api/
   types.ts                   # the contract — keep stable
 lib/db/
   index.ts, schema.ts        # Drizzle client + table defs (see TODO 4)
-components/                  # UI (graph/, charts/, dashboard/, routing/, automations/)
+components/                  # UI (graph/, charts/, dashboard/, routing/, automations/,
+                             #     resilience/, knowledge/, pulse/, shared/)
 .cursor/skills/shadcn-minimal-ui/SKILL.md   # the UI design system + conventions
 ```
+
+---
+
+## 6. New insight surfaces (demo-grade — added for ideation)
+
+Three pages were added to scope out what the full-Slack dataset can surface beyond
+routing. They follow the same `client.ts → db.ts/mock.ts` contract; most metrics are
+**computed live** from the Slack tables, a few are **synthesized** (see the table in §3).
+
+- **Resilience** (`/resilience`) — key-person risk (betweenness × sole knowledge
+  ownership), single points of failure, knowledge concentration per channel, and
+  **offboarding decay** (mentions/usergroups still pointing at deactivated users).
+- **Knowledge & Q&A** (`/knowledge`) — open/slow/DM-only questions, the de-facto
+  experts answering them, and recurring-question clusters with an **Automate → Duvo**
+  CTA (bridges routing → automation).
+- **Org Pulse** (`/pulse`) — team sentiment over time, overload/burnout watch,
+  dept×dept silo matrix, recognition flow.
+- **Overview** gained a health-KPI row (cross-linking to the above) and a **shadow
+  org chart** (real influence rank vs. formal title rank).
+
+**To make real later:** `getSentiment()` is a deterministic synthetic walk — replace
+with an LLM tone pass (backend job → table, same pattern as the automation miner in
+TODO 1). `getOpenQuestions()`/`getRecurringQuestions()` use text heuristics that an
+LLM/embedding pass would sharpen. Everything else is computed from live data.
+
+> **Fix note:** `components/charts/DateRangePicker.tsx` (the activity period picker)
+> was missing from the repo and broke `pnpm build` (imported by `TimelineChart`). It
+> was recreated to match the expected props/`RangePreset` contract.

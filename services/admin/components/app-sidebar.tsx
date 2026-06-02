@@ -7,6 +7,9 @@ import {
   Network,
   Workflow,
   Route,
+  ShieldAlert,
+  BookOpen,
+  Activity,
   Unplug,
 } from "lucide-react";
 
@@ -28,6 +31,12 @@ const main = [
   { title: "Comms Graph", href: "/graph", icon: Network },
   { title: "Automations", href: "/automations", icon: Workflow },
   { title: "Routing", href: "/routing", icon: Route },
+];
+
+const insights = [
+  { title: "Resilience", href: "/resilience", icon: ShieldAlert },
+  { title: "Knowledge", href: "/knowledge", icon: BookOpen },
+  { title: "Org Pulse", href: "/pulse", icon: Activity },
 ];
 
 export function AppSidebar() {
@@ -59,6 +68,29 @@ export function AppSidebar() {
                   item.href === "/"
                     ? pathname === "/"
                     : pathname.startsWith(item.href);
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      render={<Link href={item.href} />}
+                      isActive={active}
+                      tooltip={item.title}
+                    >
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>People &amp; Risk</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {insights.map((item) => {
+                const active = pathname.startsWith(item.href);
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton

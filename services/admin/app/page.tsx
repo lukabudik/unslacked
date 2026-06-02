@@ -4,8 +4,11 @@ import {
   Bus,
   Clock,
   EyeOff,
+  HelpCircle,
   Network,
   Repeat,
+  ShieldAlert,
+  Smile,
   Target,
   Waypoints,
 } from "lucide-react";
@@ -17,10 +20,12 @@ import {
   getKpis,
   getMiddlemen,
   getPersonaRoutes,
+  getShadowRanks,
 } from "@/lib/api/client";
 import { WorkspaceHeader } from "@/components/dashboard/WorkspaceHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { DataTabs } from "@/components/dashboard/DataTabs";
+import { ShadowOrgChart } from "@/components/dashboard/ShadowOrgChart";
 import { TimelineChart } from "@/components/charts/TimelineChart";
 import { PersonaDonut } from "@/components/charts/PersonaDonut";
 import { MiddlemenList } from "@/components/charts/MiddlemenList";
@@ -44,7 +49,7 @@ function CardLink({ href, children }: { href: string; children: string }) {
 }
 
 export default async function OverviewPage() {
-  const [kpis, graph, middlemen, automations, routes, activity] =
+  const [kpis, graph, middlemen, automations, routes, activity, shadowRanks] =
     await Promise.all([
       getKpis(),
       getCommsGraph(),
@@ -52,6 +57,7 @@ export default async function OverviewPage() {
       getAutomations(),
       getPersonaRoutes(),
       getActivityTimeline(),
+      getShadowRanks(),
     ]);
 
   const volByPersona = new Map<Persona, number>();
@@ -136,6 +142,46 @@ export default async function OverviewPage() {
         />
       </div>
 
+      {/* Risk & health row — cross-links to the new surfaces */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <Link href="/resilience">
+          <StatCard
+            label="Key-person risk"
+            value={`${kpis.keyPersonRiskCount}`}
+            icon={<ShieldAlert className="h-3.5 w-3.5" />}
+            accent="#ef4444"
+            previous="can't-lose people"
+          />
+        </Link>
+        <Link href="/resilience">
+          <StatCard
+            label="Single points of failure"
+            value={`${kpis.singlePointsOfFailure}`}
+            icon={<Bus className="h-3.5 w-3.5" />}
+            accent="#f59e0b"
+            previous="one-owner topics"
+          />
+        </Link>
+        <Link href="/knowledge">
+          <StatCard
+            label="Open questions"
+            value={`${kpis.openQuestions}`}
+            icon={<HelpCircle className="h-3.5 w-3.5" />}
+            accent="#06b6d4"
+            previous="unanswered / slow"
+          />
+        </Link>
+        <Link href="/pulse">
+          <StatCard
+            label="Org sentiment"
+            value={`${Math.round(((kpis.orgSentiment + 1) / 2) * 100)}`}
+            icon={<Smile className="h-3.5 w-3.5" />}
+            accent="#10b981"
+            previous="0–100 mood index"
+          />
+        </Link>
+      </div>
+
       {/* Timeline + persona donut */}
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
@@ -190,6 +236,54 @@ export default async function OverviewPage() {
           </CardHeader>
           <CardContent>
             <MiddlemenList middlemen={middlemen.slice(0, 5)} people={graph.nodes} />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Shadow org chart */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex-row items-center justify-between space-y-0">
+            <div className="space-y-1">
+              <CardTitle>Shadow org chart</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                People whose real influence outranks their title — the informal
+                backbone of the org.
+              </p>
+            </div>
+            <CardLink href="/graph">Open graph</CardLink>
+          </CardHeader>
+          <CardContent>
+            <ShadowOrgChart entries={shadowRanks} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex-row items-center justify-between space-y-0">
+            <CardTitle>Resilience</CardTitle>
+            <CardLink href="/resilience">Inspect</CardLink>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-1">
+            <div>
+              <div className="text-3xl font-semibold tabular-nums text-red-600">
+                {kpis.keyPersonRiskCount}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                people the org can&apos;t afford to lose
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="rounded-lg bg-muted/50 p-3">
+                <div className="text-lg font-semibold tabular-nums">
+                  {kpis.singlePointsOfFailure}
+                </div>
+                <div className="text-xs text-muted-foreground">one-owner topics</div>
+              </div>
+              <div className="rounded-lg bg-muted/50 p-3">
+                <div className="text-lg font-semibold tabular-nums">{kpis.openQuestions}</div>
+                <div className="text-xs text-muted-foreground">open questions</div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

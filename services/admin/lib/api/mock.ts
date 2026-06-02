@@ -5,13 +5,24 @@ import type {
   CommsEdge,
   CommsGraph,
   CommunityCluster,
+  DeadEndRoute,
+  ExpertiseEntry,
+  KeyPersonRisk,
   MiddlemanInsight,
+  OpenQuestion,
   OrgKpis,
+  OverloadEntry,
   Persona,
   PersonaPairRoute,
   Person,
+  RecognitionEntry,
+  RecurringQuestion,
   RoutingEvent,
+  SentimentSeries,
+  ShadowRankEntry,
+  SiloCell,
   Topic,
+  TopicOwnership,
 } from "./types";
 
 // ── Deterministic RNG ───────────────────────────────────────
@@ -499,7 +510,261 @@ export function kpis(): OrgKpis {
     hoursRecoverablePerMonth: automations().reduce((s, a) => s + a.estHoursPerMonth, 0),
     // sparkline: degrees of separation trending down over 8 weeks
     trendDegreesOfSeparation: [3.6, 3.4, 3.3, 3.0, 2.9, 2.7, 2.5, 2.4],
+    keyPersonRiskCount: keyPersonRisks().filter((k) => k.riskScore >= 0.5).length,
+    singlePointsOfFailure: topicOwnership().filter((t) => t.concentration === "single").length,
+    openQuestions: openQuestions().length,
+    orgSentiment: round2(
+      sentiment().reduce((s, x) => s + x.current, 0) / Math.max(1, sentiment().length)
+    ),
+    medianTimeToAnswerHours: 5.5,
+    tribalKnowledgePct: 0.21,
   };
+}
+
+// ── Resilience / Knowledge / Pulse (deterministic mock) ─────
+export function keyPersonRisks(): KeyPersonRisk[] {
+  const nodes = graph().nodes;
+  const owners = topicOwnership();
+  return [...nodes]
+    .map((p) => {
+      const sole = owners
+        .filter((t) => t.ownerId === p.id && t.concentration !== "healthy")
+        .map((t) => ({ id: t.topicId, label: t.topicLabel, count: t.contributors }));
+      const answerShare = round2(0.2 + p.betweenness * 0.6);
+      const riskScore = round2(
+        Math.min(1, 0.5 * p.betweenness + 0.3 * Math.min(1, sole.length / 3) + 0.2 * answerShare)
+      );
+      const spof = p.betweenness >= 0.5;
+      return {
+        personId: p.id,
+        name: p.name,
+        persona: p.persona,
+        team: p.team,
+        title: p.title,
+        riskScore,
+        betweenness: p.betweenness,
+        answerShare,
+        soleOwnedTopics: sole.slice(0, 5),
+        busFactorContribution: spof,
+        exposure:
+          [
+            sole.length ? `Sole owner of ${sole.length} topics` : null,
+            spof ? "single point of failure" : null,
+          ]
+            .filter(Boolean)
+            .join(" · ") || "broadly connected",
+      };
+    })
+    .sort((a, b) => b.riskScore - a.riskScore)
+    .slice(0, 12);
+}
+
+export function topicOwnership(): TopicOwnership[] {
+  const nodes = graph().nodes;
+  const channels = [
+    "incidents", "deploys", "data-requests", "budget-ops", "hiring",
+    "design-review", "customer-escalations", "release-crew", "infra", "growth-experiments",
+  ];
+  return channels.map((label, i) => {
+    const owner = nodes[(i * 3 + 2) % nodes.length];
+    const share = round2(0.32 + rnd(0, 0.4));
+    const contributors = rndInt(3, 12);
+    const concentration: TopicOwnership["concentration"] =
+      share >= 0.5 || contributors <= 4 ? "single" : share >= 0.34 ? "thin" : "healthy";
+    return {
+      topicId: `topic-own-${i}`,
+      topicLabel: label,
+      persona: owner.persona,
+      ownerId: owner.id,
+      ownerName: owner.name,
+      ownerShare: share,
+      contributors,
+      concentration,
+    };
+  }).sort((a, b) => b.ownerShare - a.ownerShare);
+}
+
+export function deadEndRoutes(): DeadEndRoute[] {
+  const nodes = graph().nodes;
+  return [3, 11, 19].map((idx, i) => {
+    const p = nodes[idx % nodes.length];
+    return {
+      userId: p.id,
+      name: p.name,
+      persona: p.persona,
+      title: p.title,
+      deactivated: true,
+      staleMentions: rndInt(2, 18),
+      groups: i === 0 ? ["on-call", "platform-team"] : i === 1 ? ["finance-approvers"] : [],
+      lastSeenAt: new Date(Date.now() - rndInt(8, 40) * 86_400_000).toISOString(),
+    };
+  }).sort((a, b) => b.staleMentions - a.staleMentions);
+}
+
+export function openQuestions(): OpenQuestion[] {
+  const nodes = graph().nodes;
+  const samples = [
+    "How do I get prod database access for the new service?",
+    "Who owns the billing reconciliation job now?",
+    "What's the process for requesting a new vendor contract?",
+    "Can someone approve my expense report from last week?",
+    "Where do we track the Q3 OKR progress?",
+    "Why is the staging deploy pipeline failing on migrations?",
+    "Is there a runbook for the on-call escalation flow?",
+    "Who can review this customer-facing copy before launch?",
+  ];
+  const statuses: OpenQuestion["status"][] = [
+    "unanswered", "slow", "tribal", "unanswered", "slow", "unanswered", "tribal", "slow",
+  ];
+  return samples.map((text, i) => {
+    const asker = nodes[(i * 5 + 1) % nodes.length];
+    const owner = nodes[(i * 7 + 4) % nodes.length];
+    return {
+      id: `q-${i + 1}`,
+      text,
+      channel: pick(["help", "engineering", "finance-ops", "general", "data"]),
+      askedById: asker.id,
+      askedByName: asker.name,
+      persona: asker.persona,
+      at: new Date(Date.now() - rndInt(2, 90) * 3_600_000).toISOString(),
+      ageHours: rndInt(2, 90),
+      status: statuses[i],
+      likeliestOwnerId: owner.id,
+      likeliestOwnerName: owner.name,
+    };
+  }).sort((a, b) => b.ageHours - a.ageHours);
+}
+
+export function expertise(): ExpertiseEntry[] {
+  const nodes = graph().nodes;
+  return [...nodes]
+    .map((p) => ({
+      personId: p.id,
+      name: p.name,
+      persona: p.persona,
+      title: p.title,
+      domains: p.topics ?? [],
+      answers: Math.round(p.messageVolume * (0.3 + p.betweenness * 0.5)),
+      uniqueAskers: rndInt(2, 24),
+    }))
+    .filter((e) => e.answers > 0)
+    .sort((a, b) => b.answers - a.answers)
+    .slice(0, 16);
+}
+
+export function recurringQuestions(): RecurringQuestion[] {
+  const patterns = [
+    "How do I get prod access?",
+    "Who owns the billing pipeline?",
+    "How do I request a vendor contract review?",
+    "Where is the Q3 OKR tracker?",
+    "How do I reset my SSO / Okta access?",
+    "Who approves marketing spend over budget?",
+  ];
+  return patterns.map((pattern, i) => {
+    const occurrences = rndInt(2, 16);
+    return {
+      id: `rq-${i + 1}`,
+      pattern,
+      occurrences,
+      uniqueAskers: rndInt(2, occurrences),
+      channel: pick(["help", "engineering", "finance-ops", "people"]),
+      answeredByName: graph().nodes[(i * 4) % graph().nodes.length].name,
+      automatable: occurrences >= 4,
+    };
+  }).sort((a, b) => b.occurrences - a.occurrences);
+}
+
+export function sentiment(): SentimentSeries[] {
+  const teams = [...new Set(graph().nodes.map((n) => n.persona))].slice(0, 8);
+  const days = activityTimeline().slice(-21);
+  return teams.map((team) => {
+    let v = 0.2 + rnd(0, 0.5);
+    const points = days.map((d) => {
+      v = Math.max(-0.5, Math.min(0.95, v + rnd(-0.09, 0.09)));
+      return { date: d.date, label: d.label, score: round2(v) };
+    });
+    const current = points[points.length - 1]?.score ?? round2(v);
+    const delta = round2(current - (points[0]?.score ?? current));
+    return { team, persona: team, current, delta, points };
+  });
+}
+
+export function overload(): OverloadEntry[] {
+  const nodes = graph().nodes;
+  return [...nodes]
+    .map((p) => ({
+      personId: p.id,
+      name: p.name,
+      persona: p.persona,
+      mentionsReceived: Math.round(p.messageVolume * (0.2 + p.betweenness)),
+      afterHoursPct: round2(0.1 + p.betweenness * 0.4 + rnd(0, 0.15)),
+      threadsPulledInto: rndInt(4, 60),
+      overloadScore: round2(Math.min(1, 0.4 + p.betweenness * 0.5 + rnd(0, 0.1))),
+    }))
+    .sort((a, b) => b.overloadScore - a.overloadScore)
+    .slice(0, 10);
+}
+
+export function silos(): SiloCell[] {
+  const teams = [...new Set(graph().nodes.map((n) => n.persona))].slice(0, 8);
+  const out: SiloCell[] = [];
+  for (const from of teams) {
+    for (const to of teams) {
+      if (from === to) continue;
+      out.push({ from, to, strength: round2(rnd(0, 1)) });
+    }
+  }
+  return out;
+}
+
+export function recognition(): RecognitionEntry[] {
+  const nodes = graph().nodes;
+  return [...nodes]
+    .map((p) => {
+      const received = Math.round(p.messageVolume * (0.3 + p.betweenness * 0.4));
+      const given = rndInt(2, 40);
+      return {
+        personId: p.id,
+        name: p.name,
+        persona: p.persona,
+        received,
+        given,
+        ratio: round2(received / Math.max(1, given)),
+      };
+    })
+    .sort((a, b) => b.received - a.received)
+    .slice(0, 10);
+}
+
+export function shadowRanks(): ShadowRankEntry[] {
+  const nodes = graph().nodes;
+  const seniorityRank: Record<Person["seniority"], number> = { Exec: 0, Manager: 1, Lead: 2, IC: 3 };
+  const byInfluence = [...nodes].sort(
+    (a, b) => b.betweenness - a.betweenness || b.degreeCentrality - a.degreeCentrality
+  );
+  const byFormal = [...nodes].sort(
+    (a, b) => seniorityRank[a.seniority] - seniorityRank[b.seniority] || b.messageVolume - a.messageVolume
+  );
+  const inf = new Map(byInfluence.map((p, i) => [p.id, i + 1]));
+  const frm = new Map(byFormal.map((p, i) => [p.id, i + 1]));
+  return nodes
+    .map((p) => {
+      const influenceRank = inf.get(p.id) ?? nodes.length;
+      const formalRank = frm.get(p.id) ?? nodes.length;
+      return {
+        personId: p.id,
+        name: p.name,
+        persona: p.persona,
+        title: p.title,
+        seniority: p.seniority,
+        influenceRank,
+        formalRank,
+        gap: formalRank - influenceRank,
+      };
+    })
+    .sort((a, b) => b.gap - a.gap)
+    .slice(0, 10);
 }
 
 export { personById };
