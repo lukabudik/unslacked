@@ -1,5 +1,6 @@
 import { listUsers, listChannels } from "@unslacked/db";
 import { VIEWER_ID } from "@/lib/viewer";
+import { getAssistantDmId } from "@/app/actions";
 import { IconRail } from "@/components/slack/IconRail";
 import { Sidebar } from "@/components/slack/Sidebar";
 import { channelLabel, dmCounterpart, isOnline } from "@/components/slack/utils";
@@ -8,7 +9,7 @@ import type { SidebarChannel } from "@/components/slack/types";
 const WORKSPACE_NAME = "Nimbus Logistics";
 
 export default async function WorkspaceLayout({ children }: { children: React.ReactNode }) {
-  const [users, channels] = await Promise.all([listUsers(), listChannels()]);
+  const [users, channels, assistantDmId] = await Promise.all([listUsers(), listChannels(), getAssistantDmId()]);
   const userMap = Object.fromEntries(users.map((u) => [u.id, u]));
   const viewer = userMap[VIEWER_ID];
 
@@ -28,8 +29,8 @@ export default async function WorkspaceLayout({ children }: { children: React.Re
     }));
 
   const dmItems: SidebarChannel[] = visible
-    // you only see DMs you're actually in
-    .filter((c) => (c.kind === "im" || c.kind === "mpim") && isMember(c))
+    // you only see DMs you're actually in — the assistant DM is pinned separately
+    .filter((c) => (c.kind === "im" || c.kind === "mpim") && isMember(c) && c.id !== assistantDmId)
     .map((c) => {
       const other = dmCounterpart(c, userMap);
       return {
@@ -50,7 +51,12 @@ export default async function WorkspaceLayout({ children }: { children: React.Re
     <div className="flex h-screen overflow-hidden">
       <IconRail viewer={viewer} workspaceName={WORKSPACE_NAME} />
       <div className="flex flex-1 overflow-hidden py-0 pr-0">
-        <Sidebar workspaceName={WORKSPACE_NAME} channels={channelItems} dms={dmItems} />
+        <Sidebar
+          workspaceName={WORKSPACE_NAME}
+          channels={channelItems}
+          dms={dmItems}
+          assistant={{ id: assistantDmId, label: "Unslacked Assistant" }}
+        />
         <div className="flex flex-1 flex-col overflow-hidden bg-white md:my-2 md:mr-2 md:rounded-xl md:border md:border-black/10 md:shadow-sm">
           {children}
         </div>

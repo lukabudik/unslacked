@@ -5,6 +5,7 @@ import { ChannelTimeline } from "@/components/slack/ChannelTimeline";
 import { Composer } from "@/components/slack/Composer";
 import { ThreadPanel } from "@/components/slack/ThreadPanel";
 import { channelLabel } from "@/components/slack/utils";
+import { ASSISTANT_BOT_ID } from "@/lib/viewer";
 
 export default async function ChannelPage({
   params,
@@ -24,6 +25,7 @@ export default async function ChannelPage({
 
   const userMap = Object.fromEntries(users.map((u) => [u.id, u]));
   const isDm = channel.kind === "im" || channel.kind === "mpim";
+  const isAssistant = channel.members.includes(ASSISTANT_BOT_ID);
   const label = channelLabel(channel, userMap);
 
   return (
@@ -43,7 +45,12 @@ export default async function ChannelPage({
             isDm={isDm}
           />
 
-          <Composer channelId={channelId} placeholderTarget={isDm ? label : `#${label}`} />
+          <Composer
+            channelId={channelId}
+            placeholderTarget={isDm ? label : `#${label}`}
+            mode={isAssistant ? "assistant" : "normal"}
+            users={userMap}
+          />
         </div>
 
         {/* thread panel (URL-driven via ?thread=<parentMessageId>) */}

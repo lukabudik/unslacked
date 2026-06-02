@@ -1,17 +1,23 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { StoreUser } from "@unslacked/db";
 import {
   BoldIcon, ItalicIcon, StrikeIcon, CodeIcon, LinkIcon, ListIcon,
   EmojiIcon, AtIcon, PlusIcon, VideoIcon, MicIcon, SendIcon,
 } from "./icons";
-import { sendMessage } from "@/app/actions";
+import { askAssistant, postAndCheckRouting } from "@/app/actions";
+import { AssistantNudge } from "./AssistantNudge";
+
+type Verdict = { ownerId: string; reason: string; lastText: string };
 
 export function Composer({
   channelId,
   placeholderTarget,
   threadTs,
   variant = "channel",
+  mode = "normal",
+  users,
 }: {
   channelId: string;
   placeholderTarget: string;
@@ -19,10 +25,18 @@ export function Composer({
   threadTs?: string;
   /** "channel" = full toolbar w/ wrapper padding; "thread" = tighter footer composer */
   variant?: "channel" | "thread";
+  /** "assistant" = DM the bot (askAssistant); "normal" = post + routing check */
+  mode?: "assistant" | "normal";
+  /** user map for rendering mention pills inside the routing nudge */
+  users?: Record<string, StoreUser>;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const sendBtnRef = useRef<HTMLButtonElement>(null);
+
+  // ephemeral routing nudge — clears on channel switch and on each new send
+  const [verdict, setVerdict] = useState<Verdict | null>(null);
+  useEffect(() => setVerdict(null), [channelId]);
 
   function syncSendState() {
     const btn = sendBtnRef.current;
@@ -43,28 +57,46 @@ export function Composer({
     }
   }
 
-  function onSubmit() {
-    // Defer the clear: React serializes the form's FormData synchronously during
-    // this submit event. Clearing the value now would blank `text` before it's
-    // captured (the action would get an empty body). RAF runs after dispatch.
-    requestAnimationFrame(() => {
-      if (inputRef.current) inputRef.current.value = "";
-      syncSendState();
-      inputRef.current?.focus();
-    });
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const text = inputRef.current?.value.trim() ?? "";
+    if (!text) return;
+
+    // clear + refocus immediately; we already captured the text above
+    if (inputRef.current) inputRef.current.value = "";
+    syncSendState();
+    inputRef.current?.focus();
+    // a new send always supersedes any prior nudge
+    setVerdict(null);
+
+    if (mode === "assistant") {
+      await askAssistant(channelId, text);
+      return;
+    }
+
+    const result = await postAndCheckRouting(channelId, text, threadTs);
+    if (result.misrouted && result.ownerId && result.reason) {
+      setVerdict({ ownerId: result.ownerId, reason: result.reason, lastText: text });
+    }
   }
 
   return (
     <div className={variant === "thread" ? "px-3 pb-3 pt-1" : "px-5 pb-5 pt-1"}>
+      {verdict && users && (
+        <AssistantNudge
+          ownerId={verdict.ownerId}
+          reason={verdict.reason}
+          lastText={verdict.lastText}
+          users={users}
+          onDismiss={() => setVerdict(null)}
+        />
+      )}
+
       <form
         ref={formRef}
-        action={sendMessage}
         onSubmit={onSubmit}
         className="overflow-hidden rounded-xl border border-[#a9a9a9]/60 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] focus-within:border-[#1d1c1d]/40"
       >
-        <input type="hidden" name="channelId" value={channelId} />
-        {threadTs && <input type="hidden" name="threadTs" value={threadTs} />}
-
         {/* formatting toolbar */}
         <div className="flex items-center gap-0.5 border-b border-[#e8e8e8] px-2 py-1.5">
           <ToolbarBtn label="Bold"><BoldIcon className="size-4" /></ToolbarBtn>
@@ -110,6 +142,12 @@ export function Composer({
           </button>
         </div>
       </form>
+
+      {mode === "assistant" && variant === "channel" && (
+        <p className="mt-1.5 px-1 text-[12.5px] text-[#9b9b9b]">
+          Ask me who owns what — e.g. &ldquo;who handles billing?&rdquo;
+        </p>
+      )}
     </div>
   );
 }

@@ -11,10 +11,13 @@ export function Sidebar({
   workspaceName,
   channels,
   dms,
+  assistant,
 }: {
   workspaceName: string;
   channels: SidebarChannel[];
   dms: SidebarChannel[];
+  /** the pinned viewer↔bot DM entry */
+  assistant?: { id: string; label: string };
 }) {
   const pathname = usePathname();
   const activeId = decodeURIComponent(pathname.split("/c/")[1] ?? "");
@@ -39,6 +42,25 @@ export function Sidebar({
       </div>
 
       <div className="flex-1 overflow-y-auto py-2 [scrollbar-width:thin]">
+        {assistant && (
+          <div className="mb-3 px-2">
+            <Link
+              href={`/c/${assistant.id}`}
+              className={cn(
+                "group flex items-center gap-2 rounded-md px-2 py-[6px] text-[15px] leading-tight",
+                assistant.id === activeId
+                  ? "bg-sidebar-primary font-semibold text-white"
+                  : "text-sidebar-foreground hover:bg-white/10 hover:text-white",
+              )}
+            >
+              <span className="flex size-[20px] shrink-0 items-center justify-center rounded-[5px] bg-gradient-to-br from-[#7c3aed] to-[#2563eb] text-[12px]">
+                ✨
+              </span>
+              <span className="truncate font-semibold">{assistant.label}</span>
+            </Link>
+          </div>
+        )}
+
         <Section title="Channels" defaultOpen>
           {channels.map((c) => (
             <SidebarLink key={c.id} channel={c} active={c.id === activeId} />

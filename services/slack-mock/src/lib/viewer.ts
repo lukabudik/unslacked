@@ -4,3 +4,6 @@
  * data and the UI agree on this id.
  */
 export const VIEWER_ID = "U_TOMAS";
+
+/** The Unslacked assistant bot — you DM it to ask "who owns X?". */
+export const ASSISTANT_BOT_ID = "U_UNSLACKED_BOT";
