@@ -3,6 +3,9 @@ import { GraphExplorer } from "@/components/graph/GraphExplorer";
 import { Card, CardContent } from "@/components/ui/card";
 import { PersonaBadge } from "@/components/persona-badge";
 
+// Always read fresh data from the DB so counts stay live.
+export const dynamic = "force-dynamic";
+
 export default async function GraphPage({
   searchParams,
 }: {

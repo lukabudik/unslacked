@@ -8,6 +8,9 @@ import { PersonaRoutesPanel } from "@/components/routing/PersonaRoutesPanel";
 import { RoutingFeed } from "@/components/routing/RoutingFeed";
 import { StatCard } from "@/components/dashboard/StatCard";
 
+// Always read fresh data from the DB so counts stay live.
+export const dynamic = "force-dynamic";
+
 export default async function RoutingPage() {
   const [graph, routes, feed] = await Promise.all([
     getCommsGraph(),

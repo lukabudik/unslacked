@@ -3,6 +3,9 @@ import { getAutomations } from "@/lib/api/client";
 import { OpportunityTable } from "@/components/automations/OpportunityTable";
 import { StatCard } from "@/components/dashboard/StatCard";
 
+// Always read fresh data from the DB so counts stay live.
+export const dynamic = "force-dynamic";
+
 export default async function AutomationsPage() {
   const automations = await getAutomations();
 

@@ -52,7 +52,25 @@ interface Bundle {
   automations: AutomationOpportunity[];
 }
 
+// Cache the (expensive) graph computation, but expire it so the dashboard
+// reflects new messages without a server restart. TTL keeps us from recomputing
+// betweenness on every request while staying close to live.
+const BUNDLE_TTL_MS = 30_000;
 let _bundle: Promise<Bundle> | null = null;
+let _bundleAt = 0;
+
+function bundle(): Promise<Bundle> {
+  const now = Date.now();
+  if (!_bundle || now - _bundleAt > BUNDLE_TTL_MS) {
+    _bundleAt = now;
+    _bundle = load().catch((err) => {
+      // Allow a retry on the next call instead of caching a rejected promise.
+      _bundle = null;
+      throw err;
+    });
+  }
+  return _bundle;
+}
 
 async function load(): Promise<Bundle> {
   if (!db) throw new Error("DATABASE_URL is not set");
@@ -601,26 +619,26 @@ function curatedAutomations(): AutomationOpportunity[] {
 }
 
 export async function commsGraph() {
-  return (_bundle ??= load()).then((b) => b.graph);
+  return bundle().then((b) => b.graph);
 }
 export async function topicsCatalog() {
-  return (_bundle ??= load()).then((b) => b.topics);
+  return bundle().then((b) => b.topics);
 }
 export async function middlemen() {
-  return (_bundle ??= load()).then((b) => b.middlemen);
+  return bundle().then((b) => b.middlemen);
 }
 export async function personaRoutes() {
-  return (_bundle ??= load()).then((b) => b.routes);
+  return bundle().then((b) => b.routes);
 }
 export async function routingFeed() {
-  return (_bundle ??= load()).then((b) => b.feed);
+  return bundle().then((b) => b.feed);
 }
 export async function automations() {
-  return (_bundle ??= load()).then((b) => b.automations);
+  return bundle().then((b) => b.automations);
 }
 export async function kpis() {
-  return (_bundle ??= load()).then((b) => b.kpis);
+  return bundle().then((b) => b.kpis);
 }
 export async function activityTimeline() {
-  return (_bundle ??= load()).then((b) => b.activity);
+  return bundle().then((b) => b.activity);
 }

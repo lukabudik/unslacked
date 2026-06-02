@@ -28,6 +28,9 @@ import { GraphPreview } from "@/components/graph/GraphPreview";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Persona } from "@/lib/api/types";
 
+// Always read fresh data from the DB so counts stay live.
+export const dynamic = "force-dynamic";
+
 function CardLink({ href, children }: { href: string; children: string }) {
   return (
     <Link
