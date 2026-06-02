@@ -25,14 +25,39 @@ export const users = pgTable("users", {
   realName: text("real_name").notNull(),
   email: text("email"),
   title: text("title"), // job title — signal for router analysis
-  department: text("department"),
+  department: text("department"), // top-level org unit, e.g. "Engineering"
+  team: text("team"), // sub-team, e.g. "Platform" — finer routing signal
   avatarColor: text("avatar_color").notNull().default("#4a154b"),
   statusEmoji: text("status_emoji"), // e.g. "🌴"
   statusText: text("status_text"), // e.g. "On vacation"
   timezone: text("timezone"), // IANA tz, e.g. "Europe/Prague"
   isBot: boolean("is_bot").notNull().default(false),
+  isActive: boolean("is_active").notNull().default(true), // deactivated accounts = broken routing targets
+  isGuest: boolean("is_guest").notNull().default(false),
+  isAdmin: boolean("is_admin").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+/** Slack usergroups (@data-team) — a primary routing *target*. */
+export const userGroups = pgTable("user_groups", {
+  id: text("id").primaryKey(), // e.g. "S_DATA"
+  handle: text("handle").notNull(), // "data-team" (the @mention)
+  name: text("name").notNull(), // "Data Team"
+  description: text("description"),
+});
+
+export const userGroupMembers = pgTable(
+  "user_group_members",
+  {
+    groupId: text("group_id")
+      .notNull()
+      .references(() => userGroups.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.groupId, t.userId] })],
+);
 
 /**
  * Conversations: public/private channels, DMs (im), and group DMs (mpim).
@@ -135,3 +160,4 @@ export type NewUser = typeof users.$inferInsert;
 export type Channel = typeof channels.$inferSelect;
 export type Message = typeof messages.$inferSelect;
 export type Mention = typeof mentions.$inferSelect;
+export type UserGroup = typeof userGroups.$inferSelect;

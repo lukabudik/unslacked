@@ -83,6 +83,9 @@ returns jsonb language sql stable as $$
         'name', u.name,
         'real_name', u.real_name,
         'is_bot', u.is_bot,
+        'deleted', not u.is_active,        -- Slack marks deactivated users `deleted`
+        'is_admin', u.is_admin,
+        'is_restricted', u.is_guest,       -- Slack term for guests
         'tz', u.timezone,
         'profile', jsonb_build_object(
           'real_name', u.real_name,
@@ -92,12 +95,30 @@ returns jsonb language sql stable as $$
           'status_emoji', u.status_emoji,
           'status_text', u.status_text,
           'department', u.department,
+          'team', u.team,
           'avatar_color', u.avatar_color
         )
       ) as member,
       u.real_name as sort_name
     from public.users u
   ) t;
+$$;
+
+-- https://api.slack.com/methods/usergroups.list  (+ members)
+create or replace function slack.usergroups_list()
+returns jsonb language sql stable as $$
+  select jsonb_build_object(
+    'ok', true,
+    'usergroups', coalesce(jsonb_agg(jsonb_build_object(
+      'id', g.id,
+      'handle', g.handle,
+      'name', g.name,
+      'description', g.description,
+      'users', (select coalesce(jsonb_agg(m.user_id), '[]'::jsonb)
+                  from public.user_group_members m where m.group_id = g.id)
+    ) order by g.handle), '[]'::jsonb)
+  )
+  from public.user_groups g;
 $$;
 
 -- https://api.slack.com/methods/users.info
