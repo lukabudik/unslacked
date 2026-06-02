@@ -7,11 +7,14 @@ export function toSlackUser(u: StoreUser) {
     name: u.name,
     real_name: u.realName,
     is_bot: u.isBot,
+    tz: u.timezone ?? undefined,
     profile: {
       real_name: u.realName,
       display_name: u.name,
       email: u.email,
       title: u.title,
+      status_emoji: u.statusEmoji,
+      status_text: u.statusText,
       // not a real Slack field, but handy for the mock UI / admin
       department: u.department,
       avatar_color: u.avatarColor,
@@ -28,6 +31,7 @@ export function toSlackChannel(c: StoreChannel) {
     is_private: c.kind === "private_channel",
     is_im: isIm,
     is_mpim: c.kind === "mpim",
+    is_archived: c.isArchived,
     topic: { value: c.topic ?? "" },
     num_members: c.members.length,
     members: c.members,

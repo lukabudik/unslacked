@@ -43,6 +43,9 @@ async function main() {
       title: u.title,
       department: u.department,
       avatarColor: u.avatarColor,
+      statusEmoji: u.statusEmoji ?? null,
+      statusText: u.statusText ?? null,
+      timezone: u.timezone ?? null,
       isBot: Boolean(u.isBot),
     })),
   );
@@ -55,6 +58,7 @@ async function main() {
       kind: c.kind,
       topic: c.topic ?? null,
       purpose: c.purpose ?? null,
+      isArchived: Boolean(c.isArchived),
       createdBy: c.createdBy ?? null,
     })),
   );
@@ -86,6 +90,19 @@ async function main() {
   );
   console.log(`Inserting ${mentionRows.length} mentions…`);
   if (mentionRows.length) await db.insert(schema.mentions).values(mentionRows);
+
+  // Dedupe exact (messageId, userId, emoji) triples — composite PK.
+  const seen = new Set<string>();
+  const reactionRows = fx.reactions
+    .filter((r) => {
+      const key = `${r.messageId}|${r.userId}|${r.emoji}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .map((r) => ({ messageId: r.messageId, userId: r.userId, emoji: r.emoji }));
+  console.log(`Inserting ${reactionRows.length} reactions…`);
+  if (reactionRows.length) await db.insert(schema.reactions).values(reactionRows);
 
   console.log("Done ✅");
 }

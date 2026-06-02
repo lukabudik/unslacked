@@ -7,7 +7,13 @@
  */
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
-import { users as usersTable, channels as channelsTable, channelMembers, messages as messagesTable } from "@/db/schema";
+import {
+  users as usersTable,
+  channels as channelsTable,
+  channelMembers,
+  messages as messagesTable,
+  reactions as reactionsTable,
+} from "@/db/schema";
 import * as fx from "@/db/fixtures";
 
 export interface StoreUser {
@@ -18,6 +24,9 @@ export interface StoreUser {
   title: string | null;
   department: string | null;
   avatarColor: string;
+  statusEmoji: string | null;
+  statusText: string | null;
+  timezone: string | null;
   isBot: boolean;
 }
 
@@ -26,6 +35,7 @@ export interface StoreChannel {
   name: string;
   kind: string;
   topic: string | null;
+  isArchived: boolean;
   members: string[];
 }
 
@@ -55,6 +65,9 @@ export async function listUsers(): Promise<StoreUser[]> {
     title: u.title,
     department: u.department,
     avatarColor: u.avatarColor,
+    statusEmoji: u.statusEmoji ?? null,
+    statusText: u.statusText ?? null,
+    timezone: u.timezone ?? null,
     isBot: Boolean(u.isBot),
   }));
 }
@@ -68,6 +81,7 @@ export async function listChannels(): Promise<StoreChannel[]> {
       name: c.name,
       kind: c.kind,
       topic: c.topic,
+      isArchived: c.isArchived,
       members: mems.filter((m) => m.channelId === c.id).map((m) => m.userId),
     }));
   }
@@ -76,6 +90,7 @@ export async function listChannels(): Promise<StoreChannel[]> {
     name: c.name,
     kind: c.kind,
     topic: c.topic ?? null,
+    isArchived: Boolean(c.isArchived),
     members: c.members,
   }));
 }
@@ -130,4 +145,40 @@ export async function getReplies(threadTs: string): Promise<StoreMessage[]> {
   return all
     .filter((m) => m.id === threadTs || m.threadTs === threadTs)
     .sort((a, b) => a.ts.localeCompare(b.ts));
+}
+
+export interface ReactionGroup {
+  emoji: string;
+  count: number;
+  userIds: string[];
+}
+
+/**
+ * Reactions for every message in a channel, grouped by (message, emoji).
+ * Returns `{ [messageId]: ReactionGroup[] }`. Empty when there are none.
+ */
+export async function getReactions(channelId: string): Promise<Record<string, ReactionGroup[]>> {
+  const msgIds = new Set((await getHistory(channelId)).map((m) => m.id));
+
+  const rows = db
+    ? (await db.select().from(reactionsTable)).map((r) => ({
+        messageId: r.messageId,
+        userId: r.userId,
+        emoji: r.emoji,
+      }))
+    : fx.reactions.map((r) => ({ messageId: r.messageId, userId: r.userId, emoji: r.emoji }));
+
+  const byMessage: Record<string, ReactionGroup[]> = {};
+  for (const r of rows) {
+    if (!msgIds.has(r.messageId)) continue;
+    const groups = (byMessage[r.messageId] ??= []);
+    const existing = groups.find((g) => g.emoji === r.emoji);
+    if (existing) {
+      existing.count += 1;
+      existing.userIds.push(r.userId);
+    } else {
+      groups.push({ emoji: r.emoji, count: 1, userIds: [r.userId] });
+    }
+  }
+  return byMessage;
 }

@@ -27,6 +27,9 @@ export const users = pgTable("users", {
   title: text("title"), // job title — signal for router analysis
   department: text("department"),
   avatarColor: text("avatar_color").notNull().default("#4a154b"),
+  statusEmoji: text("status_emoji"), // e.g. "🌴"
+  statusText: text("status_text"), // e.g. "On vacation"
+  timezone: text("timezone"), // IANA tz, e.g. "Europe/Prague"
   isBot: boolean("is_bot").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -45,6 +48,7 @@ export const channels = pgTable("channels", {
     .default("public_channel"),
   topic: text("topic"),
   purpose: text("purpose"),
+  isArchived: boolean("is_archived").notNull().default(false),
   createdBy: text("created_by").references(() => users.id),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
