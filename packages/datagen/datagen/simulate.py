@@ -14,6 +14,7 @@ from datetime import datetime, timedelta, timezone
 from . import blueprint as bp
 from .llm import acomplete_text
 from .personas import build_static_context, build_persona, normalize_mentions
+from .topics import SOCIAL_PROMPTS, INCIDENT_PROMPTS, STYLE_NUDGES, ANTI_CLICHE
 
 EMOJIS = ["👍", "✅", "🙏", "🎉", "👀", "🔥", "😂", "💯", "🚀", "😅", "🤝", "❤️", "🫡", "💸", "🧠"]
 
@@ -71,7 +72,7 @@ def _mk(counter, channel_id, channel_key, person, text, ts, thread_ts, idx):
             "thread_ts": thread_ts, "ts": ts}
 
 
-async def _run_channel_scene(sem, static, ctx, spec, counter):
+async def _run_channel_scene(sem, static, ctx, spec, counter, topics):
     people, _active, h2id, cn2id, ugs, members = ctx
     ck = spec["channel_key"]
     cid = f"C_{ck.upper()}"
@@ -82,18 +83,29 @@ async def _run_channel_scene(sem, static, ctx, spec, counter):
     rng = spec["rng"]
     t = spec["dt"]
     stype = spec["type"]
+    style = rng.choice(STYLE_NUDGES)
+    reply_instr = f"Reply as yourself — your next Slack message in this thread. {rng.choice(STYLE_NUDGES)}"
 
     def norm(s):
         return normalize_mentions(s, h2id, cn2id, ugs)
+
+    def topic_for(team_key):
+        pool_t = topics.get(team_key) or [bp.TEAMS_BY_KEY[team_key].owns]
+        return rng.choice(pool_t)
 
     msgs = []
     initiator = spec["initiator"]
 
     if stype in ("routing_question", "team_question"):
         owner_team = spec["owner_team"]
-        topic = bp.TEAMS_BY_KEY[owner_team].owns
-        open_instr = (f"You need help with something about: {topic}. "
-                      f"This isn't your area. Ask a specific, realistic question in #{cname}.")
+        topic = topic_for(owner_team)
+        if stype == "routing_question":
+            open_instr = (f'You have a question/need help about: "{topic}". That is the '
+                          f"{bp.TEAMS_BY_KEY[owner_team].name} team's area, not yours. Ask about it "
+                          f"naturally in #{cname}. {ANTI_CLICHE} {style}")
+        else:
+            open_instr = (f'You want to discuss/ask about: "{topic}" in #{cname} (your area). '
+                          f"{ANTI_CLICHE} {style}")
         first = await _say(sem, static, initiator, cname, [], people, open_instr)
         if not first or first == "PASS":
             return []
@@ -107,8 +119,7 @@ async def _run_channel_scene(sem, static, ctx, spec, counter):
             if not nxt:
                 break
             t = t + timedelta(minutes=rng.randint(2, 40))
-            reply = await _say(sem, static, nxt, cname, msgs, people,
-                               "Reply as yourself — your next Slack message in this thread.")
+            reply = await _say(sem, static, nxt, cname, msgs, people, reply_instr)
             if not reply or reply == "PASS":
                 spoken.add(nxt["id"])
                 last = nxt
@@ -116,22 +127,21 @@ async def _run_channel_scene(sem, static, ctx, spec, counter):
             msgs.append(_mk(counter, cid, ck, nxt, norm(reply), t, parent, hop + 1))
             spoken.add(nxt["id"])
             last = nxt
-            # an owner answering concretely resolves the thread
-            if nxt["team_key"] == owner_team:
+            if nxt["team_key"] == owner_team and hop >= 1:
                 break
     else:
         seed_instr = {
-            "status": f"Post a short status update / standup-style note in #{cname} about your current work.",
-            "incident": f"Post a brief incident update in #{cname} (something's degraded or broke).",
-            "social": f"Post something light/social in #{cname} (banter, food, a meme reference).",
-            "announcement": f"Post a short company/team announcement in #{cname}.",
+            "status": f'Post a short standup-style update about your work on: "{topic_for(initiator["team_key"])}". {ANTI_CLICHE} {style}',
+            "incident": f"Post a brief incident update in #{cname}: {rng.choice(INCIDENT_PROMPTS)}. {ANTI_CLICHE} {style}",
+            "social": f"Post a light, social Slack message: {rng.choice(SOCIAL_PROMPTS)}. {ANTI_CLICHE} Keep it one casual line.",
+            "announcement": f"Post a short, real company/team announcement in #{cname} (you're on leadership). {style}",
         }[stype]
         first = await _say(sem, static, initiator, cname, [], people, seed_instr)
         if not first or first == "PASS":
             return []
         msgs.append(_mk(counter, cid, ck, initiator, norm(first), t, None, 0))
         parent = msgs[0]["id"]
-        n_repl = rng.randint(0, 4 if stype == "incident" else 3)
+        n_repl = rng.randint(1, 6 if stype == "incident" else 4)
         last = initiator
         for hop in range(n_repl):
             cand = [p for p in pool if p["id"] != last["id"]]
@@ -139,8 +149,7 @@ async def _run_channel_scene(sem, static, ctx, spec, counter):
                 break
             nxt = rng.choice(cand)
             t = t + timedelta(minutes=rng.randint(1, 30))
-            reply = await _say(sem, static, nxt, cname, msgs, people,
-                               "Reply as yourself — your next Slack message in this thread.")
+            reply = await _say(sem, static, nxt, cname, msgs, people, reply_instr)
             if not reply or reply == "PASS":
                 last = nxt
                 continue
@@ -218,76 +227,105 @@ def _plan(org, weeks, scenes_per_day, ctx, rng):
                     stype = "incident"
                 if ck == "announcements":
                     stype = "announcement"
-                initiator = rng.choice(pool)
+                # announcements must come from leadership; otherwise personas refuse
+                if stype == "announcement":
+                    leaders = [p for p in pool if p["team_key"] == "leadership"]
+                    if not leaders:
+                        stype = "social" if ck == "random" else "team_question"
+                    else:
+                        initiator = rng.choice(leaders)
+                if stype != "announcement":
+                    initiator = rng.choice(pool)
                 spec = {"channel_key": ck, "type": stype, "initiator": initiator,
-                        "max_hops": rng.randint(2, 5),
+                        "max_hops": rng.randint(2, 6),
                         "dt": day + timedelta(hours=rng.randint(7, 16), minutes=rng.randint(0, 59)),
                         "rng": random.Random(rng.random())}
-                if stype in ("routing_question", "team_question"):
+                if stype == "routing_question":
                     others = [t.key for t in bp.TEAMS if t.key != initiator["team_key"]]
                     spec["owner_team"] = rng.choice(others)
+                elif stype == "team_question":
+                    spec["owner_team"] = initiator["team_key"]  # asked & answered within team
                 specs.append(spec)
         day += timedelta(days=1)
     return specs
 
 
+async def _one_dm(sem, static, ctx, counter, spec):
+    people, active, h2id, cn2id, ugs, members = ctx
+    a, partners, topic, drng = spec["a"], spec["partners"], spec["topic"], spec["rng"]
+    parts = [a] + partners
+    kind = "mpim" if len(parts) > 2 else "im"
+    cid = "D_" + "_".join(sorted(p["handle"][:6].upper() for p in parts)) + f"_{spec['i']}"
+    channel = {"id": cid, "name": "-".join(p["handle"] for p in parts), "kind": kind, "purpose": None}
+    mem = [(cid, p["id"]) for p in parts]
+    t = datetime(2026, 5, 1, tzinfo=timezone.utc) + timedelta(days=spec["day"], hours=spec["hour"])
+
+    def norm(s):
+        return normalize_mentions(s, h2id, cn2id, ugs)
+
+    msgs = []
+    first = await _say(sem, static, a, channel["name"], [], people,
+                       f'DM {partners[0]["real_name"]} about: "{topic}" (not your area). {ANTI_CLICHE}')
+    if not first or first == "PASS":
+        return channel, mem, []
+    msgs.append({"id": counter.next(), "channel_id": cid, "channel_key": None, "user_id": a["id"],
+                 "handle": a["handle"], "text": norm(first), "thread_ts": None, "ts": t})
+    last = a
+    for _ in range(spec["n_turns"]):
+        nxt = drng.choice([p for p in parts if p["id"] != last["id"]])
+        t = t + timedelta(minutes=drng.randint(2, 60))
+        reply = await _say(sem, static, nxt, channel["name"], msgs, people, "Reply as yourself in this DM.")
+        if reply and reply != "PASS":
+            msgs.append({"id": counter.next(), "channel_id": cid, "channel_key": None, "user_id": nxt["id"],
+                         "handle": nxt["handle"], "text": norm(reply), "thread_ts": msgs[0]["id"], "ts": t})
+        last = nxt
+    return channel, mem, msgs
+
+
 async def _run_dms(sem, static, org, ctx, counter, viewer_id, n, rng):
     people, active, h2id, cn2id, ugs, members = ctx
-    dms_channels, dms_members, msgs_all = [], [], []
-    connectors = [p for p in active if p.get("connector")]
+    specs = []
     for i in range(n):
         group = rng.random() < 0.3
         a = people[viewer_id] if (viewer_id and i < n * 0.4) else rng.choice(active)
         partners = rng.sample([p for p in active if p["id"] != a["id"]], 2 if group else 1)
-        parts = [a] + partners
-        kind = "mpim" if group else "im"
-        cid = "D_" + "_".join(sorted(p["handle"][:6].upper() for p in parts)) + f"_{i}"
-        dms_channels.append({"id": cid, "name": "-".join(p["handle"] for p in parts),
-                             "kind": kind, "purpose": None})
-        for p in parts:
-            dms_members.append((cid, p["id"]))
-        # short routing-flavored DM
         owner_team = rng.choice([t.key for t in bp.TEAMS if t.key != a["team_key"]])
-        topic = bp.TEAMS_BY_KEY[owner_team].owns
-        t = datetime(2026, 5, 1, tzinfo=timezone.utc) + timedelta(days=rng.randint(0, 28), hours=rng.randint(8, 17))
-        msgs = []
-        first = await _say(sem, static, a, dms_channels[-1]["name"], [], people,
-                           f"DM {partners[0]['real_name']} with a quick question about: {topic} (not your area).")
-        if not first or first == "PASS":
+        tp = org.get("topics", {}).get(owner_team) or [bp.TEAMS_BY_KEY[owner_team].owns]
+        specs.append({"i": i, "a": a, "partners": partners, "topic": rng.choice(tp),
+                      "n_turns": rng.randint(1, 3), "day": rng.randint(0, 28),
+                      "hour": rng.randint(8, 17), "rng": random.Random(rng.random())})
+
+    res = await asyncio.gather(*[_one_dm(sem, static, ctx, counter, s) for s in specs],
+                               return_exceptions=True)
+    chans, mem, msgs = [], [], []
+    for r in res:
+        if isinstance(r, Exception) or not r:
             continue
-        msgs.append({"id": counter.next(), "channel_id": cid, "channel_key": None,
-                     "user_id": a["id"], "handle": a["handle"],
-                     "text": normalize_mentions(first, h2id, cn2id, ugs), "thread_ts": None, "ts": t})
-        last = a
-        for hop in range(rng.randint(1, 3)):
-            nxt = rng.choice([p for p in parts if p["id"] != last["id"]])
-            t = t + timedelta(minutes=rng.randint(2, 60))
-            reply = await _say(sem, static, nxt, dms_channels[-1]["name"], msgs, people,
-                               "Reply as yourself in this DM.")
-            if not reply or reply == "PASS":
-                last = nxt
-                continue
-            msgs.append({"id": counter.next(), "channel_id": cid, "channel_key": None,
-                         "user_id": nxt["id"], "handle": nxt["handle"],
-                         "text": normalize_mentions(reply, h2id, cn2id, ugs),
-                         "thread_ts": msgs[0]["id"], "ts": t})
-            last = nxt
-        msgs_all.extend(msgs)
-    return dms_channels, dms_members, msgs_all
+        c, mm, ms = r
+        chans.append(c)
+        mem.extend(mm)
+        msgs.extend(ms)
+    return chans, mem, msgs
 
 
-async def simulate(org, weeks=6, scenes_per_day=22, concurrency=10, seed=7, dm_count=40):
+async def simulate(org, weeks=6, scenes_per_day=80, concurrency=18, seed=7, dm_count=80):
     rng = random.Random(seed)
     ctx = _index(org)
     static = build_static_context(org)
+    topics = org.get("topics", {})
     counter = Counter()
     sem = asyncio.Semaphore(concurrency)
 
     specs = _plan(org, weeks, scenes_per_day, ctx, rng)
     print(f"  planned {len(specs)} channel scenes over {weeks}w; generating…", flush=True)
 
-    results = await asyncio.gather(*[_run_channel_scene(sem, static, ctx, s, counter) for s in specs])
-    channel_msgs = [m for scene in results for m in scene]
+    results = await asyncio.gather(
+        *[_run_channel_scene(sem, static, ctx, s, counter, topics) for s in specs],
+        return_exceptions=True)
+    channel_msgs = [m for scene in results if isinstance(scene, list) for m in scene]
+    errs = sum(1 for r in results if isinstance(r, Exception))
+    if errs:
+        print(f"  ({errs} scenes errored and were skipped)", flush=True)
 
     viewer_id = org.get("viewer_id")
     dm_chans, dm_members, dm_msgs = await _run_dms(sem, static, org, ctx, counter, viewer_id, dm_count, rng)

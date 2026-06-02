@@ -22,9 +22,9 @@ from datagen.simulate import simulate
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--weeks", type=int, default=6)
-    ap.add_argument("--scenes-per-day", type=int, default=22)
-    ap.add_argument("--dm-count", type=int, default=40)
-    ap.add_argument("--concurrency", type=int, default=10)
+    ap.add_argument("--scenes-per-day", type=int, default=80)
+    ap.add_argument("--dm-count", type=int, default=80)
+    ap.add_argument("--concurrency", type=int, default=18)
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--load", action="store_true", help="insert into Neon")
     ap.add_argument("--reuse-org", action="store_true", help="reuse out/org.json")

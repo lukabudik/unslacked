@@ -41,11 +41,13 @@ def _flesh_team(team: bp.Team) -> list[dict]:
         '{"real_name": str, "handle": str (lowercase, unique-ish, e.g. first name or first.last), '
         '"title": str (realistic for this team; include exactly one lead/head/manager), '
         '"seniority": one of ["lead","senior","mid","junior"], '
-        '"personality": str (one short phrase, e.g. "dry, helpful, always busy"), '
+        '"personality": str (2-3 vivid traits + a quirk + how they write on Slack, '
+        'e.g. "blunt, allergic to meetings, over-uses 🔥, explains things with food analogies"; '
+        'make each person distinct), '
         '"timezone": one of ["Europe/Prague","Europe/London","Europe/Berlin","America/New_York"] '
         '(mostly Europe/Prague)}'
     )
-    data = parse_json(complete_text(sys, None, user, max_tokens=1600, temperature=1.0))
+    data = parse_json(complete_text(sys, None, user, max_tokens=1800, temperature=1.0))
     if isinstance(data, dict):
         data = data.get("employees") or next((v for v in data.values() if isinstance(v, list)), [])
     return data[: team.headcount]
@@ -92,6 +94,13 @@ def build_org(verbose: bool = True) -> dict:
     _apply_status_variation(people)
     people.append(_bot())
 
+    # concrete per-team topic banks so scenes seed specific, varied prompts
+    topics = {}
+    for team in bp.TEAMS:
+        if verbose:
+            print(f"  topics for {team.name}…", flush=True)
+        topics[team.key] = _topics_for_team(team)
+
     # the UI "logged-in" user — a central, well-connected person
     viewer = next((p for p in people if p["team_key"] == "leadership" and p.get("is_lead") and p["is_active"]), None)
     viewer = viewer or next(p for p in people if p["connector"] and p["is_active"])
@@ -102,9 +111,27 @@ def build_org(verbose: bool = True) -> dict:
         "people": people,
         "channels": _channel_defs(),
         "usergroups": _usergroups(people),
+        "topics": topics,
         "viewer_id": viewer["id"],
     }
     return org
+
+
+def _topics_for_team(team: bp.Team) -> list[str]:
+    sys = f"{bp.COMPANY_BLURB}\nReturn ONLY a JSON array of strings."
+    user = (
+        f"List 16 specific, varied, realistic things people at {bp.COMPANY} would ask about "
+        f"or raise regarding the {team.name} team's area. This team owns: {team.owns}. "
+        "Each item is a concrete question/problem/request in a few words "
+        "(e.g. 'refund webhook failing for EU merchants', 'how do I add a coupon code', "
+        "'need staging db access', 'p99 on the orders API doubled'). Mix questions, bugs, "
+        "and requests. JSON array of strings only."
+    )
+    try:
+        data = parse_json(complete_text(sys, None, user, max_tokens=900, temperature=1.0))
+        return [str(x) for x in data][:16] or [team.owns]
+    except Exception:
+        return [team.owns]
 
 
 def _channels_for(team: bp.Team) -> list[str]:
