@@ -1,0 +1,62 @@
+{
+  "voice": "Eric - Smooth, Trustworthy",
+  "voiceId": "cjVigY5qzO86Huf0OWal",
+  "model": "eleven_multilingual_v2",
+  "clips": {
+    "hook": {
+      "file": "vo/hook.mp3",
+      "duration": 4.783,
+      "text": "Every company has a hidden org chart. Not the one on the wall — the one buried in Slack."
+    },
+    "world": {
+      "file": "vo/world.mp3",
+      "duration": 3.994,
+      "text": "This is six weeks of one company's Slack. It looks busy. It looks fine."
+    },
+    "trace": {
+      "file": "vo/trace.mp3",
+      "duration": 7.384,
+      "text": "But watch one simple question. It gets forwarded. And forwarded. Five times — and nobody actually owns it."
+    },
+    "multiply": {
+      "file": "vo/multiply.mp3",
+      "duration": 8.406,
+      "text": "And it isn't one bad thread. Four hundred times, questions bounce between people. A hundred and twenty-six of them, hidden in private DMs."
+    },
+    "reveal": {
+      "file": "vo/reveal.mp3",
+      "duration": 5.666,
+      "text": "Map every hand-off, and the real org appears — a handful of people that everything quietly routes through."
+    },
+    "dashboard": {
+      "file": "vo/dashboard.mp3",
+      "duration": 7.848,
+      "text": "Unslacked turns your Slack into this. The hidden middlemen, the single points of failure, and the questions that never reach an owner."
+    },
+    "automations": {
+      "file": "vo/automations.mp3",
+      "duration": 8.266,
+      "text": "It also finds the work worth automating — the same requests, again and again — and drafts a ready-to-ship brief straight into a Duvo AI agent."
+    },
+    "assistant": {
+      "file": "vo/assistant.mp3",
+      "duration": 11.331,
+      "text": "And it lives right inside Slack. Message the wrong person, and an agent quietly tells you who really owns it — one click to reroute. Not sure who to ask? Just ask the bot."
+    },
+    "fix": {
+      "file": "vo/fix.mp3",
+      "duration": 4.319,
+      "text": "The result: five hops and days of waiting become a single message, straight to the owner."
+    },
+    "build": {
+      "file": "vo/build.mp3",
+      "duration": 13.932,
+      "text": "And we built all of it this weekend. A fully-working Slack — real UI and all — so a hundred AI agents could message each other into a living, six-week company. Then the engine that reads it, and the dashboard that reveals it."
+    },
+    "close": {
+      "file": "vo/close.mp3",
+      "duration": 2.322,
+      "text": "Unslacked. See who really runs your company."
+    }
+  }
+}

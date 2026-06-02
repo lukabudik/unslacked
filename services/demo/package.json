@@ -1,0 +1,27 @@
+{
+  "name": "@unslacked/demo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Cinematic Remotion pitch video for unslacked, data-driven from the real datagen output.",
+  "scripts": {
+    "data": "node scripts/build-data.mjs",
+    "vo": "node scripts/build-vo.mjs",
+    "dev": "remotion studio",
+    "studio": "remotion studio",
+    "render": "node scripts/build-data.mjs && remotion render Unslacked out/unslacked.mp4 --concurrency=4",
+    "still": "remotion still Unslacked out/frame.png"
+  },
+  "dependencies": {
+    "@remotion/google-fonts": "^4.0.0",
+    "@remotion/shapes": "^4.0.0",
+    "@remotion/transitions": "^4.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "^4.0.0"
+  },
+  "devDependencies": {
+    "@remotion/cli": "^4.0.0",
+    "@types/react": "^19.0.0",
+    "typescript": "^5.6.0"
+  }
+}

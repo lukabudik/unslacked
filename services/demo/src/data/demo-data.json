@@ -1,0 +1,5977 @@
+{
+  "company": "Nimbus Logistics",
+  "stats": {
+    "people": 104,
+    "channels": 27,
+    "messages": 7866,
+    "channelMessages": 7366,
+    "dms": 246,
+    "days": 39,
+    "weeks": 6,
+    "chains": 400,
+    "storylines": 16,
+    "tagChains": 274,
+    "handoffChains": 126,
+    "deepChains": 82,
+    "hopsDist": {
+      "1": 110,
+      "2": 111,
+      "3": 97,
+      "4": 50,
+      "5": 32
+    },
+    "teams": 18,
+    "hoursRecoverable": 18,
+    "avgDegrees": 2.3
+  },
+  "teams": [
+    {
+      "name": "Leadership",
+      "color": "#E8912D",
+      "count": 4
+    },
+    {
+      "name": "Platform Engineering",
+      "color": "#4A90D9",
+      "count": 8
+    },
+    {
+      "name": "Payments Engineering",
+      "color": "#2BAC76",
+      "count": 7
+    },
+    {
+      "name": "Frontend Engineering",
+      "color": "#9B59B6",
+      "count": 7
+    },
+    {
+      "name": "Mobile Engineering",
+      "color": "#16A085",
+      "count": 5
+    },
+    {
+      "name": "Data & ML",
+      "color": "#3498DB",
+      "count": 6
+    },
+    {
+      "name": "SRE / Infrastructure",
+      "color": "#E74C3C",
+      "count": 6
+    },
+    {
+      "name": "Product",
+      "color": "#F39C12",
+      "count": 8
+    },
+    {
+      "name": "Design",
+      "color": "#E91E8C",
+      "count": 6
+    },
+    {
+      "name": "Operations",
+      "color": "#1ABC9C",
+      "count": 6
+    },
+    {
+      "name": "IT & Workplace",
+      "color": "#E67E22",
+      "count": 4
+    },
+    {
+      "name": "People & HR",
+      "color": "#8E44AD",
+      "count": 5
+    },
+    {
+      "name": "Finance",
+      "color": "#27AE60",
+      "count": 5
+    },
+    {
+      "name": "Legal & Compliance",
+      "color": "#7F8C8D",
+      "count": 3
+    },
+    {
+      "name": "Sales",
+      "color": "#C0392B",
+      "count": 9
+    },
+    {
+      "name": "Customer Support",
+      "color": "#2980B9",
+      "count": 9
+    },
+    {
+      "name": "Marketing",
+      "color": "#D35400",
+      "count": 6
+    },
+    {
+      "name": "—",
+      "color": "#9aa0a6",
+      "count": 1
+    }
+  ],
+  "sidebar": {
+    "channels": [
+      {
+        "name": "general",
+        "private": false
+      },
+      {
+        "name": "announcements",
+        "private": false
+      },
+      {
+        "name": "random",
+        "private": false
+      },
+      {
+        "name": "engineering",
+        "private": false
+      },
+      {
+        "name": "platform",
+        "private": false
+      },
+      {
+        "name": "payments",
+        "private": false
+      },
+      {
+        "name": "frontend",
+        "private": false
+      },
+      {
+        "name": "mobile",
+        "private": false
+      },
+      {
+        "name": "data",
+        "private": false
+      },
+      {
+        "name": "analytics",
+        "private": false
+      },
+      {
+        "name": "infra",
+        "private": false
+      }
+    ],
+    "dms": [
+      {
+        "name": "Alena Michalová",
+        "initials": "AM",
+        "color": "#e8912d",
+        "online": false
+      },
+      {
+        "name": "Jakob Andersen",
+        "initials": "JA",
+        "color": "#1d4ed8",
+        "online": true
+      },
+      {
+        "name": "Sofia Petrov",
+        "initials": "SP",
+        "color": "#cd2553",
+        "online": true
+      },
+      {
+        "name": "Marco Benedetti",
+        "initials": "MB",
+        "color": "#4a154b",
+        "online": false
+      },
+      {
+        "name": "Marcus Chen",
+        "initials": "MC",
+        "color": "#cd2553",
+        "online": true
+      },
+      {
+        "name": "Tomáš Růžička",
+        "initials": "TR",
+        "color": "#e01e5a",
+        "online": true
+      }
+    ]
+  },
+  "assistant": {
+    "dmWith": {
+      "id": "U_ALENA",
+      "name": "Alena Michalová",
+      "title": "Workplace Onboarding Specialist",
+      "team": "IT & Workplace",
+      "initials": "AM",
+      "color": "#e8912d"
+    },
+    "draft": "hey — can you approve my expense report for the client dinner? it's €240, need it by Friday 🙏",
+    "topic": "Expense approvals",
+    "owner": {
+      "id": "U_MAREK",
+      "name": "Marek Svoboda",
+      "title": "Finance Director",
+      "team": "Finance",
+      "initials": "MS",
+      "color": "#1264a3"
+    },
+    "bot": {
+      "q": "who actually owns courier payouts?",
+      "owner": {
+        "id": "U_TOMASBENES",
+        "name": "Tomáš Beneš",
+        "title": "Head of Payments Engineering",
+        "team": "Payments Engineering",
+        "initials": "TB",
+        "color": "#1264a3"
+      }
+    }
+  },
+  "topRouters": [
+    {
+      "id": "U_ALENA",
+      "name": "Alena Michalová",
+      "team": "IT & Workplace",
+      "color": "#E67E22",
+      "count": 62,
+      "title": "Workplace Onboarding Specialist"
+    },
+    {
+      "id": "U_JANDERSEN",
+      "name": "Jakob Andersen",
+      "team": "IT & Workplace",
+      "color": "#E67E22",
+      "count": 61,
+      "title": "SaaS & Access Administrator"
+    },
+    {
+      "id": "U_SOFIAOPS",
+      "name": "Sofia Petrov",
+      "team": "Operations",
+      "color": "#1ABC9C",
+      "count": 59,
+      "title": "Operations Coordinator"
+    },
+    {
+      "id": "U_MARCO",
+      "name": "Marco Benedetti",
+      "team": "Leadership",
+      "color": "#E8912D",
+      "count": 55,
+      "title": "VP People & Operations"
+    },
+    {
+      "id": "U_MARCUSC",
+      "name": "Marcus Chen",
+      "team": "People & HR",
+      "color": "#8E44AD",
+      "count": 55,
+      "title": "Recruiting Manager"
+    },
+    {
+      "id": "U_TOMASR",
+      "name": "Tomáš Růžička",
+      "team": "People & HR",
+      "color": "#8E44AD",
+      "count": 51,
+      "title": "Payroll & Compliance Specialist"
+    }
+  ],
+  "topBottlenecks": [
+    {
+      "id": "U_PETRA",
+      "name": "Petra Novotná",
+      "team": "People & HR",
+      "color": "#8E44AD",
+      "count": 44,
+      "title": "Head of People & HR"
+    },
+    {
+      "id": "U_JANDERSEN",
+      "name": "Jakob Andersen",
+      "team": "IT & Workplace",
+      "color": "#E67E22",
+      "count": 42,
+      "title": "SaaS & Access Administrator"
+    },
+    {
+      "id": "U_TNOVOTNY0",
+      "name": "Tomáš Novotný",
+      "team": "SRE / Infrastructure",
+      "color": "#E74C3C",
+      "count": 42,
+      "title": "Head of Infrastructure & Reliability"
+    },
+    {
+      "id": "U_ALENA",
+      "name": "Alena Michalová",
+      "team": "IT & Workplace",
+      "color": "#E67E22",
+      "count": 41,
+      "title": "Workplace Onboarding Specialist"
+    },
+    {
+      "id": "U_SOFIAOPS",
+      "name": "Sofia Petrov",
+      "team": "Operations",
+      "color": "#1ABC9C",
+      "count": 40,
+      "title": "Operations Coordinator"
+    },
+    {
+      "id": "U_TKRIZ",
+      "name": "Tomáš Kříž",
+      "team": "IT & Workplace",
+      "color": "#E67E22",
+      "count": 38,
+      "title": "IT & Workplace Lead"
+    }
+  ],
+  "topOwners": [
+    {
+      "id": "U_PETRA00",
+      "name": "Petra Novotná",
+      "team": "Marketing",
+      "color": "#D35400",
+      "count": 19,
+      "title": "Head of Marketing"
+    },
+    {
+      "id": "U_TNOVOTNY0",
+      "name": "Tomáš Novotný",
+      "team": "SRE / Infrastructure",
+      "color": "#E74C3C",
+      "count": 18,
+      "title": "Head of Infrastructure & Reliability"
+    },
+    {
+      "id": "U_MATEJ",
+      "name": "Matěj Kovács",
+      "team": "Mobile Engineering",
+      "color": "#16A085",
+      "count": 17,
+      "title": "Head of Mobile Engineering"
+    },
+    {
+      "id": "U_PETRAV",
+      "name": "Petra Volková",
+      "team": "Legal & Compliance",
+      "color": "#7F8C8D",
+      "count": 17,
+      "title": "Head of Legal & Compliance"
+    },
+    {
+      "id": "U_TOMAS",
+      "name": "Tomáš Dvořák",
+      "team": "Leadership",
+      "color": "#E8912D",
+      "count": 16,
+      "title": "CEO & Co-Founder"
+    },
+    {
+      "id": "U_PETRA0",
+      "name": "Petra Novotná",
+      "team": "Customer Support",
+      "color": "#2980B9",
+      "count": 15,
+      "title": "Head of Customer Support"
+    }
+  ],
+  "hero": {
+    "topic": "Can we increase the font size options for accessibility",
+    "channel": "design",
+    "asker": {
+      "id": "U_PPOLAK",
+      "name": "Pavel Polák",
+      "team": "Design",
+      "color": "#E91E8C",
+      "initials": "PP"
+    },
+    "owner": {
+      "id": "U_JNOVOTNY2",
+      "name": "Jakub Novotný",
+      "team": "Mobile Engineering",
+      "color": "#16A085",
+      "initials": "JN",
+      "title": "Android Engineer"
+    },
+    "mechanism": "handoff",
+    "hops": [
+      {
+        "from": {
+          "id": "U_PETRA",
+          "name": "Petra Novotná",
+          "initials": "PN",
+          "color": "#8E44AD"
+        },
+        "to": {
+          "id": "U_TOMASOPS",
+          "name": "Tomáš Novotný",
+          "initials": "TN",
+          "color": "#1ABC9C"
+        },
+        "mechanism": "tag",
+        "text": "hold on — font sizing & a11y in the design system isn't ops, that's ⟦@Dominik Svoboda⟧'s call. pinging @design team on this one 📋 ⟦@Tomáš Novotný⟧"
+      },
+      {
+        "from": {
+          "id": "U_TOMASOPS",
+          "name": "Tomáš Novotný",
+          "initials": "TN",
+          "color": "#1ABC9C"
+        },
+        "to": {
+          "id": "U_ALENA",
+          "name": "Alena Michalová",
+          "initials": "AM",
+          "color": "#E67E22"
+        },
+        "mechanism": "tag",
+        "text": "⟦@Dominik Svoboda⟧'s the right call here — design system a11y specs are totally their lane, not ops 👍 ⟦@Alena Michalová⟧"
+      },
+      {
+        "from": {
+          "id": "U_ALENA",
+          "name": "Alena Michalová",
+          "initials": "AM",
+          "color": "#E67E22"
+        },
+        "to": {
+          "id": "U_DOMINIKTOOLS",
+          "name": "Dominik Krajčí",
+          "initials": "DK",
+          "color": "#1ABC9C"
+        },
+        "mechanism": "tag",
+        "text": "hey ⟦@Pavel Polák⟧! this is totally a @design team question — ⟦@Dominik Svoboda⟧'s your person for design system specs & a11y stuff 🎨 they'd know if we need to expand the font scale! ⟦@Dominik Krajčí⟧"
+      },
+      {
+        "from": {
+          "id": "U_DOMINIKTOOLS",
+          "name": "Dominik Krajčí",
+          "initials": "DK",
+          "color": "#1ABC9C"
+        },
+        "to": {
+          "id": "U_JANDERSEN",
+          "name": "Jakob Andersen",
+          "initials": "JA",
+          "color": "#E67E22"
+        },
+        "mechanism": "tag",
+        "text": "yo ⟦@Pavel Polák⟧ this is all ⟦@Dominik Svoboda⟧ — they own the design system a11y specs and can tell you if we need to expand the font scale 🎨 ⟦@Jakob Andersen⟧"
+      },
+      {
+        "from": {
+          "id": "U_JANDERSEN",
+          "name": "Jakob Andersen",
+          "initials": "JA",
+          "color": "#E67E22"
+        },
+        "to": {
+          "id": "U_JNOVOTNY2",
+          "name": "Jakub Novotný",
+          "initials": "JN",
+          "color": "#16A085"
+        },
+        "mechanism": "handoff",
+        "text": "not my lane — this is a design system a11y question, ping @design and they'll sort you out 🎨"
+      }
+    ],
+    "messages": [
+      {
+        "id": "M_05953",
+        "user": {
+          "id": "U_PPOLAK",
+          "name": "Pavel Polák",
+          "initials": "PP",
+          "color": "#0f7b6c"
+        },
+        "text": "@design does our design system have enough font size scale options for a11y, or should we expand it? thinking about larger text needs for accessibility",
+        "ts": "2026-05-20 07:48:00+00:00"
+      },
+      {
+        "id": "M_06347",
+        "user": {
+          "id": "U_PETRA",
+          "name": "Petra Novotná",
+          "initials": "PN",
+          "color": "#cd2553"
+        },
+        "text": "hold on — font sizing & a11y in the design system isn't ops, that's ⟦@Dominik Svoboda⟧'s call. pinging @design team on this one 📋 ⟦@Tomáš Novotný⟧",
+        "ts": "2026-05-20 08:43:00+00:00"
+      },
+      {
+        "id": "M_06741",
+        "user": {
+          "id": "U_TOMASOPS",
+          "name": "Tomáš Novotný",
+          "initials": "TN",
+          "color": "#e8912d"
+        },
+        "text": "⟦@Dominik Svoboda⟧'s the right call here — design system a11y specs are totally their lane, not ops 👍 ⟦@Alena Michalová⟧",
+        "ts": "2026-05-20 09:43:00+00:00"
+      },
+      {
+        "id": "M_07077",
+        "user": {
+          "id": "U_ALENA",
+          "name": "Alena Michalová",
+          "initials": "AM",
+          "color": "#e8912d"
+        },
+        "text": "hey ⟦@Pavel Polák⟧! this is totally a @design team question — ⟦@Dominik Svoboda⟧'s your person for design system specs & a11y stuff 🎨 they'd know if we need to expand the font scale! ⟦@Dominik Krajčí⟧",
+        "ts": "2026-05-20 10:46:00+00:00"
+      },
+      {
+        "id": "M_07333",
+        "user": {
+          "id": "U_DOMINIKTOOLS",
+          "name": "Dominik Krajčí",
+          "initials": "DK",
+          "color": "#7c3aed"
+        },
+        "text": "yo ⟦@Pavel Polák⟧ this is all ⟦@Dominik Svoboda⟧ — they own the design system a11y specs and can tell you if we need to expand the font scale 🎨 ⟦@Jakob Andersen⟧",
+        "ts": "2026-05-20 11:06:00+00:00"
+      },
+      {
+        "id": "M_07488",
+        "user": {
+          "id": "U_JANDERSEN",
+          "name": "Jakob Andersen",
+          "initials": "JA",
+          "color": "#1d4ed8"
+        },
+        "text": "not my lane — this is a design system a11y question, ping @design and they'll sort you out 🎨",
+        "ts": "2026-05-20 12:08:00+00:00"
+      },
+      {
+        "id": "M_07575",
+        "user": {
+          "id": "U_JANDERSEN",
+          "name": "Jakob Andersen",
+          "initials": "JA",
+          "color": "#1d4ed8"
+        },
+        "text": "hey ⟦@Tomáš Novotný⟧ — quick one: can we increase the font size options for accessibility in the customer app? routing this your way since it's infra/reliability territory... actually wait, this might be @frontend or @design depending on whether it's a technical constraint or a feature request. want me to loop in ⟦@Tomáš Dvořák⟧ or ⟦@Dominik Svoboda⟧ instead, or does this land with you? ⟦@Jakub Novotný⟧",
+        "ts": "2026-05-20 12:18:00+00:00"
+      },
+      {
+        "id": "M_07609",
+        "user": {
+          "id": "U_JNOVOTNY2",
+          "name": "Jakub Novotný",
+          "initials": "JN",
+          "color": "#c2410c"
+        },
+        "text": "font size options on the customer app is definitely ours — that's mobile UI work. yeah, loop in ⟦@Tomáš Dvořák⟧ and ⟦@Dominik Svoboda⟧ on the design side so we're all aligned on what sizes/scaling makes sense, but i'll own the android/ios implementation. what's the current constraint — do we not have the framework for it or just haven't built the UI yet?",
+        "ts": "2026-05-20 13:54:00+00:00"
+      },
+      {
+        "id": "M_07612",
+        "user": {
+          "id": "U_JANDERSEN",
+          "name": "Jakob Andersen",
+          "initials": "JA",
+          "color": "#1d4ed8"
+        },
+        "text": "⟦@Jakub Novotný⟧ — ⟦@Pavel Polák⟧'s asking whether the design system needs more font size scale options for a11y coverage. you're the right person to weigh in here if you haven't already!",
+        "ts": "2026-05-20 14:24:00+00:00"
+      }
+    ]
+  },
+  "chaos": [
+    {
+      "id": "M_00004",
+      "channel": "general",
+      "user": {
+        "id": "U_TOMASOPS",
+        "name": "Tomáš Novotný",
+        "initials": "TN",
+        "color": "#e8912d"
+      },
+      "text": "hey @platform-eng, we're seeing merchant onboarding API timeouts blocking some new signups. any idea what's going on on your end? 🚨"
+    },
+    {
+      "id": "M_00014",
+      "channel": "random",
+      "user": {
+        "id": "U_MARCUSCHEN",
+        "name": "Marcus Chen",
+        "initials": "MC",
+        "color": "#7c3aed"
+      },
+      "text": "this office is either arctic tundra or sauna and there's apparently no in-between ❄️🔥"
+    },
+    {
+      "id": "M_00038",
+      "channel": "general",
+      "user": {
+        "id": "U_JDVORAK",
+        "name": "Jakub Dvořák",
+        "initials": "JD",
+        "color": "#cd2553"
+      },
+      "text": "hey @frontend, can we sync on rolling out the new branding assets across web properties? cc @design 🎨"
+    },
+    {
+      "id": "M_00055",
+      "channel": "general",
+      "user": {
+        "id": "U_PETRDOS",
+        "name": "Petr Dostál",
+        "initials": "PD",
+        "color": "#e01e5a"
+      },
+      "text": "hot take: whoever decided SQL should have seventeen different ways to join tables was either a genius or a villain, no in-between 🔥"
+    },
+    {
+      "id": "M_00077",
+      "channel": "engineering",
+      "user": {
+        "id": "U_ZUZANAML",
+        "name": "Zuzana Novotná",
+        "initials": "ZN",
+        "color": "#4a154b"
+      },
+      "text": "working on getting write access to the analytics warehouse so i can iterate on some SQL scripts faster — currently blocked on ⟦@Tomáš Kříž⟧ for IAM setup. need this unblocked by eod tomorrow if possible 🚀"
+    },
+    {
+      "id": "M_00093",
+      "channel": "random",
+      "user": {
+        "id": "U_MCHEN1",
+        "name": "Marcus Chen",
+        "initials": "MC",
+        "color": "#0f7b6c"
+      },
+      "text": "that moment when someone asks if we need a DPA and you're already 6 emails deep into one 🧑‍💼📋"
+    },
+    {
+      "id": "M_00118",
+      "channel": "random",
+      "user": {
+        "id": "U_JNOV",
+        "name": "Jakub Nováček",
+        "initials": "JN",
+        "color": "#2bac76"
+      },
+      "text": "posting that gif of the guy juggling flaming torches but they're all labeled \"vendor NDAs\" \"GDPR scope creep\" and \"payment processor compliance\" 😅"
+    },
+    {
+      "id": "M_00132",
+      "channel": "general",
+      "user": {
+        "id": "U_JNOVOTNY2",
+        "name": "Jakub Novotný",
+        "initials": "JN",
+        "color": "#c2410c"
+      },
+      "text": "we're seeing login failures for some users rn - looks like a mobile app auth issue. @platform-eng & @mobile investigating. will update in 15min 🔍"
+    },
+    {
+      "id": "M_00152",
+      "channel": "random",
+      "user": {
+        "id": "U_LIVIAK",
+        "name": "Livia Kučerová",
+        "initials": "LK",
+        "color": "#cd2553"
+      },
+      "text": "huge shoutout to ⟦@Petra Novotná⟧ for jumping on that email list sync issue yesterday, absolute lifesaver 🙌"
+    },
+    {
+      "id": "M_00164",
+      "channel": "random",
+      "user": {
+        "id": "U_JANAWAREHOUSE",
+        "name": "Jana Moravcová",
+        "initials": "JM",
+        "color": "#2bac76"
+      },
+      "text": "we just cracked sub-2-minute warehouse handoff on the north hub—that's the kind of efficiency my shelf-layout dreams are made of 🎯"
+    },
+    {
+      "id": "M_00175",
+      "channel": "general",
+      "user": {
+        "id": "U_PETRADISPATCH",
+        "name": "Petra Svobodová",
+        "initials": "PS",
+        "color": "#c2410c"
+      },
+      "text": "api p95 is spiking hard and climbing 📈 @platform-eng is investigating now. will update in ⟦#incidents⟧ as soon as we know more."
+    },
+    {
+      "id": "M_00201",
+      "channel": "general",
+      "user": {
+        "id": "U_SOFIAMENDEZ",
+        "name": "Sofia Mendez",
+        "initials": "SM",
+        "color": "#be123c"
+      },
+      "text": "yo why is this merchant's payment processor going down every other tuesday 😅 like clockwork at this point"
+    },
+    {
+      "id": "M_00222",
+      "channel": "random",
+      "user": {
+        "id": "U_SCHEN",
+        "name": "Sophie Chen",
+        "initials": "SC",
+        "color": "#1264a3"
+      },
+      "text": "back to back meetings have me convinced i'm a professional zoom background at this point 😅"
+    },
+    {
+      "id": "M_00231",
+      "channel": "random",
+      "user": {
+        "id": "U_TKRIZ",
+        "name": "Tomáš Kříž",
+        "initials": "TK",
+        "color": "#c2410c"
+      },
+      "text": "what's everyone's go-to coding soundtrack rn? i'm stuck in a lo-fi loop and need to mix it up 🎧"
+    },
+    {
+      "id": "M_00255",
+      "channel": "general",
+      "user": {
+        "id": "U_TOMASH",
+        "name": "Tomáš Horák",
+        "initials": "TH",
+        "color": "#0b8a8f"
+      },
+      "text": "hey team, our support folks are flying blind on delivery statuses in tickets — we can only see the last snapshot, not live updates 😅 anyone know who we'd need to loop in to fix this?"
+    },
+    {
+      "id": "M_00268",
+      "channel": "engineering",
+      "user": {
+        "id": "U_DBARTOS",
+        "name": "David Bartoš",
+        "initials": "DB",
+        "color": "#1264a3"
+      },
+      "text": "live gps tracking on courier app is starting to drop frames hard — @platform-eng investigating now, likely a service degradation on the location ingest pipeline 🔥"
+    },
+    {
+      "id": "M_00288",
+      "channel": "random",
+      "user": {
+        "id": "U_MAREK",
+        "name": "Marek Svoboda",
+        "initials": "MS",
+        "color": "#1264a3"
+      },
+      "text": "found this excel formula auditing tool that actually catches circular references before they spiral into chaos — saved me like 2 hours debugging last week, highly recommend if you're doing complex sheets 🔍"
+    },
+    {
+      "id": "M_00299",
+      "channel": "general",
+      "user": {
+        "id": "U_SOFIAROSSI",
+        "name": "Sofia Rossi",
+        "initials": "SR",
+        "color": "#4a154b"
+      },
+      "text": "heads up @sales — new merchants aren't populating in the reporting dashboard, any idea what's going on? 👀"
+    },
+    {
+      "id": "M_00330",
+      "channel": "incidents",
+      "user": {
+        "id": "U_JIRIP",
+        "name": "Jiří Planka",
+        "initials": "JP",
+        "color": "#0b8a8f"
+      },
+      "text": "payment provider having issues rn — getting errors on a chunk of requests, looks like it's on their end. @payments-eng aware? checking if we need to throttle/retry differently on our side 🤷"
+    },
+    {
+      "id": "M_00335",
+      "channel": "random",
+      "user": {
+        "id": "U_AISHA",
+        "name": "Aisha Patel",
+        "initials": "AP",
+        "color": "#1264a3"
+      },
+      "text": "if you're reconciling CSVs in excel, alt+= auto-sums the column below your cursor — saved me like 20 minutes yesterday 📊"
+    },
+    {
+      "id": "M_00351",
+      "channel": "random",
+      "user": {
+        "id": "U_JANA",
+        "name": "Jana Kovács",
+        "initials": "JK",
+        "color": "#4a154b"
+      },
+      "text": "almost made it through the week without spilling coffee on myself, calling that a win 🌟☕"
+    },
+    {
+      "id": "M_00366",
+      "channel": "general",
+      "user": {
+        "id": "U_PETRAK",
+        "name": "Petra Kovářová",
+        "initials": "PK",
+        "color": "#1d4ed8"
+      },
+      "text": "mobile app crash rate jumped post-release, ⟦@Matěj Kovács⟧ & team are investigating. will update in ⟦#incidents⟧ as we know more 🚨"
+    },
+    {
+      "id": "M_00378",
+      "channel": "random",
+      "user": {
+        "id": "U_PPOLAK",
+        "name": "Pavel Polák",
+        "initials": "PP",
+        "color": "#0f7b6c"
+      },
+      "text": "anyone hitting up the designops conference in berlin next month or is it just me"
+    },
+    {
+      "id": "M_00405",
+      "channel": "random",
+      "user": {
+        "id": "U_PPOLAK",
+        "name": "Pavel Polák",
+        "initials": "PP",
+        "color": "#0f7b6c"
+      },
+      "text": "⟦@Dominik Svoboda⟧ absolute legend for jumping on that design system component review yesterday, saved the sprint"
+    },
+    {
+      "id": "M_00416",
+      "channel": "random",
+      "user": {
+        "id": "U_DOMINIK",
+        "name": "Dominik Svoboda",
+        "initials": "DS",
+        "color": "#e8912d"
+      },
+      "text": "that moment when product says \"let's ship it\" and then immediately checks the retention curve 📉😅"
+    },
+    {
+      "id": "M_00431",
+      "channel": "engineering",
+      "user": {
+        "id": "U_SOPHIAM",
+        "name": "Sophia Müller",
+        "initials": "SM",
+        "color": "#2bac76"
+      },
+      "text": "we just got the new service mesh telemetry dashboard live and honestly the latency graphs are *so* much clearer now, feeling pretty good about it 📊"
+    },
+    {
+      "id": "M_00469",
+      "channel": "random",
+      "user": {
+        "id": "U_MARCUSLOGISTICS",
+        "name": "Marcus Chen",
+        "initials": "MC",
+        "color": "#0b8a8f"
+      },
+      "text": "anyone else planning to swing by the office this week or is it looking like a ghost town? 👻"
+    },
+    {
+      "id": "M_00453",
+      "channel": "random",
+      "user": {
+        "id": "U_TKRIZ",
+        "name": "Tomáš Kříž",
+        "initials": "TK",
+        "color": "#c2410c"
+      },
+      "text": "just shipped a new onboarding checklist that actually catches when people forget their VPN certs on day one — saved someone 2 hours of \"why can't i access anything\" tickets today 🎉"
+    },
+    {
+      "id": "M_00477",
+      "channel": "random",
+      "user": {
+        "id": "U_SOFIAOPS",
+        "name": "Sofia Petrov",
+        "initials": "SP",
+        "color": "#cd2553"
+      },
+      "text": "been listening to \"stuff you should know\" during my commute and honestly it's been my sanity check between dispatch calls 📻✨"
+    },
+    {
+      "id": "M_00481",
+      "channel": "random",
+      "user": {
+        "id": "U_TNOVOTNY",
+        "name": "Tomáš Novotný",
+        "initials": "TN",
+        "color": "#2bac76"
+      },
+      "text": "anyone else dealing with the commute this week or is everyone remote? 📊"
+    },
+    {
+      "id": "M_00509",
+      "channel": "random",
+      "user": {
+        "id": "U_DSVOBODA",
+        "name": "Dominik Svoboda",
+        "initials": "DS",
+        "color": "#be123c"
+      },
+      "text": "prague office is either a sauna or a freezer—there is no in-between and i refuse to believe this is accidental 🥵❄️"
+    },
+    {
+      "id": "M_00520",
+      "channel": "random",
+      "user": {
+        "id": "U_MCHEN",
+        "name": "Marcus Chen",
+        "initials": "MC",
+        "color": "#1d4ed8"
+      },
+      "text": "anyone else in the office tomorrow or is everyone remote this week? 👀"
+    },
+    {
+      "id": "M_00550",
+      "channel": "general",
+      "user": {
+        "id": "U_KUBA",
+        "name": "Jakub Polák",
+        "initials": "JP",
+        "color": "#be123c"
+      },
+      "text": "hey welcome to nimbus! 🎉 grab a coffee and let us know if you need any vendor/procurement chaos explained or just want to chat about how we survive on spreadsheets and optimism ☕️"
+    },
+    {
+      "id": "M_00558",
+      "channel": "random",
+      "user": {
+        "id": "U_PETRADISPATCH",
+        "name": "Petra Svobodová",
+        "initials": "PS",
+        "color": "#c2410c"
+      },
+      "text": "the courier tracking API has been giving us phantom \"delayed\" statuses again today 😤 third time this week, gonna need to loop in ⟦@Tomáš Novotný⟧ about escalating with the vendor."
+    },
+    {
+      "id": "M_00568",
+      "channel": "random",
+      "user": {
+        "id": "U_MCECH",
+        "name": "Martin Čech",
+        "initials": "MČ",
+        "color": "#1d4ed8"
+      },
+      "text": "anyone know any good lunch spots nearby? 🍕 thinking of venturing out of the office today"
+    },
+    {
+      "id": "M_00584",
+      "channel": "random",
+      "user": {
+        "id": "U_DOM",
+        "name": "Dominik Šimek",
+        "initials": "DŠ",
+        "color": "#2bac76"
+      },
+      "text": "lmao posting that gif of the guy in the office staring intensely at his monitor with the caption \"me waiting for someone to finally attach a receipt to their expense report\" 💀"
+    },
+    {
+      "id": "M_00615",
+      "channel": "incidents",
+      "user": {
+        "id": "U_JNOVOTNY",
+        "name": "Jakub Novotný",
+        "initials": "JN",
+        "color": "#1264a3"
+      },
+      "text": "**incident update:** we're seeing login failures for some users this morning — looks like it's hitting a specific subset, investigation in progress. @sre and @platform-eng are on it 🔍"
+    },
+    {
+      "id": "M_00613",
+      "channel": "engineering",
+      "user": {
+        "id": "U_PSVOBO",
+        "name": "Petra Svobodová",
+        "initials": "PS",
+        "color": "#1264a3"
+      },
+      "text": "hey @payments-eng, we're seeing stripe webhook latency spike reconciliation delays in prod — payment status mismatches rippling through for some merchants. worth a sync or quick investigation on your end? 🔍"
+    },
+    {
+      "id": "M_00628",
+      "channel": "general",
+      "user": {
+        "id": "U_DOM",
+        "name": "Dominik Šimek",
+        "initials": "DŠ",
+        "color": "#2bac76"
+      },
+      "text": "anyone heading to any tech conferences or meetups soon? thinking about getting out of prague for a bit 👀"
+    },
+    {
+      "id": "M_00635",
+      "channel": "general",
+      "user": {
+        "id": "U_TKRIZ",
+        "name": "Tomáš Kříž",
+        "initials": "TK",
+        "color": "#c2410c"
+      },
+      "text": "solid all-hands today, tomas crushing it on the fundraising front 🚀"
+    }
+  ],
+  "graph": {
+    "width": 1920,
+    "height": 1080,
+    "nodes": [
+      {
+        "id": "U_TOMAS",
+        "name": "Tomáš Dvořák",
+        "initials": "TD",
+        "team": "Leadership",
+        "color": "#E8912D",
+        "title": "CEO & Co-Founder",
+        "routedOut": 43,
+        "routedIn": 36,
+        "routerScore": 0.69,
+        "isRouter": true,
+        "size": 25.554027718094297,
+        "x": 1296,
+        "y": 494
+      },
+      {
+        "id": "U_HELENAK",
+        "name": "Helena Kučerová",
+        "initials": "HK",
+        "team": "Leadership",
+        "color": "#E8912D",
+        "title": "Chief Financial Officer",
+        "routedOut": 48,
+        "routedIn": 35,
+        "routerScore": 0.77,
+        "isRouter": true,
+        "size": 26.042953874117458,
+        "x": 1346,
+        "y": 512
+      },
+      {
+        "id": "U_MARCO",
+        "name": "Marco Benedetti",
+        "initials": "MB",
+        "team": "Leadership",
+        "color": "#E8912D",
+        "title": "VP People & Operations",
+        "routedOut": 55,
+        "routedIn": 34,
+        "routerScore": 0.89,
+        "isRouter": true,
+        "size": 26.75475849052453,
+        "x": 1255,
+        "y": 540
+      },
+      {
+        "id": "U_PETRAS",
+        "name": "Petra Svobodová",
+        "initials": "PS",
+        "team": "Leadership",
+        "color": "#E8912D",
+        "title": "VP Strategy & Fundraising",
+        "routedOut": 0,
+        "routedIn": 0,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 6,
+        "x": 1574,
+        "y": 546
+      },
+      {
+        "id": "U_TNOVOTNY",
+        "name": "Tomáš Novotný",
+        "initials": "TN",
+        "team": "Platform Engineering",
+        "color": "#4A90D9",
+        "title": "Platform Engineering Lead",
+        "routedOut": 36,
+        "routedIn": 28,
+        "routerScore": 0.58,
+        "isRouter": true,
+        "size": 23.6,
+        "x": 1270,
+        "y": 685
+      },
+      {
+        "id": "U_PETRAS1",
+        "name": "Petra Svobodová",
+        "initials": "PS",
+        "team": "Platform Engineering",
+        "color": "#4A90D9",
+        "title": "Senior Backend Engineer",
+        "routedOut": 0,
+        "routedIn": 0,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 6,
+        "x": 1514,
+        "y": 615
+      },
+      {
+        "id": "U_MCHEN",
+        "name": "Marcus Chen",
+        "initials": "MC",
+        "team": "Platform Engineering",
+        "color": "#4A90D9",
+        "title": "Senior Infrastructure Engineer",
+        "routedOut": 0,
+        "routedIn": 4,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 10.4,
+        "x": 1507,
+        "y": 671
+      },
+      {
+        "id": "U_LUKASH",
+        "name": "Lukáš Horák",
+        "initials": "LH",
+        "team": "Platform Engineering",
+        "color": "#4A90D9",
+        "title": "Backend Engineer (APIs)",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 1497,
+        "y": 583
+      },
+      {
+        "id": "U_SOPHIAM",
+        "name": "Sophia Müller",
+        "initials": "SM",
+        "team": "Platform Engineering",
+        "color": "#4A90D9",
+        "title": "Backend Engineer (Core Services)",
+        "routedOut": 0,
+        "routedIn": 0,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 6,
+        "x": 1611,
+        "y": 617
+      },
+      {
+        "id": "U_DBARTOS",
+        "name": "David Bartoš",
+        "initials": "DB",
+        "team": "Platform Engineering",
+        "color": "#4A90D9",
+        "title": "DevOps Engineer",
+        "routedOut": 0,
+        "routedIn": 0,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 6,
+        "x": 1569,
+        "y": 630
+      },
+      {
+        "id": "U_EKOWALSKI",
+        "name": "Elena Kowalski",
+        "initials": "EK",
+        "team": "Platform Engineering",
+        "color": "#4A90D9",
+        "title": "Junior Backend Engineer",
+        "routedOut": 0,
+        "routedIn": 0,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 6,
+        "x": 1473,
+        "y": 610
+      },
+      {
+        "id": "U_JIRIP",
+        "name": "Jiří Planka",
+        "initials": "JP",
+        "team": "Platform Engineering",
+        "color": "#4A90D9",
+        "title": "Backend Engineer (API Reliability)",
+        "routedOut": 0,
+        "routedIn": 3,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.81051177665153,
+        "x": 1488,
+        "y": 577
+      },
+      {
+        "id": "U_TOMASBENES",
+        "name": "Tomáš Beneš",
+        "initials": "TB",
+        "team": "Payments Engineering",
+        "color": "#2BAC76",
+        "title": "Head of Payments Engineering",
+        "routedOut": 0,
+        "routedIn": 13,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 13.932212806020777,
+        "x": 1450,
+        "y": 705
+      },
+      {
+        "id": "U_PETRAS11",
+        "name": "Petra Svobodová",
+        "initials": "PS",
+        "team": "Payments Engineering",
+        "color": "#2BAC76",
+        "title": "Senior Payments Engineer",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 1338,
+        "y": 817
+      },
+      {
+        "id": "U_KLAUSR",
+        "name": "Klaus Richter",
+        "initials": "KR",
+        "team": "Payments Engineering",
+        "color": "#2BAC76",
+        "title": "Senior Billing Engineer",
+        "routedOut": 0,
+        "routedIn": 3,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.81051177665153,
+        "x": 1503,
+        "y": 727
+      },
+      {
+        "id": "U_JNOVOTNY",
+        "name": "Jakub Novotný",
+        "initials": "JN",
+        "team": "Payments Engineering",
+        "color": "#2BAC76",
+        "title": "Mid-Level Payments Engineer",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 1503,
+        "y": 763
+      },
+      {
+        "id": "U_EVAH",
+        "name": "Eva Horák",
+        "initials": "EH",
+        "team": "Payments Engineering",
+        "color": "#2BAC76",
+        "title": "Mid-Level Payout Systems Engineer",
+        "routedOut": 0,
+        "routedIn": 0,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 6,
+        "x": 1452,
+        "y": 815
+      },
+      {
+        "id": "U_LUKASP",
+        "name": "Lukas Pospíšil",
+        "initials": "LP",
+        "team": "Payments Engineering",
+        "color": "#2BAC76",
+        "title": "Junior Payments Engineer",
+        "routedOut": 0,
+        "routedIn": 4,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 10.4,
+        "x": 1394,
+        "y": 741
+      },
+      {
+        "id": "U_AISHA",
+        "name": "Aisha Patel",
+        "initials": "AP",
+        "team": "Payments Engineering",
+        "color": "#2BAC76",
+        "title": "Junior Billing & Reconciliation Engineer",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 1436,
+        "y": 690
+      },
+      {
+        "id": "U_TOMAS0",
+        "name": "Tomáš Dvořák",
+        "initials": "TD",
+        "team": "Frontend Engineering",
+        "color": "#9B59B6",
+        "title": "Frontend Engineering Lead",
+        "routedOut": 0,
+        "routedIn": 14,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 14.231646250902672,
+        "x": 1150,
+        "y": 878
+      },
+      {
+        "id": "U_PETRACECH",
+        "name": "Petra Čech",
+        "initials": "PČ",
+        "team": "Frontend Engineering",
+        "color": "#9B59B6",
+        "title": "Senior Frontend Engineer",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 1324,
+        "y": 827
+      },
+      {
+        "id": "U_MARCUS",
+        "name": "Marcus Holloway",
+        "initials": "MH",
+        "team": "Frontend Engineering",
+        "color": "#9B59B6",
+        "title": "Senior Frontend Engineer",
+        "routedOut": 0,
+        "routedIn": 1,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 8.2,
+        "x": 1293,
+        "y": 806
+      },
+      {
+        "id": "U_JNOVOTNY3",
+        "name": "Jakub Novotný",
+        "initials": "JN",
+        "team": "Frontend Engineering",
+        "color": "#9B59B6",
+        "title": "Mid-level Frontend Engineer",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 1224,
+        "y": 822
+      },
+      {
+        "id": "U_SOPHIEL",
+        "name": "Sophie Laroche",
+        "initials": "SL",
+        "team": "Frontend Engineering",
+        "color": "#9B59B6",
+        "title": "Mid-level Frontend Engineer",
+        "routedOut": 0,
+        "routedIn": 0,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 6,
+        "x": 1145,
+        "y": 777
+      },
+      {
+        "id": "U_DKOLARS",
+        "name": "David Kolář",
+        "initials": "DK",
+        "team": "Frontend Engineering",
+        "color": "#9B59B6",
+        "title": "Junior Frontend Engineer",
+        "routedOut": 0,
+        "routedIn": 0,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 6,
+        "x": 1245,
+        "y": 895
+      },
+      {
+        "id": "U_AMORENO",
+        "name": "Alicia Moreno",
+        "initials": "AM",
+        "team": "Frontend Engineering",
+        "color": "#9B59B6",
+        "title": "Junior Frontend Engineer",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 1249,
+        "y": 890
+      },
+      {
+        "id": "U_MATEJ",
+        "name": "Matěj Kovács",
+        "initials": "MK",
+        "team": "Mobile Engineering",
+        "color": "#16A085",
+        "title": "Head of Mobile Engineering",
+        "routedOut": 0,
+        "routedIn": 17,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 15.070832376358855,
+        "x": 1035,
+        "y": 970
+      },
+      {
+        "id": "U_ANNIKAB",
+        "name": "Annika Bergström",
+        "initials": "AB",
+        "team": "Mobile Engineering",
+        "color": "#16A085",
+        "title": "Senior iOS Engineer",
+        "routedOut": 0,
+        "routedIn": 0,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 6,
+        "x": 1021,
+        "y": 823
+      },
+      {
+        "id": "U_JNOVOTNY2",
+        "name": "Jakub Novotný",
+        "initials": "JN",
+        "team": "Mobile Engineering",
+        "color": "#16A085",
+        "title": "Android Engineer",
+        "routedOut": 0,
+        "routedIn": 5,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 10.919349550499538,
+        "x": 1028,
+        "y": 861
+      },
+      {
+        "id": "U_SCHEN",
+        "name": "Sophie Chen",
+        "initials": "SC",
+        "team": "Mobile Engineering",
+        "color": "#16A085",
+        "title": "Mobile QA & Release Engineer",
+        "routedOut": 0,
+        "routedIn": 3,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.81051177665153,
+        "x": 1076,
+        "y": 893
+      },
+      {
+        "id": "U_TSVEC",
+        "name": "Tomáš Švec",
+        "initials": "TŠ",
+        "team": "Mobile Engineering",
+        "color": "#16A085",
+        "title": "Junior iOS Engineer",
+        "routedOut": 0,
+        "routedIn": 3,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.81051177665153,
+        "x": 989,
+        "y": 933
+      },
+      {
+        "id": "U_MATEJ0",
+        "name": "Matěj Dvořák",
+        "initials": "MD",
+        "team": "Data & ML",
+        "color": "#3498DB",
+        "title": "Head of Data & ML",
+        "routedOut": 0,
+        "routedIn": 4,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 10.4,
+        "x": 919,
+        "y": 845
+      },
+      {
+        "id": "U_ZUZANAML",
+        "name": "Zuzana Novotná",
+        "initials": "ZN",
+        "team": "Data & ML",
+        "color": "#3498DB",
+        "title": "Senior ML Engineer (Routing & ETA)",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 797,
+        "y": 878
+      },
+      {
+        "id": "U_HENRIK",
+        "name": "Henrik Bergström",
+        "initials": "HB",
+        "team": "Data & ML",
+        "color": "#3498DB",
+        "title": "Senior Data Engineer",
+        "routedOut": 0,
+        "routedIn": 0,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 6,
+        "x": 935,
+        "y": 942
+      },
+      {
+        "id": "U_TOMASK",
+        "name": "Tomáš Kučera",
+        "initials": "TK",
+        "team": "Data & ML",
+        "color": "#3498DB",
+        "title": "Mid-level Data Engineer",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 752,
+        "y": 892
+      },
+      {
+        "id": "U_AISHA4",
+        "name": "Aisha Patel",
+        "initials": "AP",
+        "team": "Data & ML",
+        "color": "#3498DB",
+        "title": "ML Engineer (Experimentation & Analytics)",
+        "routedOut": 0,
+        "routedIn": 1,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 8.2,
+        "x": 958,
+        "y": 891
+      },
+      {
+        "id": "U_PETRDOS",
+        "name": "Petr Dostál",
+        "initials": "PD",
+        "team": "Data & ML",
+        "color": "#3498DB",
+        "title": "Junior Data Engineer",
+        "routedOut": 0,
+        "routedIn": 1,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 8.2,
+        "x": 799,
+        "y": 961
+      },
+      {
+        "id": "U_TNOVOTNY0",
+        "name": "Tomáš Novotný",
+        "initials": "TN",
+        "team": "SRE / Infrastructure",
+        "color": "#E74C3C",
+        "title": "Head of Infrastructure & Reliability",
+        "routedOut": 41,
+        "routedIn": 42,
+        "routerScore": 0.66,
+        "isRouter": true,
+        "size": 26.042953874117458,
+        "x": 827,
+        "y": 703
+      },
+      {
+        "id": "U_PSVOBO",
+        "name": "Petra Svobodová",
+        "initials": "PS",
+        "team": "SRE / Infrastructure",
+        "color": "#E74C3C",
+        "title": "Senior SRE - Kubernetes & Orchestration",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 678,
+        "y": 798
+      },
+      {
+        "id": "U_KBERGMANN",
+        "name": "Klaus Bergmann",
+        "initials": "KB",
+        "team": "SRE / Infrastructure",
+        "color": "#E74C3C",
+        "title": "Senior SRE - Cloud & Platform",
+        "routedOut": 0,
+        "routedIn": 5,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 10.919349550499538,
+        "x": 546,
+        "y": 787
+      },
+      {
+        "id": "U_JREZAC",
+        "name": "Jakub Řezáč",
+        "initials": "JŘ",
+        "team": "SRE / Infrastructure",
+        "color": "#E74C3C",
+        "title": "SRE - Security Infrastructure",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 599,
+        "y": 903
+      },
+      {
+        "id": "U_YTANAKA",
+        "name": "Yuki Tanaka",
+        "initials": "YT",
+        "team": "SRE / Infrastructure",
+        "color": "#E74C3C",
+        "title": "SRE - Monitoring & Observability",
+        "routedOut": 0,
+        "routedIn": 4,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 10.4,
+        "x": 767,
+        "y": 812
+      },
+      {
+        "id": "U_MCECH",
+        "name": "Martin Čech",
+        "initials": "MČ",
+        "team": "SRE / Infrastructure",
+        "color": "#E74C3C",
+        "title": "Junior SRE - Incident Response",
+        "routedOut": 0,
+        "routedIn": 0,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 6,
+        "x": 654,
+        "y": 777
+      },
+      {
+        "id": "U_DOMINIK",
+        "name": "Dominik Svoboda",
+        "initials": "DS",
+        "team": "Product",
+        "color": "#F39C12",
+        "title": "Head of Product",
+        "routedOut": 0,
+        "routedIn": 14,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 14.231646250902672,
+        "x": 577,
+        "y": 802
+      },
+      {
+        "id": "U_PETRANOVA",
+        "name": "Petra Novotná",
+        "initials": "PN",
+        "team": "Product",
+        "color": "#F39C12",
+        "title": "Senior Product Manager – Merchant Platform",
+        "routedOut": 0,
+        "routedIn": 1,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 8.2,
+        "x": 540,
+        "y": 870
+      },
+      {
+        "id": "U_KLAUS",
+        "name": "Klaus Richter",
+        "initials": "KR",
+        "team": "Product",
+        "color": "#F39C12",
+        "title": "Senior Product Manager – Consumer App",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 449,
+        "y": 853
+      },
+      {
+        "id": "U_NATASHA",
+        "name": "Natasha Volkov",
+        "initials": "NV",
+        "team": "Product",
+        "color": "#F39C12",
+        "title": "Product Manager – Growth & Analytics",
+        "routedOut": 0,
+        "routedIn": 4,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 10.4,
+        "x": 390,
+        "y": 819
+      },
+      {
+        "id": "U_JAKUBCECH",
+        "name": "Jakub Čech",
+        "initials": "JČ",
+        "team": "Product",
+        "color": "#F39C12",
+        "title": "Product Manager – Ops & Logistics",
+        "routedOut": 0,
+        "routedIn": 1,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 8.2,
+        "x": 468,
+        "y": 810
+      },
+      {
+        "id": "U_AMELIE",
+        "name": "Amélie Durand",
+        "initials": "AD",
+        "team": "Product",
+        "color": "#F39C12",
+        "title": "Product Designer (embedded in Product)",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 400,
+        "y": 706
+      },
+      {
+        "id": "U_MILAN",
+        "name": "Milan Horáček",
+        "initials": "MH",
+        "team": "Product",
+        "color": "#F39C12",
+        "title": "Associate Product Manager",
+        "routedOut": 0,
+        "routedIn": 1,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 8.2,
+        "x": 590,
+        "y": 865
+      },
+      {
+        "id": "U_SARAHCHEN",
+        "name": "Sarah Chen",
+        "initials": "SC",
+        "team": "Product",
+        "color": "#F39C12",
+        "title": "Product Operations Manager",
+        "routedOut": 0,
+        "routedIn": 0,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 6,
+        "x": 593,
+        "y": 839
+      },
+      {
+        "id": "U_TEREZA",
+        "name": "Tereza Kovács",
+        "initials": "TK",
+        "team": "Design",
+        "color": "#E91E8C",
+        "title": "Head of Design",
+        "routedOut": 0,
+        "routedIn": 0,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 6,
+        "x": 476,
+        "y": 594
+      },
+      {
+        "id": "U_DSVOBODA",
+        "name": "Dominik Svoboda",
+        "initials": "DS",
+        "team": "Design",
+        "color": "#E91E8C",
+        "title": "Senior Product Designer",
+        "routedOut": 0,
+        "routedIn": 4,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 10.4,
+        "x": 405,
+        "y": 707
+      },
+      {
+        "id": "U_AMARA",
+        "name": "Amara Okonkwo",
+        "initials": "AO",
+        "team": "Design",
+        "color": "#E91E8C",
+        "title": "User Research & Design",
+        "routedOut": 0,
+        "routedIn": 4,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 10.4,
+        "x": 453,
+        "y": 662
+      },
+      {
+        "id": "U_PPOLAK",
+        "name": "Pavel Polák",
+        "initials": "PP",
+        "team": "Design",
+        "color": "#E91E8C",
+        "title": "Product Designer",
+        "routedOut": 0,
+        "routedIn": 5,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 10.919349550499538,
+        "x": 410,
+        "y": 684
+      },
+      {
+        "id": "U_INGRIDL",
+        "name": "Ingrid Larsson",
+        "initials": "IL",
+        "team": "Design",
+        "color": "#E91E8C",
+        "title": "Design Systems & Brand",
+        "routedOut": 0,
+        "routedIn": 7,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 11.820652884342099,
+        "x": 470,
+        "y": 590
+      },
+      {
+        "id": "U_MCHEN5",
+        "name": "Marcus Chen",
+        "initials": "MC",
+        "team": "Design",
+        "color": "#E91E8C",
+        "title": "Junior Product Designer",
+        "routedOut": 0,
+        "routedIn": 5,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 10.919349550499538,
+        "x": 385,
+        "y": 614
+      },
+      {
+        "id": "U_TOMASOPS",
+        "name": "Tomáš Novotný",
+        "initials": "TN",
+        "team": "Operations",
+        "color": "#1ABC9C",
+        "title": "Head of Operations",
+        "routedOut": 48,
+        "routedIn": 37,
+        "routerScore": 0.77,
+        "isRouter": true,
+        "size": 26.282997806044353,
+        "x": 627,
+        "y": 554
+      },
+      {
+        "id": "U_PETRADISPATCH",
+        "name": "Petra Svobodová",
+        "initials": "PS",
+        "team": "Operations",
+        "color": "#1ABC9C",
+        "title": "Dispatch Operations Manager",
+        "routedOut": 50,
+        "routedIn": 31,
+        "routerScore": 0.81,
+        "isRouter": true,
+        "size": 25.8,
+        "x": 580,
+        "y": 505
+      },
+      {
+        "id": "U_MARCUSLOGISTICS",
+        "name": "Marcus Chen",
+        "initials": "MC",
+        "team": "Operations",
+        "color": "#1ABC9C",
+        "title": "Logistics Process Engineer",
+        "routedOut": 50,
+        "routedIn": 30,
+        "routerScore": 0.81,
+        "isRouter": true,
+        "size": 25.67739820199815,
+        "x": 670,
+        "y": 578
+      },
+      {
+        "id": "U_JANAWAREHOUSE",
+        "name": "Jana Moravcová",
+        "initials": "JM",
+        "team": "Operations",
+        "color": "#1ABC9C",
+        "title": "Warehouse Operations Specialist",
+        "routedOut": 45,
+        "routedIn": 28,
+        "routerScore": 0.73,
+        "isRouter": true,
+        "size": 24.796808239698567,
+        "x": 629,
+        "y": 515
+      },
+      {
+        "id": "U_DOMINIKTOOLS",
+        "name": "Dominik Krajčí",
+        "initials": "DK",
+        "team": "Operations",
+        "color": "#1ABC9C",
+        "title": "Operations Tooling Developer",
+        "routedOut": 46,
+        "routedIn": 30,
+        "routerScore": 0.74,
+        "isRouter": true,
+        "size": 25.179155351578967,
+        "x": 563,
+        "y": 568
+      },
+      {
+        "id": "U_SOFIAOPS",
+        "name": "Sofia Petrov",
+        "initials": "SP",
+        "team": "Operations",
+        "color": "#1ABC9C",
+        "title": "Operations Coordinator",
+        "routedOut": 59,
+        "routedIn": 40,
+        "routerScore": 0.95,
+        "isRouter": true,
+        "size": 27.88972361634564,
+        "x": 665,
+        "y": 536
+      },
+      {
+        "id": "U_TKRIZ",
+        "name": "Tomáš Kříž",
+        "initials": "TK",
+        "team": "IT & Workplace",
+        "color": "#E67E22",
+        "title": "IT & Workplace Lead",
+        "routedOut": 46,
+        "routedIn": 38,
+        "routerScore": 0.74,
+        "isRouter": true,
+        "size": 26.163333057805698,
+        "x": 578,
+        "y": 505
+      },
+      {
+        "id": "U_PETRANOVO",
+        "name": "Petra Novotná",
+        "initials": "PN",
+        "team": "IT & Workplace",
+        "color": "#E67E22",
+        "title": "Senior IT Operations Specialist",
+        "routedOut": 45,
+        "routedIn": 30,
+        "routerScore": 0.73,
+        "isRouter": true,
+        "size": 25.052558883257653,
+        "x": 647,
+        "y": 455
+      },
+      {
+        "id": "U_JANDERSEN",
+        "name": "Jakob Andersen",
+        "initials": "JA",
+        "team": "IT & Workplace",
+        "color": "#E67E22",
+        "title": "SaaS & Access Administrator",
+        "routedOut": 61,
+        "routedIn": 42,
+        "routerScore": 0.98,
+        "isRouter": true,
+        "size": 28.327561443202885,
+        "x": 731,
+        "y": 451
+      },
+      {
+        "id": "U_ALENA",
+        "name": "Alena Michalová",
+        "initials": "AM",
+        "team": "IT & Workplace",
+        "color": "#E67E22",
+        "title": "Workplace Onboarding Specialist",
+        "routedOut": 62,
+        "routedIn": 41,
+        "routerScore": 1,
+        "isRouter": true,
+        "size": 28.327561443202885,
+        "x": 724,
+        "y": 464
+      },
+      {
+        "id": "U_PETRA",
+        "name": "Petra Novotná",
+        "initials": "PN",
+        "team": "People & HR",
+        "color": "#8E44AD",
+        "title": "Head of People & HR",
+        "routedOut": 47,
+        "routedIn": 44,
+        "routerScore": 0.76,
+        "isRouter": true,
+        "size": 26.986662431172807,
+        "x": 691,
+        "y": 411
+      },
+      {
+        "id": "U_MARCUSC",
+        "name": "Marcus Chen",
+        "initials": "MC",
+        "team": "People & HR",
+        "color": "#8E44AD",
+        "title": "Recruiting Manager",
+        "routedOut": 55,
+        "routedIn": 38,
+        "routerScore": 0.89,
+        "isRouter": true,
+        "size": 27.216031674184503,
+        "x": 682,
+        "y": 402
+      },
+      {
+        "id": "U_JANA",
+        "name": "Jana Kovács",
+        "initials": "JK",
+        "team": "People & HR",
+        "color": "#8E44AD",
+        "title": "Onboarding & Culture Coordinator",
+        "routedOut": 49,
+        "routedIn": 30,
+        "routerScore": 0.79,
+        "isRouter": true,
+        "size": 25.554027718094297,
+        "x": 741,
+        "y": 453
+      },
+      {
+        "id": "U_TOMASR",
+        "name": "Tomáš Růžička",
+        "initials": "TR",
+        "team": "People & HR",
+        "color": "#8E44AD",
+        "title": "Payroll & Compliance Specialist",
+        "routedOut": 51,
+        "routedIn": 28,
+        "routerScore": 0.82,
+        "isRouter": true,
+        "size": 25.554027718094297,
+        "x": 652,
+        "y": 423
+      },
+      {
+        "id": "U_KEISHA",
+        "name": "Keisha Williams",
+        "initials": "KW",
+        "team": "People & HR",
+        "color": "#8E44AD",
+        "title": "Benefits & People Operations Coordinator",
+        "routedOut": 46,
+        "routedIn": 33,
+        "routerScore": 0.74,
+        "isRouter": true,
+        "size": 25.554027718094297,
+        "x": 656,
+        "y": 415
+      },
+      {
+        "id": "U_MAREK",
+        "name": "Marek Svoboda",
+        "initials": "MS",
+        "team": "Finance",
+        "color": "#27AE60",
+        "title": "Finance Director",
+        "routedOut": 0,
+        "routedIn": 13,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 13.932212806020777,
+        "x": 648,
+        "y": 180
+      },
+      {
+        "id": "U_PETRAN",
+        "name": "Petra Novotná",
+        "initials": "PN",
+        "team": "Finance",
+        "color": "#27AE60",
+        "title": "Senior Accountant",
+        "routedOut": 0,
+        "routedIn": 6,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 11.388877434122993,
+        "x": 672,
+        "y": 195
+      },
+      {
+        "id": "U_KUBA",
+        "name": "Jakub Polák",
+        "initials": "JP",
+        "team": "Finance",
+        "color": "#27AE60",
+        "title": "Procurement & Vendor Manager",
+        "routedOut": 0,
+        "routedIn": 3,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.81051177665153,
+        "x": 649,
+        "y": 268
+      },
+      {
+        "id": "U_OLGA",
+        "name": "Olga Kovács",
+        "initials": "OK",
+        "team": "Finance",
+        "color": "#27AE60",
+        "title": "Financial Analyst",
+        "routedOut": 0,
+        "routedIn": 4,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 10.4,
+        "x": 573,
+        "y": 226
+      },
+      {
+        "id": "U_DOM",
+        "name": "Dominik Šimek",
+        "initials": "DŠ",
+        "team": "Finance",
+        "color": "#27AE60",
+        "title": "Expense & AP Coordinator",
+        "routedOut": 0,
+        "routedIn": 3,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.81051177665153,
+        "x": 615,
+        "y": 226
+      },
+      {
+        "id": "U_PETRAV",
+        "name": "Petra Volková",
+        "initials": "PV",
+        "team": "Legal & Compliance",
+        "color": "#7F8C8D",
+        "title": "Head of Legal & Compliance",
+        "routedOut": 0,
+        "routedIn": 17,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 15.070832376358855,
+        "x": 870,
+        "y": 196
+      },
+      {
+        "id": "U_MCHEN1",
+        "name": "Marcus Chen",
+        "initials": "MC",
+        "team": "Legal & Compliance",
+        "color": "#7F8C8D",
+        "title": "Senior Data Privacy & GDPR Counsel",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 844,
+        "y": 98
+      },
+      {
+        "id": "U_JNOV",
+        "name": "Jakub Nováček",
+        "initials": "JN",
+        "team": "Legal & Compliance",
+        "color": "#7F8C8D",
+        "title": "Contracts & Vendor Legal Specialist",
+        "routedOut": 0,
+        "routedIn": 6,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 11.388877434122993,
+        "x": 823,
+        "y": 240
+      },
+      {
+        "id": "U_TOMASDVORAK",
+        "name": "Tomáš Dvořák",
+        "initials": "TD",
+        "team": "Sales",
+        "color": "#C0392B",
+        "title": "VP of Sales",
+        "routedOut": 0,
+        "routedIn": 0,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 6,
+        "x": 1165,
+        "y": 114
+      },
+      {
+        "id": "U_PETRAK",
+        "name": "Petra Kovářová",
+        "initials": "PK",
+        "team": "Sales",
+        "color": "#C0392B",
+        "title": "Senior Account Executive",
+        "routedOut": 0,
+        "routedIn": 1,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 8.2,
+        "x": 1076,
+        "y": 134
+      },
+      {
+        "id": "U_MARKO",
+        "name": "Marko Novotný",
+        "initials": "MN",
+        "team": "Sales",
+        "color": "#C0392B",
+        "title": "Account Executive",
+        "routedOut": 0,
+        "routedIn": 3,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.81051177665153,
+        "x": 1096,
+        "y": 116
+      },
+      {
+        "id": "U_KLARASV",
+        "name": "Klara Svobodová",
+        "initials": "KS",
+        "team": "Sales",
+        "color": "#C0392B",
+        "title": "Business Development Manager",
+        "routedOut": 0,
+        "routedIn": 3,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.81051177665153,
+        "x": 1074,
+        "y": 244
+      },
+      {
+        "id": "U_HENRIK4",
+        "name": "Henrik Andreasen",
+        "initials": "HA",
+        "team": "Sales",
+        "color": "#C0392B",
+        "title": "Senior Account Manager",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 1092,
+        "y": 128
+      },
+      {
+        "id": "U_SOFIAMENDEZ",
+        "name": "Sofia Mendez",
+        "initials": "SM",
+        "team": "Sales",
+        "color": "#C0392B",
+        "title": "Account Executive",
+        "routedOut": 0,
+        "routedIn": 5,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 10.919349550499538,
+        "x": 1057,
+        "y": 118
+      },
+      {
+        "id": "U_LUKASK",
+        "name": "Lukáš Kučera",
+        "initials": "LK",
+        "team": "Sales",
+        "color": "#C0392B",
+        "title": "Account Manager",
+        "routedOut": 0,
+        "routedIn": 6,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 11.388877434122993,
+        "x": 1038,
+        "y": 107
+      },
+      {
+        "id": "U_ZARA",
+        "name": "Zara Khalil",
+        "initials": "ZK",
+        "team": "Sales",
+        "color": "#C0392B",
+        "title": "Commercial Contract Manager",
+        "routedOut": 0,
+        "routedIn": 1,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 8.2,
+        "x": 1085,
+        "y": 108
+      },
+      {
+        "id": "U_JIRIBALAZ",
+        "name": "Jiří Baláž",
+        "initials": "JB",
+        "team": "Sales",
+        "color": "#C0392B",
+        "title": "Inside Sales Specialist",
+        "routedOut": 0,
+        "routedIn": 1,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 8.2,
+        "x": 1090,
+        "y": 110
+      },
+      {
+        "id": "U_PETRA0",
+        "name": "Petra Novotná",
+        "initials": "PN",
+        "team": "Customer Support",
+        "color": "#2980B9",
+        "title": "Head of Customer Support",
+        "routedOut": 0,
+        "routedIn": 15,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 14.520563361656318,
+        "x": 1266,
+        "y": 208
+      },
+      {
+        "id": "U_MARCUSCHEN",
+        "name": "Marcus Chen",
+        "initials": "MC",
+        "team": "Customer Support",
+        "color": "#2980B9",
+        "title": "Senior Support Specialist",
+        "routedOut": 0,
+        "routedIn": 1,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 8.2,
+        "x": 1335,
+        "y": 150
+      },
+      {
+        "id": "U_JDVORAK",
+        "name": "Jakub Dvořák",
+        "initials": "JD",
+        "team": "Customer Support",
+        "color": "#2980B9",
+        "title": "Support Specialist",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 1373,
+        "y": 145
+      },
+      {
+        "id": "U_SOFIA",
+        "name": "Sofia Reyes",
+        "initials": "SR",
+        "team": "Customer Support",
+        "color": "#2980B9",
+        "title": "Escalations & Refunds Lead",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 1198,
+        "y": 225
+      },
+      {
+        "id": "U_TOMASH",
+        "name": "Tomáš Horák",
+        "initials": "TH",
+        "team": "Customer Support",
+        "color": "#2980B9",
+        "title": "Support Specialist",
+        "routedOut": 0,
+        "routedIn": 0,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 6,
+        "x": 1156,
+        "y": 187
+      },
+      {
+        "id": "U_INGRID",
+        "name": "Ingrid Müller",
+        "initials": "IM",
+        "team": "Customer Support",
+        "color": "#2980B9",
+        "title": "Merchant Success Specialist",
+        "routedOut": 0,
+        "routedIn": 1,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 8.2,
+        "x": 1177,
+        "y": 286
+      },
+      {
+        "id": "U_LUKAS",
+        "name": "Lukáš Svoboda",
+        "initials": "LS",
+        "team": "Customer Support",
+        "color": "#2980B9",
+        "title": "Support Specialist",
+        "routedOut": 0,
+        "routedIn": 1,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 8.2,
+        "x": 1353,
+        "y": 205
+      },
+      {
+        "id": "U_NATASHAP",
+        "name": "Natasha Petrov",
+        "initials": "NP",
+        "team": "Customer Support",
+        "color": "#2980B9",
+        "title": "Customer Success Manager",
+        "routedOut": 0,
+        "routedIn": 1,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 8.2,
+        "x": 1301,
+        "y": 132
+      },
+      {
+        "id": "U_DKUCERA",
+        "name": "David Kučera",
+        "initials": "DK",
+        "team": "Customer Support",
+        "color": "#2980B9",
+        "title": "Support Specialist",
+        "routedOut": 0,
+        "routedIn": 2,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.11126983722081,
+        "x": 1207,
+        "y": 218
+      },
+      {
+        "id": "U_PETRA00",
+        "name": "Petra Novotná",
+        "initials": "PN",
+        "team": "Marketing",
+        "color": "#D35400",
+        "title": "Head of Marketing",
+        "routedOut": 0,
+        "routedIn": 19,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 15.589577675789483,
+        "x": 1390,
+        "y": 310
+      },
+      {
+        "id": "U_JHORK",
+        "name": "Jakub Horák",
+        "initials": "JH",
+        "team": "Marketing",
+        "color": "#D35400",
+        "title": "Senior Content & Brand Manager",
+        "routedOut": 0,
+        "routedIn": 4,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 10.4,
+        "x": 1522,
+        "y": 321
+      },
+      {
+        "id": "U_SOFIAROSSI",
+        "name": "Sofia Rossi",
+        "initials": "SR",
+        "team": "Marketing",
+        "color": "#D35400",
+        "title": "Campaign Manager, Growth",
+        "routedOut": 0,
+        "routedIn": 3,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 9.81051177665153,
+        "x": 1372,
+        "y": 385
+      },
+      {
+        "id": "U_DOMINIK3",
+        "name": "Dominik Čech",
+        "initials": "DČ",
+        "team": "Marketing",
+        "color": "#D35400",
+        "title": "Social & Community Lead",
+        "routedOut": 0,
+        "routedIn": 0,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 6,
+        "x": 1433,
+        "y": 269
+      },
+      {
+        "id": "U_LIVIAK",
+        "name": "Livia Kučerová",
+        "initials": "LK",
+        "team": "Marketing",
+        "color": "#D35400",
+        "title": "Lifecycle Email Specialist",
+        "routedOut": 0,
+        "routedIn": 4,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 10.4,
+        "x": 1526,
+        "y": 279
+      },
+      {
+        "id": "U_MARCUS5",
+        "name": "Marcus Webb",
+        "initials": "MW",
+        "team": "Marketing",
+        "color": "#D35400",
+        "title": "PR & Partnerships Manager",
+        "routedOut": 0,
+        "routedIn": 0,
+        "routerScore": 0,
+        "isRouter": false,
+        "size": 6,
+        "x": 1334,
+        "y": 375
+      }
+    ],
+    "edges": [
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_PETRA",
+        "weight": 7,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_TOMAS",
+        "weight": 7,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_TOMASOPS",
+        "weight": 7,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_PETRA",
+        "weight": 6,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_TNOVOTNY0",
+        "weight": 6,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_PETRANOVO",
+        "weight": 5,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_JANA",
+        "weight": 5,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_MARCUSLOGISTICS",
+        "weight": 5,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_TOMASOPS",
+        "weight": 5,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_PETRA",
+        "weight": 5,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_TOMAS",
+        "weight": 5,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_SOFIAOPS",
+        "weight": 5,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_TNOVOTNY0",
+        "weight": 5,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_TKRIZ",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_DOMINIKTOOLS",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_PETRA00",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_PETRA",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_MARCUSC",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_JANDERSEN",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_ALENA",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_MARCUSC",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_TNOVOTNY0",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_TKRIZ",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_DOMINIKTOOLS",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_JANDERSEN",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_MARCUSLOGISTICS",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_SOFIAOPS",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_SOFIAOPS",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_TOMAS",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_SOFIAOPS",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_PETRADISPATCH",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_PETRANOVO",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_SOFIAOPS",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_KEISHA",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_PETRA",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_MARCUSC",
+        "weight": 4,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_MARCO",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_KEISHA",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_PETRADISPATCH",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_PETRA",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_HELENAK",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_TKRIZ",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_JANAWAREHOUSE",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_JANDERSEN",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_TNOVOTNY",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_JANDERSEN",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_ALENA",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_TOMAS",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_JANDERSEN",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_PETRANOVO",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_TNOVOTNY0",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_MARCO",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_MARCUSC",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_HELENAK",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_PETRADISPATCH",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_TOMASOPS",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_TOMASOPS",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_ALENA",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_JANDERSEN",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_MARCO",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_SOFIAOPS",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_TNOVOTNY",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_JANA",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_HELENAK",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_TOMASR",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_ALENA",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_JANAWAREHOUSE",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_TKRIZ",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_PETRADISPATCH",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_MARCO",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_MARCUSC",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_JANAWAREHOUSE",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_MARCO",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_MARCUSLOGISTICS",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_ALENA",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_TKRIZ",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_JANDERSEN",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_JANA",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_JANA",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_TOMASR",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_ALENA",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_TNOVOTNY0",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_MARCUSC",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_JANAWAREHOUSE",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_TNOVOTNY0",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_KEISHA",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_TKRIZ",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_PETRANOVO",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_TNOVOTNY",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_KEISHA",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_DOMINIK",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_TOMAS",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_TNOVOTNY",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_DOMINIKTOOLS",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_KEISHA",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_JANDERSEN",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_SOFIAMENDEZ",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_MARCUSLOGISTICS",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_DOMINIKTOOLS",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_TNOVOTNY0",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_MARCO",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_TNOVOTNY",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_PETRA0",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_TOMASBENES",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_TOMASR",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_MARCUSC",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_MARCO",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_ALENA",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_PETRAN",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_TNOVOTNY0",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_TOMAS0",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_JANDERSEN",
+        "weight": 3,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_HELENAK",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_TOMAS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_TOMAS0",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_SOFIAOPS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_MARCUSC",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_ALENA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_DOMINIK",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_TKRIZ",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_TOMASOPS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_PETRADISPATCH",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_TOMASR",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_PETRANOVO",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_MARCUSLOGISTICS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_JANA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_PETRA00",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_TOMASR",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_HELENAK",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_KEISHA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_MARCUSLOGISTICS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_HELENAK",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_HELENAK",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_TNOVOTNY",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_JANDERSEN",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_TKRIZ",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_HELENAK",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_TKRIZ",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_JANA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_PETRA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_ALENA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_TOMASOPS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_JANA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_MAREK",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_PETRA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_DOMINIKTOOLS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_TOMAS0",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_TOMASOPS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_TOMASBENES",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_TNOVOTNY0",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_SOFIAOPS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_PETRA0",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_PETRAV",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_PETRAV",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_PETRAV",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_PETRAV",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_PETRADISPATCH",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_PETRA00",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_HELENAK",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_TNOVOTNY0",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_JANDERSEN",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_PETRADISPATCH",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_KBERGMANN",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_TOMASR",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_PETRANOVO",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_HELENAK",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_PETRA00",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_MARCUSC",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_KEISHA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_MATEJ0",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_HELENAK",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_AMARA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_MARCUSLOGISTICS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_MARCUSC",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_DOMINIKTOOLS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_JNOV",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_TOMAS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_MCHEN5",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_MARCO",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_MARCUSC",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_SOFIAOPS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_JANA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_PETRAV",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_KEISHA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_HELENAK",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_TKRIZ",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_JANA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_TOMAS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_KEISHA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_ALENA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_SOFIAOPS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_ALENA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_MARCO",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_JANAWAREHOUSE",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_PETRA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_PETRADISPATCH",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_JANAWAREHOUSE",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_SOFIAROSSI",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_PETRA0",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_HELENAK",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_DOMINIKTOOLS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_MATEJ",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_JANA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_MARCO",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_DSVOBODA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_MATEJ",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_DOMINIKTOOLS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_TNOVOTNY",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_MAREK",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_PETRAV",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_PETRA00",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_TOMASOPS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_TOMASBENES",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_KEISHA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_JANDERSEN",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_PETRADISPATCH",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_JANA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_TKRIZ",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_SOFIAOPS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_DOMINIKTOOLS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_TOMASBENES",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_TOMASR",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_ALENA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_TOMASR",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_TOMASOPS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_JANDERSEN",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_TKRIZ",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_MATEJ",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_MARCO",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_TNOVOTNY",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_PETRA00",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_TNOVOTNY",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_DOMINIKTOOLS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_TOMAS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_TOMAS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_PETRA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_TOMASR",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_HELENAK",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_MARCUSLOGISTICS",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_TOMASR",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_PETRANOVO",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_ALENA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_TNOVOTNY0",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_TKRIZ",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_JANAWAREHOUSE",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_PETRA0",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_TNOVOTNY0",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_ALENA",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_MATEJ",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_JNOVOTNY2",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_PETRANOVO",
+        "weight": 2,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_MCHEN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_PETRANOVO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_TOMASK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_AMELIE",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_MARKO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_JANAWAREHOUSE",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_TOMASBENES",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_DOMINIK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_JREZAC",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_TOMASOPS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_AMORENO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_MARKO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_TOMASOPS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_TNOVOTNY0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_AMARA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_KEISHA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_PETRANOVO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_TNOVOTNY",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_PETRAS11",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_LUKASP",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_PETRA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_SCHEN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_JANAWAREHOUSE",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_PETRA00",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_SOFIAOPS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_DOMINIK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_TOMASBENES",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_KEISHA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_LUKASK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_JNOVOTNY",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_MAREK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_PETRADISPATCH",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_KLARASV",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_JANAWAREHOUSE",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_JANAWAREHOUSE",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_JNOVOTNY3",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_INGRIDL",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_DOMINIKTOOLS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_MATEJ",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_PPOLAK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_PETRA00",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_PETRDOS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_DKUCERA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_PETRANOVA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_JNOVOTNY",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_MATEJ",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_PETRADISPATCH",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_SOFIAOPS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_DOMINIK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_JHORK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_MARCO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_MILAN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_DOMINIK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_MAREK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_JIRIP",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_TOMASR",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_PPOLAK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_HELENAK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_KEISHA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_MARCUSLOGISTICS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_PETRAN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_AISHA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_MARCUSLOGISTICS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_SOFIAOPS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_PETRA00",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_KUBA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_TOMASR",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_SOFIA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_MARCUSC",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_MAREK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_INGRID",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_NATASHA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_JANDERSEN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_PPOLAK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_TKRIZ",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_TOMASR",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_MARCO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_ALENA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_JNOVOTNY2",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_TNOVOTNY",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_JANA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_JNOV",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_MATEJ",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_MARCO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_MAREK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_TOMASOPS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_HELENAK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_JDVORAK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_MAREK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_MARCUSC",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_JNOV",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_ALENA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_DOMINIK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_TNOVOTNY0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_KLAUSR",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_KUBA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_ALENA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_KLARASV",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_PETRADISPATCH",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_PETRA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_PETRADISPATCH",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_TOMASOPS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_PETRACECH",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_SOFIAMENDEZ",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_JIRIP",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_PETRA0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_MCHEN5",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_HELENAK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_ZARA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_LUKASP",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_PETRA0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_LUKASK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_SOFIAOPS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_JNOV",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_DOMINIKTOOLS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_MARCUSC",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_PETRADISPATCH",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_PETRANOVO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_MATEJ0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_OLGA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_JANAWAREHOUSE",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_KBERGMANN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_YTANAKA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_TOMAS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_MCHEN5",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_LUKASH",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_JIRIP",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_DOM",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_TNOVOTNY",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_MARCUSCHEN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_JANAWAREHOUSE",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_MATEJ",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_KLAUSR",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_JHORK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_JDVORAK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_JANDERSEN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_OLGA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_LIVIAK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_ZUZANAML",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_TKRIZ",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_PETRANOVO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_LIVIAK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_PETRA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_KLAUS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_LUKASK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_MATEJ0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_JHORK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_MCHEN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_JREZAC",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_NATASHA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_MARCUSLOGISTICS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_DOMINIK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_YTANAKA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_DOMINIK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_DOMINIKTOOLS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_PETRANOVO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_MARCUS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_TKRIZ",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_HENRIK4",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_MAREK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_JANAWAREHOUSE",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_PPOLAK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_SOFIAROSSI",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_TNOVOTNY",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_PETRAV",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_TOMAS0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_PETRA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_JHORK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_PETRA00",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_TOMASOPS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_NATASHAP",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_INGRIDL",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_SCHEN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_PETRAV",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_LUKASK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_DOM",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_KBERGMANN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_TOMASBENES",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_AMELIE",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_NATASHA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_JNOVOTNY2",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_TNOVOTNY0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_KEISHA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_PETRA00",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_TNOVOTNY0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_PETRAN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_JANA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_DSVOBODA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_SOFIAOPS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_PETRAV",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_MAREK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_OLGA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_MARCO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_TOMASK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_PETRANOVO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_PSVOBO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_MAREK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_MCHEN1",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_AMARA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_MCHEN5",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_PETRA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_TOMAS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_JANDERSEN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_LUKASK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_TOMASR",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_NATASHA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_MATEJ",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_YTANAKA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_PSVOBO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_MARCUSC",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_TOMASOPS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_INGRIDL",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_KEISHA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_TOMASBENES",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_TOMAS0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_JNOV",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_PPOLAK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_MCHEN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_KLARASV",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_AISHA4",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_MARCUSLOGISTICS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_PETRAS11",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_PETRAK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_INGRIDL",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_LIVIAK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_JANAWAREHOUSE",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_YTANAKA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_AMORENO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_JANDERSEN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_TSVEC",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_PETRADISPATCH",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_LIVIAK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_LUKASH",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_KEISHA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_PETRAV",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_JANAWAREHOUSE",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_DSVOBODA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_HENRIK4",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_HELENAK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_LUKASK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_PETRA0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_TSVEC",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_MATEJ",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_ALENA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_INGRIDL",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_MCHEN1",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_TOMAS0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_PETRA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_PETRANOVO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_MARCUSLOGISTICS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_TOMAS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_PETRAV",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_TOMASOPS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_KUBA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_DOMINIKTOOLS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_MAREK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_MARCUSC",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_TOMAS0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_MARKO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_JANAWAREHOUSE",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_SOFIAOPS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_TOMAS0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_DKUCERA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANDERSEN",
+        "to": "U_KEISHA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_PETRA0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_JAKUBCECH",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_PETRADISPATCH",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_TKRIZ",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_TOMAS0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_MARCUSC",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_MARCUSLOGISTICS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_LUKASP",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_PETRA0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_TSVEC",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_ZUZANAML",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_TOMASOPS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMAS",
+        "to": "U_INGRIDL",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_MARCUSLOGISTICS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_DOM",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_KBERGMANN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_MCHEN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRADISPATCH",
+        "to": "U_PETRACECH",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANA",
+        "to": "U_TOMAS0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_INGRIDL",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_ALENA",
+        "to": "U_PETRA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_SOFIAMENDEZ",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_OLGA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_PETRAN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY0",
+        "to": "U_PETRA0",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_TOMAS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_AISHA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSLOGISTICS",
+        "to": "U_PETRADISPATCH",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TNOVOTNY",
+        "to": "U_LUKASP",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_TNOVOTNY",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_HELENAK",
+        "to": "U_MATEJ",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_JIRIBALAZ",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_JANAWAREHOUSE",
+        "to": "U_JNOVOTNY3",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRA",
+        "to": "U_MATEJ",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_JANDERSEN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_SOFIA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_SCHEN",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_KLAUSR",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_PETRANOVO",
+        "to": "U_TOMASOPS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCUSC",
+        "to": "U_TOMASR",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASR",
+        "to": "U_DOMINIK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_LUKAS",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_KEISHA",
+        "to": "U_MARCO",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_MARCO",
+        "to": "U_DOMINIK",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TKRIZ",
+        "to": "U_ALENA",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_SOFIAOPS",
+        "to": "U_MATEJ",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_TOMASOPS",
+        "to": "U_JNOVOTNY2",
+        "weight": 1,
+        "fromRouter": true
+      },
+      {
+        "from": "U_DOMINIKTOOLS",
+        "to": "U_KLAUS",
+        "weight": 1,
+        "fromRouter": true
+      }
+    ]
+  }
+}
