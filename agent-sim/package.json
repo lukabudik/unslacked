@@ -1,0 +1,23 @@
+{
+  "name": "unslacked-agent-sim",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Side-research: a living Slack simulated by autonomous Claude Agent-SDK persona agents, watched live.",
+  "scripts": {
+    "org": "node --env-file=.env --import tsx src/org.ts",
+    "sim": "node --env-file=.env --import tsx src/main.ts",
+    "ui": "cd ui && npm run dev"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.160",
+    "ws": "^8.18.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "@types/ws": "^8.5.13",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
