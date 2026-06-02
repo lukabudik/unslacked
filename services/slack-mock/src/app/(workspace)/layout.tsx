@@ -12,10 +12,12 @@ export default async function WorkspaceLayout({ children }: { children: React.Re
   const userMap = Object.fromEntries(users.map((u) => [u.id, u]));
   const viewer = userMap[VIEWER_ID];
 
+  const isMember = (c: (typeof channels)[number]) => c.members.includes(VIEWER_ID);
   const visible = channels.filter((c) => !c.isArchived);
 
   const channelItems: SidebarChannel[] = visible
-    .filter((c) => c.kind === "public_channel" || c.kind === "private_channel")
+    // public channels are browsable; private channels only if you're a member (real Slack)
+    .filter((c) => c.kind === "public_channel" || (c.kind === "private_channel" && isMember(c)))
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((c) => ({
       id: c.id,
@@ -26,7 +28,8 @@ export default async function WorkspaceLayout({ children }: { children: React.Re
     }));
 
   const dmItems: SidebarChannel[] = visible
-    .filter((c) => c.kind === "im" || c.kind === "mpim")
+    // you only see DMs you're actually in
+    .filter((c) => (c.kind === "im" || c.kind === "mpim") && isMember(c))
     .map((c) => {
       const other = dmCounterpart(c, userMap);
       return {

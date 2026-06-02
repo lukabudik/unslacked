@@ -19,12 +19,14 @@ from .topics import SOCIAL_PROMPTS, INCIDENT_PROMPTS, STYLE_NUDGES, ANTI_CLICHE
 EMOJIS = ["👍", "✅", "🙏", "🎉", "👀", "🔥", "😂", "💯", "🚀", "😅", "🤝", "❤️", "🫡", "💸", "🧠"]
 
 # scene mix (channel scenes) — routing questions dominate, plus realistic noise
+# Ambient scenes are the NOISE floor — the Director provides the clean routing
+# signal, so ambient routing is dialed down (some kept for organic texture).
 SCENE_WEIGHTS = {
-    "routing_question": 5,
+    "routing_question": 2,
     "team_question": 3,
-    "status": 2,
+    "status": 3,
     "incident": 1,
-    "social": 2,
+    "social": 3,
     "announcement": 1,
 }
 
@@ -55,11 +57,11 @@ def _transcript(msgs, people):
     return "\n".join(out)
 
 
-async def _say(sem, static_ctx, person, channel_name, scene_msgs, people, instruction):
+async def _say(sem, static_ctx, person, channel_name, scene_msgs, people, instruction, allow_pass=True):
     persona = build_persona(person)
     if scene_msgs:
-        user = (f"Thread so far in #{channel_name}:\n{_transcript(scene_msgs, people)}\n\n"
-                f"{instruction} If you have nothing useful to add, reply exactly: PASS")
+        tail = " If you have nothing useful to add, reply exactly: PASS" if allow_pass else ""
+        user = f"Thread so far in #{channel_name}:\n{_transcript(scene_msgs, people)}\n\n{instruction}{tail}"
     else:
         user = instruction
     text = await acomplete_text(sem, static_ctx, persona, user, max_tokens=220)
@@ -292,7 +294,7 @@ async def _run_dms(sem, static, org, ctx, counter, viewer_id, n, rng):
         owner_team = rng.choice([t.key for t in bp.TEAMS if t.key != a["team_key"]])
         tp = org.get("topics", {}).get(owner_team) or [bp.TEAMS_BY_KEY[owner_team].owns]
         specs.append({"i": i, "a": a, "partners": partners, "topic": rng.choice(tp),
-                      "n_turns": rng.randint(1, 3), "day": rng.randint(0, 28),
+                      "n_turns": rng.randint(3, 8), "day": rng.randint(0, 28),
                       "hour": rng.randint(8, 17), "rng": random.Random(rng.random())})
 
     res = await asyncio.gather(*[_one_dm(sem, static, ctx, counter, s) for s in specs],
@@ -308,7 +310,8 @@ async def _run_dms(sem, static, org, ctx, counter, viewer_id, n, rng):
     return chans, mem, msgs
 
 
-async def simulate(org, weeks=6, scenes_per_day=80, concurrency=18, seed=7, dm_count=80):
+async def simulate(org, weeks=6, scenes_per_day=80, concurrency=18, seed=7, dm_count=120,
+                   n_chains=400, n_storylines=16):
     rng = random.Random(seed)
     ctx = _index(org)
     static = build_static_context(org)
@@ -330,5 +333,30 @@ async def simulate(org, weeks=6, scenes_per_day=80, concurrency=18, seed=7, dm_c
     viewer_id = org.get("viewer_id")
     dm_chans, dm_members, dm_msgs = await _run_dms(sem, static, org, ctx, counter, viewer_id, dm_count, rng)
 
+    # --- Director: scripted routing chains (the signal) + storylines ---
+    from .director import plan_chains, run_chain
+
+    labels = {"chains": [], "storylines": []}
+
+    chain_specs = plan_chains(org, ctx, n_chains, weeks, rng)
+    print(f"  directing {len(chain_specs)} routing chains…", flush=True)
+    chain_res = await asyncio.gather(*[run_chain(sem, static, ctx, s, counter) for s in chain_specs],
+                                     return_exceptions=True)
+    for r in chain_res:
+        if isinstance(r, Exception) or not r:
+            continue
+        for m in r["messages"]:
+            (dm_msgs if m["channel_id"].startswith("D_") else channel_msgs).append(m)
+        dm_chans.extend(r["dm_channels"])
+        dm_members.extend(r["dm_members"])
+        labels["chains"].append(r["label"])
+
+    if n_storylines:
+        from . import storylines as story_mod
+        story_msgs, story_labels = await story_mod.run_storylines(
+            sem, static, ctx, org, counter, n_storylines, weeks, rng)
+        channel_msgs.extend(story_msgs)
+        labels["storylines"] = story_labels
+
     return {"channel_messages": channel_msgs, "dm_channels": dm_chans,
-            "dm_members": dm_members, "dm_messages": dm_msgs}
+            "dm_members": dm_members, "dm_messages": dm_msgs, "labels": labels}
